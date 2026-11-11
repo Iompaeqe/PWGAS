@@ -120,6 +120,8 @@ public:
 	UFUNCTION(BlueprintPure, Category="Animation")
 	UAnimInstance* GetAnimInstanceFromActor() const;
 
+	UFUNCTION(BlueprintCallable, Category="GameplayCue", meta=(GameplayTagFilter="GameplayCue"))
+	void ExecuteCueAtSocket(FGameplayTag CueTag, FName SocketName, FVector Offset = FVector::ZeroVector, FRotator RotationOffset = FRotator::ZeroRotator);
 	UFUNCTION(BlueprintPure, Category = "Ability")
 	FGameplayTag GetActivationInputTag() const;
 

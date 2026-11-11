@@ -3,7 +3,10 @@
 
 #include "GAS/Abilities/PWGameplayAbilityBase.h"
 
+#include "AbilitySystemGlobals.h"
 #include "AbilitySystemLog.h"
+#include "GameplayCueManager.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "GameplayTagsManager.h"
 #include "GameplayTagsSettings.h"
 #include "PWGASCoreLogChannels.h"
@@ -80,6 +83,29 @@ UAnimInstance* UPWGameplayAbilityBase::GetAnimInstanceFromActor() const
 	}
 	UE_LOG(LogPWGASCoreAbility, Log, TEXT("UPWGameplayAbilityBase::GetAnimInstanceFromActor: Could not get UAnimInstance from Character"));
 	return nullptr;
+}
+
+void UPWGameplayAbilityBase::ExecuteCueAtSocket(const FGameplayTag CueTag, const FName SocketName, const FVector Offset, const FRotator RotationOffset)
+{
+	AActor* Avatar = GetAvatarActorFromActorInfo();
+	UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo();
+	if (!Avatar || !ASC) return;
+
+	const USkeletalMeshComponent* Mesh = GetOwningComponentFromActorInfo();
+	const bool bHasSocket = Mesh && Mesh->DoesSocketExist(SocketName);
+	const FVector Origin = bHasSocket ? Mesh->GetSocketLocation(SocketName) : Avatar->GetActorLocation();
+
+	FGameplayCueParameters Parameters;
+	Parameters.Instigator = Avatar;
+	Parameters.Location = Origin + Avatar->GetActorRotation().RotateVector(Offset);
+	Parameters.Normal = (Avatar->GetActorQuat() * RotationOffset.Quaternion()).Vector();
+	Parameters.AbilityLevel = GetAbilityLevel();
+
+	const FPredictionKey PredictionKey = GetCurrentActivationInfo().GetActivationPredictionKey();
+	if (GetCurrentActorInfo()->IsNetAuthority())
+		UAbilitySystemGlobals::Get().GetGameplayCueManager()->InvokeGameplayCueExecuted_WithParams(ASC, CueTag, PredictionKey, Parameters);
+	else if (PredictionKey.IsLocalClientKey())
+		ASC->InvokeGameplayCueEvent(CueTag, EGameplayCueEvent::Executed, Parameters);
 }
 
 FGameplayTag UPWGameplayAbilityBase::GetActivationInputTag() const
