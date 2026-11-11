@@ -12,6 +12,19 @@ UPWTestPlainAbility::UPWTestPlainAbility()
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 }
 
+UPWTestCostEffect::UPWTestCostEffect()
+{
+	FGameplayModifierInfo Cost;
+	Cost.ModifierOp = EGameplayModOp::AddBase;
+	Cost.ModifierMagnitude = FScalableFloat(-25.f);
+	Modifiers.Add(Cost);
+}
+
+UPWTestCostAbility::UPWTestCostAbility()
+{
+	CostGameplayEffectClass = UPWTestCostEffect::StaticClass();
+}
+
 UPWTestModularAbility::UPWTestModularAbility()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;

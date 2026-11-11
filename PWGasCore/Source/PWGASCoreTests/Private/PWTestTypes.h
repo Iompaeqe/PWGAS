@@ -28,6 +28,24 @@ public:
 };
 
 UCLASS(NotBlueprintable, HideDropdown)
+class UPWTestCostEffect : public UGameplayEffect
+{
+	GENERATED_BODY()
+
+public:
+	UPWTestCostEffect();
+};
+
+UCLASS(NotBlueprintable, HideDropdown)
+class UPWTestCostAbility : public UPWGameplayAbilityBase
+{
+	GENERATED_BODY()
+
+public:
+	UPWTestCostAbility();
+};
+
+UCLASS(NotBlueprintable, HideDropdown)
 class UPWTestModularAbility : public UPWModularGameplayAbility
 {
 	GENERATED_BODY()

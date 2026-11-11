@@ -24,7 +24,7 @@ void UPWAbilityModule_Aura::OnAbilityActivated_Implementation()
 		return;
 
 	// --- Create sphere component dynamically ---
-	AuraSphere = NewObject<USphereComponent>(OwnerPawn, TEXT("AuraSphere"));
+	AuraSphere = NewObject<USphereComponent>(OwnerPawn);
 	if (!AuraSphere)
 		return;
 

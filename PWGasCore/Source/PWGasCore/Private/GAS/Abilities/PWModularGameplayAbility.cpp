@@ -74,24 +74,13 @@ FGameplayAbilityTargetDataHandle UPWModularGameplayAbility::MakeTargetDataFromRe
 
 FVector UPWModularGameplayAbility::ExtractLocation(const FGameplayAbilityTargetData* TD) const
 {
-	auto ExtractLocation = [](const FGameplayAbilityTargetData* TD) -> TOptional<FVector>
-	{
-		if (const auto* HitTD = static_cast<const FGameplayAbilityTargetData_SingleTargetHit*>(TD))
-		{
-			if (HitTD->HitResult.IsValidBlockingHit())
-			{
-				return HitTD->HitResult.ImpactPoint;
-			}
-		}
-		else if (const auto* LocTD = static_cast<const FGameplayAbilityTargetData_LocationInfo*>(TD))
-		{
-			const FTransform Xform = LocTD->TargetLocation.GetTargetingTransform();
-			return Xform.GetLocation();
-		}
+	if (!TD) return FVector::ZeroVector;
 
-		return {};
-	};
-	return {};
+	if (TD->HasHitResult() && TD->GetHitResult()->IsValidBlockingHit())
+		return TD->GetHitResult()->ImpactPoint;
+	if (TD->HasEndPoint())
+		return TD->GetEndPoint();
+	return FVector::ZeroVector;
 }
 
 void UPWModularGameplayAbility::CancelAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateCancelAbility)

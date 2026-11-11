@@ -37,9 +37,12 @@ struct PWGASCORE_API FCostData
 {
 	GENERATED_BODY()
 
+	UPROPERTY(BlueprintReadOnly)
 	FString AttributeName;
-	EGameplayModOp::Type Modifier;
-	float Value;
+	UPROPERTY(BlueprintReadOnly)
+	TEnumAsByte<EGameplayModOp::Type> Modifier = EGameplayModOp::AddBase;
+	UPROPERTY(BlueprintReadOnly)
+	float Value = 0.f;
 
 	FCostData() = default;
 	FCostData(const FString& AttributeName, const EGameplayModOp::Type Modifier, const float Value)
@@ -110,12 +113,13 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Cooldown")
 	virtual float GetCooldown(int32 Level) const;
 	UFUNCTION(BlueprintCallable, Category = "Cost")
-	virtual void GetCost(int32 Level, TArray<FCostData> CostData) const;
+	virtual void GetCost(int32 Level, TArray<FCostData>& CostData) const;
 	
 	UFUNCTION(BlueprintPure, Category="Animation")
 	void GetAnimMontageFromActor(UAnimMontage*& OutMontage, float& OutAnimRate, int Index = 0) const;
 	UFUNCTION(BlueprintPure, Category="Animation")
 	UAnimInstance* GetAnimInstanceFromActor() const;
+
 	UFUNCTION(BlueprintPure, Category = "Ability")
 	FGameplayTag GetActivationInputTag() const;
 
