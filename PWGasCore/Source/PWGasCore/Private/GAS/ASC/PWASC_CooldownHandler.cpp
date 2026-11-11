@@ -34,7 +34,7 @@ bool FPWASC_CooldownHandler::GetCooldownRemainingForTag(const FGameplayTag& Cool
 bool FPWASC_CooldownHandler::GetCooldownRemainingForAbilityTag(const FGameplayTag& AbilityTag, float& TimeRemaining, float& TotalDuration) const
 {
 	const FGameplayTag CooldownTag = PWTags::Ability::Skill::GetCooldownTag(AbilityTag);
-	return CooldownTag.IsValid() ? GetCooldownRemainingForTag(CooldownTag, TimeRemaining, TotalDuration) : 0;
+	return CooldownTag.IsValid() ? GetCooldownRemainingForTag(CooldownTag, TimeRemaining, TotalDuration) : false;
 }
 
 int32 FPWASC_CooldownHandler::ClearCooldownByTag(const FGameplayTag& CooldownTag) const
@@ -53,21 +53,16 @@ int32 FPWASC_CooldownHandler::ClearCooldownForAbilityTag(const FGameplayTag& Abi
 bool FPWASC_CooldownHandler::AdjustCooldownForTag(const FGameplayTag& CooldownTag, float SecondsToReduce) const
 {
 	float Remaining = 0, Total = 0;
-	if (GetCooldownRemainingForTag(CooldownTag, Remaining, Total) || Remaining <= 0.f) return false;
+	if (!GetCooldownRemainingForTag(CooldownTag, Remaining, Total) || Remaining <= 0.f) return false;
 
-	const FActiveGameplayEffect* ConstEffect = ASC.Data().GetSpecOfEffect(CooldownTag);
-	if (!ConstEffect)
-		return false;
-
-	FActiveGameplayEffect* Effect = const_cast<FActiveGameplayEffect*>(ConstEffect);
-	const float Duration = Remaining + SecondsToReduce;
-	Effect->Spec.bDurationLocked = false;
-	Effect->Spec.SetDuration(Duration, true);
+	const FGameplayEffectQuery Query = FGameplayEffectQuery::MakeQuery_MatchAnyOwningTags(CooldownTag.GetSingleTagContainer());
+	for (const FActiveGameplayEffectHandle& Handle : ASC.GetActiveEffects(Query))
+		ASC.ModifyActiveEffectStartTime(Handle, -SecondsToReduce);
 	return true;
 }
 
 bool FPWASC_CooldownHandler::AdjustCooldownForAbilityTag(const FGameplayTag& AbilityTag, float SecondsToReduce) const
 {
 	const FGameplayTag CooldownTag = PWTags::Ability::Skill::GetCooldownTag(AbilityTag);
-	return CooldownTag.IsValid() ? AdjustCooldownForTag(CooldownTag, SecondsToReduce) : 0;
+	return CooldownTag.IsValid() ? AdjustCooldownForTag(CooldownTag, SecondsToReduce) : false;
 }
