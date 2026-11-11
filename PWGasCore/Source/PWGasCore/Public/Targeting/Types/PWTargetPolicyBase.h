@@ -80,6 +80,10 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Targeting")
 	bool Sample(APlayerController* PC, FPWTargetingResult& Out) const;
 	virtual bool Sample_Implementation(APlayerController* PC, FPWTargetingResult& Out) const;
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Targeting")
+	bool SampleFrom(const APawn* Pawn, const FVector& Origin, FPWTargetingResult& Out) const;
+	virtual bool SampleFrom_Implementation(const APawn* Pawn, const FVector& Origin, FPWTargetingResult& Out) const;
 };
 
 /**
