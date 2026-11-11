@@ -24,7 +24,7 @@ void USphereTargetResolver::Resolve_Implementation(const AActor* Actor, const FP
 	{
 		for (auto& R : Overlaps)
 			if (AActor* A = R.GetActor())
-				OutActors.Add(A);
+				OutActors.AddUnique(A);
 	}
 }
 
