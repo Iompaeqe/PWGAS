@@ -24,6 +24,7 @@ public class PWGASCoreTests : ModuleRules
                 "PWSharedTypes",
                 "PWContracts",
                 "PWAbility",
+                "PWTeams",
             }
         );
     }

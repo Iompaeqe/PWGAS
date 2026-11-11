@@ -1,5 +1,6 @@
 ﻿// Copyright Epic Games, Inc. All Rights Reserved.
 
+using System.IO;
 using UnrealBuildTool;
 
 public class PWGasCore : ModuleRules
@@ -55,6 +56,17 @@ public class PWGasCore : ModuleRules
 			}
 		);
 
+
+		string TeamsPluginPath = Path.Combine(ModuleDirectory, "../../../../PWTeams/PWTeams.uplugin");
+		if (File.Exists(TeamsPluginPath))
+		{
+			PublicDefinitions.Add("WITH_PWTEAMS=1");
+			PrivateDependencyModuleNames.Add("PWTeams");
+		}
+		else
+		{
+			PublicDefinitions.Add("WITH_PWTEAMS=0");
+		}
 
 		DynamicallyLoadedModuleNames.AddRange(
 			new string[]

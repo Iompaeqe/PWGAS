@@ -6,6 +6,9 @@
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemGlobals.h"
 #include "GAS/Abilities/PWModularGameplayAbility.h"
+#if WITH_PWTEAMS
+#include "TeamFunctions.h"
+#endif
 
 void UEffectSpellParamsExtension::ApplyEffectsToTarget(UAbilitySystemComponent* SourceASC, UAbilitySystemComponent* TargetASC, const int32 AbilityLevel) const
 {
@@ -48,6 +51,10 @@ void UPWAbilityModule_Effect::ApplyEffects(UAbilitySystemComponent* SourceASC, U
 {
 	if (!SourceASC || !TargetASC)
 		return;
+#if WITH_PWTEAMS
+	if (!UTeamFunctions::MatchesMask(SourceASC->GetAvatarActor(), TargetASC->GetAvatarActor(), TargetMask))
+		return;
+#endif
 
 	for (const FEffectEntry& Entry : Effects)
 	{
