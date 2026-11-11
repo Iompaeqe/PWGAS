@@ -62,7 +62,7 @@ namespace PWTags::Ability::Skill
 	inline FGameplayTag GetCooldownTag(const FGameplayTag& AbilityTag)
 	{
 		return UGameplayTagsManager::Get().RequestGameplayTag(
-			*FString::Printf(TEXT("%s.Cooldown"), *AbilityTag.GetTagName().ToString())
+			*FString::Printf(TEXT("%s.Cooldown"), *AbilityTag.GetTagName().ToString()), false
 		);
 	}
 

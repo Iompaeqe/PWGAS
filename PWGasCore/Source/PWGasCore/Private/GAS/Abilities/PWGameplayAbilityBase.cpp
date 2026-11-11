@@ -337,12 +337,12 @@ void UPWGameplayAbilityBase::SyncIdentityIntoAssetTags()
 {
 	if (AbilityTag.IsValid() && !GetAssetTags().HasTagExact(AbilityTag))
 	{
-		FGameplayTagContainer Tags = GetAssetTags();
-		Tags.AddTag(AbilityTag);
-		SetAssetTags(Tags);
+		PRAGMA_DISABLE_DEPRECATION_WARNINGS
+		AbilityTags.AddTag(AbilityTag);
+		PRAGMA_ENABLE_DEPRECATION_WARNINGS
 	}
 	const FName CooldownFName(*(AbilityTag.ToString() + TEXT(".Cooldown")));
-	FGameplayTag CooldownTag = FGameplayTag::RequestGameplayTag(CooldownFName);
+	FGameplayTag CooldownTag = FGameplayTag::RequestGameplayTag(CooldownFName, false);
 	if (CooldownTag.IsValid() && !ActivationBlockedTags.HasTagExact(CooldownTag))
 	{
 		ActivationBlockedTags.AddTag(CooldownTag);
