@@ -38,10 +38,9 @@ void UPWAbilityModule_MultiActor::SpawnMultipleActors(const FPWTargetingResult& 
     // Schedule remaining actors if there's a delay
     if (SpawnDelay > 0.f && ActorCount > 1)
     {
-        FTimerHandle SpawnTimerHandle;
         OwnerAbility->GetWorld()->GetTimerManager().SetTimer(
             SpawnTimerHandle,
-            [this, Target]() { SpawnOneActorInSequence(Target); },
+            FTimerDelegate::CreateWeakLambda(this, [this, Target]() { SpawnOneActorInSequence(Target); }),
             SpawnDelay,
             true
         );
@@ -68,6 +67,9 @@ void UPWAbilityModule_MultiActor::SpawnOneActorInSequence(const FPWTargetingResu
 
     Super::SpawnActorWithTargetingResult(ModifiedTarget);
     CurrentSpawnIndex++;
+
+    if (CurrentSpawnIndex >= CachedSpawnPositions.Num())
+        OwnerAbility->GetWorld()->GetTimerManager().ClearTimer(SpawnTimerHandle);
 }
 
 float UPWAbilityModule_MultiActor::GetEffectiveRadius() const

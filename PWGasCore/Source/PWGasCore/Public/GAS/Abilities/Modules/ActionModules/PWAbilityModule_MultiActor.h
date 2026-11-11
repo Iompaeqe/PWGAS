@@ -65,6 +65,7 @@ private:
     int32 CurrentSpawnIndex = 0;
     TArray<FVector> CachedSpawnPositions;
     FVector CachedCenterLocation;
+    FTimerHandle SpawnTimerHandle;
     
     void BuildSpawnPositions(const FVector& CenterLocation, float InRadius);
     float GetEffectiveRadius() const;

@@ -46,11 +46,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category="Module")
 	void SpreadSpawnOneProjectile(const FPWTargetingResult& Target);
 
-	virtual AActor* SpawnProjectileWithTargetingResult(const FPWTargetingResult& Target) override;
+	virtual AActor* SpawnActorWithTargetingResult(const FPWTargetingResult& Target) override;
 
 private:
 	int32 CurrentSpreadIndex = 0;
 	TArray<int32> CachedSpreadOrder;
+	FTimerHandle SpreadTimerHandle;
 	
 protected:
 	void BuildSpreadOrder();

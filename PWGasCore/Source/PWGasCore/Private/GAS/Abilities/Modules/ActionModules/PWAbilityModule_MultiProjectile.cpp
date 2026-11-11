@@ -6,11 +6,11 @@
 #include "GAS/Abilities/PWModularGameplayAbility.h"
 
 
-AActor* UPWAbilityModule_MultiProjectile::SpawnProjectileWithTargetingResult(const FPWTargetingResult& Target)
+AActor* UPWAbilityModule_MultiProjectile::SpawnActorWithTargetingResult(const FPWTargetingResult& Target)
 {
 	if (ProjectileCount <= 1)
 	{
-		return Super::SpawnProjectileWithTargetingResult(Target);
+		return Super::SpawnActorWithTargetingResult(Target);
 	}
 	
 	SpreadSpawnProjectiles(Target);
@@ -21,7 +21,7 @@ void UPWAbilityModule_MultiProjectile::SpreadSpawnProjectiles(const FPWTargeting
 {
 	if (ProjectileCount <= 1)
 	{
-		Super::SpawnProjectileWithTargetingResult(Target);
+		Super::SpawnActorWithTargetingResult(Target);
 		return;
 	}
 
@@ -33,10 +33,9 @@ void UPWAbilityModule_MultiProjectile::SpreadSpawnProjectiles(const FPWTargeting
 	// Schedule remaining projectiles if there's a delay
 	if (SpreadDelay > 0.f && ProjectileCount > 1)
 	{
-		FTimerHandle SpreadTimerHandle;
 		OwnerAbility->GetWorld()->GetTimerManager().SetTimer(
 			SpreadTimerHandle,
-			[this, Target]() { SpreadSpawnOneProjectile(Target); },
+			FTimerDelegate::CreateWeakLambda(this, [this, Target]() { SpreadSpawnOneProjectile(Target); }),
 			SpreadDelay,
 			true
 		);
@@ -61,17 +60,18 @@ void UPWAbilityModule_MultiProjectile::SpreadSpawnOneProjectile(const FPWTargeti
 	{
 		int32 SpreadIndex = CachedSpreadOrder[CurrentSpreadIndex];
 		FRotator SpreadRotation = ComputeSpreadRotation(SpreadIndex);
-		SpreadTarget.Rotation = SpreadRotation + Target.Rotation;
+		const FVector Origin = OwnerAbility->GetAvatarActorFromActorInfo()->GetActorLocation();
+		const FVector ToTarget = Target.Location - Origin;
+		SpreadTarget.Rotation = (ToTarget.Rotation().Quaternion() * SpreadRotation.Quaternion()).Rotator();
+		SpreadTarget.Location = Origin + SpreadTarget.Rotation.Vector() * ToTarget.Size();
 	}
 
-	Super::SpawnProjectileWithTargetingResult(SpreadTarget);
+	Super::SpawnActorWithTargetingResult(SpreadTarget);
 	CurrentSpreadIndex++;
 
 	// Clear timer if we've spawned all projectiles
 	if (CurrentSpreadIndex >= ProjectileCount)
-	{
-		// Timer will naturally complete, no need to clear manually
-	}
+		OwnerAbility->GetWorld()->GetTimerManager().ClearTimer(SpreadTimerHandle);
 }
 
 void UPWAbilityModule_MultiProjectile::BuildSpreadOrder()
