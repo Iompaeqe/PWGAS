@@ -23,7 +23,7 @@ FPWAbilityInfo UPWAbilityRegistry::GetAbilityByTag(const FGameplayTag& AbilityTa
 	for (const auto SoftAbilityDA : Abilities)
 	{
 		UAbilityDataAsset* AbilityDA = SoftAbilityDA.LoadSynchronous();
-		if (AbilityDA->Ability.Tag.MatchesTagExact(AbilityTag))
+		if (AbilityDA && AbilityDA->Ability.Tag.MatchesTagExact(AbilityTag))
 		{
 			return AbilityDA->Ability;
 		}
@@ -120,6 +120,7 @@ FText UPWAbilityRegistry::FormatTextValues(const FGameplayTag& AbilityTag, int32
 {
 	const FPWAbilityInfo Ability = GetAbilityByTag(AbilityTag);
 	UPWGameplayAbilityBase* AbilityDefault = Cast<UPWGameplayAbilityBase>(Ability.AbilityClass.GetDefaultObject());
+	if (!AbilityDefault) return Description;
 
 	FText FormattedText = Description;
 

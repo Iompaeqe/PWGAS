@@ -28,8 +28,11 @@ void FPWASC_AbilityLifecycle::AddAbilities(const FGameplayTagContainer& AbilityT
 void FPWASC_AbilityLifecycle::AddAbility(const FGameplayTag& AbilityTag, const FGameplayTag& InputTag) const
 {
 	const FPWAbilityInfo AbilityData = UPWGASCoreSettings::Get()->GetAbilityByTag(AbilityTag);
-	if (!AbilityData.IsValid())
-		UE_LOG(LogTemp, Warning, TEXT("%s >> AbilityData is invalid!!"), *FString(__FUNCTION__));
+	if (!AbilityData.IsValid() || !AbilityData.AbilityClass)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("%s >> AbilityData is invalid!! Tag: %s"), *FString(__FUNCTION__), *AbilityTag.ToString());
+		return;
+	}
 
 	FGameplayAbilitySpec Spec = FGameplayAbilitySpec(AbilityData.AbilityClass, 1);
 	FGameplayAbilitySpecHandle SpecHandle = ASC.GiveAbility(Spec);
@@ -79,6 +82,8 @@ void FPWASC_AbilityLifecycle::DowngradeAbility(const FGameplayTag& AbilityTag)
 
 void FPWASC_AbilityLifecycle::RemoveGrantedAbility(const FGameplayAbilitySpecHandle& Handle) const
 {
+	if (!ASC.FindAbilitySpecFromHandle(Handle)) return;
+
 	ASC.CancelAbilityHandle(Handle);
 	ASC.MarkAbilitySpecDirty(*ASC.FindAbilitySpecFromHandle(Handle));
 	ASC.ClearAbility(Handle);
@@ -154,7 +159,7 @@ void FPWASC_AbilityLifecycle::ApplyActivationPolicies(const FGameplayTag& EventT
 bool FPWASC_AbilityLifecycle::ApplyDeactivationPolicies(const FGameplayAbilitySpecHandle& SpecHandle, const FGameplayTag& EventTag) const
 {
 	FGameplayAbilitySpec* AbilitySpec = ASC.FindAbilitySpecFromHandle(SpecHandle);
-	if (AbilitySpec->Ability && AbilitySpec->Ability->GetAssetTags().HasAnyExact(EventTag.GetSingleTagContainer()))
+	if (AbilitySpec && AbilitySpec->Ability && AbilitySpec->Ability->GetAssetTags().HasAnyExact(EventTag.GetSingleTagContainer()))
 	{
 		if (AbilitySpec->IsActive())
 		{
@@ -200,7 +205,8 @@ void FPWASC_AbilityLifecycle::CancelAbilitiesByFunc(const TShouldCancelAbilityFu
 			continue;
 		}
 
-		UPWGameplayAbilityBase* LyraAbilityCDO = CastChecked<UPWGameplayAbilityBase>(AbilitySpec.Ability);
+		UPWGameplayAbilityBase* LyraAbilityCDO = Cast<UPWGameplayAbilityBase>(AbilitySpec.Ability);
+		if (!LyraAbilityCDO) continue;
 
 		if (LyraAbilityCDO->GetInstancingPolicy() != EGameplayAbilityInstancingPolicy::NonInstanced)
 		{

@@ -125,6 +125,7 @@ bool FPWASC_DataManagement::DoesAbilityHaveTag(const FGameplayAbilitySpecHandle&
 	if (!AbilitySpecHandle.IsValid()) return false;
 	
 	FGameplayAbilitySpec* FocusedSpec = ASC.FindAbilitySpecFromHandle(AbilitySpecHandle);
+	if (!FocusedSpec) return false;
 
 	FGameplayTagContainer AllTags = FocusedSpec->Ability.Get()->GetAssetTags();
 	if (bIncludeDynamicTags)

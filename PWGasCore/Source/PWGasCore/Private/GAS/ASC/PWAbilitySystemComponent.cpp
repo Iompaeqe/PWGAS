@@ -193,16 +193,16 @@ void UPWAbilitySystemComponent::NotifyAbilityActivated(const FGameplayAbilitySpe
 {
 	Super::NotifyAbilityActivated(Handle, Ability);
 
-	const UPWGameplayAbilityBase* PWAbility = Cast<UPWGameplayAbilityBase>(Ability);
-	Abilities().AddAbilityToActivationGroup(PWAbility->GetActivationGroup(), PWAbility);
+	if (const UPWGameplayAbilityBase* PWAbility = Cast<UPWGameplayAbilityBase>(Ability))
+		Abilities().AddAbilityToActivationGroup(PWAbility->GetActivationGroup(), PWAbility);
 }
 
 void UPWAbilitySystemComponent::NotifyAbilityEnded(FGameplayAbilitySpecHandle Handle, UGameplayAbility* Ability, bool bWasCancelled)
 {
 	Super::NotifyAbilityEnded(Handle, Ability, bWasCancelled);
 
-	const UPWGameplayAbilityBase* PWAbility = CastChecked<UPWGameplayAbilityBase>(Ability);
-	Abilities().RemoveAbilityFromActivationGroup(PWAbility->GetActivationGroup(), PWAbility);
+	if (const UPWGameplayAbilityBase* PWAbility = Cast<UPWGameplayAbilityBase>(Ability))
+		Abilities().RemoveAbilityFromActivationGroup(PWAbility->GetActivationGroup(), PWAbility);
 }
 
 

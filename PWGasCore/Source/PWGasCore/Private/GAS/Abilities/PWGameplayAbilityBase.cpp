@@ -193,8 +193,8 @@ bool UPWGameplayAbilityBase::CanActivateAbility(const FGameplayAbilitySpecHandle
 		return false;
 	}
 
-	UPWAbilitySystemComponent* ASC = CastChecked<UPWAbilitySystemComponent>(ActorInfo->AbilitySystemComponent.Get());
-	if (ASC->Abilities().IsActivationGroupBlocked(ActivationGroup))
+	UPWAbilitySystemComponent* ASC = Cast<UPWAbilitySystemComponent>(ActorInfo->AbilitySystemComponent.Get());
+	if (ASC && ASC->Abilities().IsActivationGroupBlocked(ActivationGroup))
 	{
 		if (OptionalRelevantTags)
 		{

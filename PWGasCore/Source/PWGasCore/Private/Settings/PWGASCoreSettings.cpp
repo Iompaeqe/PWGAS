@@ -13,7 +13,7 @@ FName UPWGASCoreSettings::GetCategoryName() const
 FPWAbilityInfo UPWGASCoreSettings::GetAbilityByTag(const FGameplayTag& AbilityTag) const
 {
 	UPWAbilityRegistry* Abilities = AbilityRegistry.LoadSynchronous();
-	return Abilities->GetAbilityByTag(AbilityTag);
+	return Abilities ? Abilities->GetAbilityByTag(AbilityTag) : FPWAbilityInfo();
 }
 
 TSoftObjectPtr<UPWAbilityRegistry> UPWGASCoreSettings::GetAbilityRegistry(const FGameplayTag& AbilityTag) const
