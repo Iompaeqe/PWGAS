@@ -101,6 +101,6 @@ void UPWAbilityModule_InstantEffect::OnTargetDataReady(const FGameplayAbilityTar
 		if (!Target) continue;
 		UAbilitySystemComponent* TargetASC = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(Target);
 		if (TargetASC)
-			Effect->RemoveEffects(SourceASC, TargetASC);
+			Effect->ApplyEffects(SourceASC, TargetASC);
 	}
 }
