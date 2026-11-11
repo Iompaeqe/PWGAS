@@ -12,6 +12,7 @@ UPWGameplayAbility_Passive::UPWGameplayAbility_Passive()
 	FGameplayTagContainer GameplayTags = GetAssetTags();
 	GameplayTags.AddTag(PWTags::Ability::Activation::OnGranted);
 	GameplayTags.AddTag(PWTags::Ability::Deactivation::OnRemoved);
+	SetAssetTags(GameplayTags);
 }
 
 void UPWGameplayAbility_Passive::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
