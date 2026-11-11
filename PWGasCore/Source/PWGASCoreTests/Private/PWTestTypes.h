@@ -7,6 +7,7 @@
 #include "Ability/PWSpellParamsInterface.h"
 #include "GameFramework/Actor.h"
 #include "GAS/Abilities/PWModularGameplayAbility.h"
+#include "PWGasCore/Public/Targeting/Types/PWTargetPolicyBase.h"
 #include "PWTestTypes.generated.h"
 
 UCLASS(NotBlueprintable, HideDropdown)
@@ -66,6 +67,24 @@ public:
 	TObjectPtr<USpellParams> SpellParams;
 
 	virtual void SetSpellParams_Implementation(USpellParams* Params) override { SpellParams = Params; }
+};
+
+UCLASS(NotBlueprintable, HideDropdown)
+class UPWTestTargetResolver : public UPWTargetResolver
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY()
+	TArray<TObjectPtr<AActor>> Actors;
+
+	mutable FVector LastLocation = FVector::ZeroVector;
+
+	virtual void Resolve_Implementation(const AActor* Actor, const FPWTargetingResult& Target, TArray<AActor*>& OutActors) const override
+	{
+		LastLocation = Target.Location;
+		OutActors.Append(Actors);
+	}
 };
 
 UCLASS(NotBlueprintable, HideDropdown)

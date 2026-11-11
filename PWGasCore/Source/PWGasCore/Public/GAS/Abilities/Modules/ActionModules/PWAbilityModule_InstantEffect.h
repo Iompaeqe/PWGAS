@@ -19,6 +19,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category="Module")
 	virtual void ApplyEffects();
 	UFUNCTION(BlueprintCallable, Category="Module")
+	virtual void ApplyEffectsAtLocation(const FVector& Location);
+	UFUNCTION(BlueprintCallable, Category="Module")
+	virtual void ApplyEffectsAtSocket(FName SocketName);
+	UFUNCTION(BlueprintCallable, Category="Module")
 	virtual void RemoveEffects();
 	
 	virtual void GetRequiredDataModules_Implementation(TArray<TSubclassOf<UPWDataModule>>& OutRequiredModules) override;
@@ -32,5 +36,7 @@ protected:
 	UFUNCTION()
 	void OnTargetDataReady(const FGameplayAbilityTargetDataHandle& DataHandle, const struct FPWTargetingResult& Result);
 	
+	virtual void ApplyEffectsToTargets(const FPWTargetingResult& Result);
+
 	TArray<AActor*> Targets;
 };

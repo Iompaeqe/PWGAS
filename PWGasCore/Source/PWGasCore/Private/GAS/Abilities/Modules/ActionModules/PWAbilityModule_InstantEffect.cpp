@@ -8,6 +8,9 @@
 #include "GAS/Abilities/Modules/ControlModules/PWAbilityModule_Targeting.h"
 #include "GAS/Abilities/Modules/DataModules/PWAbilityModule_Effect.h"
 #include "GAS/AbilityTasks/PWAbilityTask_TargetFromSource.h"
+#include "Components/SkeletalMeshComponent.h"
+#include "GameFramework/Pawn.h"
+#include "PWGasCore/Public/Targeting/Types/PWTargetPolicyBase.h"
 
 class UPWAbilityModule_Targeting;
 
@@ -80,7 +83,38 @@ void UPWAbilityModule_InstantEffect::GetRequiredDataModules_Implementation(TArra
 	OutRequiredModules.Add(UPWAbilityModule_Effect::StaticClass());
 }
 
+void UPWAbilityModule_InstantEffect::ApplyEffectsAtLocation(const FVector& Location)
+{
+	if (!OwnerAbility) return;
+
+	const UPWAbilityModule_Targeting* Targeting = OwnerAbility->GetTargetingModule();
+	if (!Targeting) return;
+
+	FPWTargetingResult Result;
+	Result.Location = Location;
+	Targeting->InitializePolicies();
+	if (Targeting->TargetingSource)
+		Targeting->TargetingSource->SampleFrom(GetPawn(), Location, Result);
+	Targeting->FinalizeTargetingResult(Result);
+	ApplyEffectsToTargets(Result);
+}
+
+void UPWAbilityModule_InstantEffect::ApplyEffectsAtSocket(const FName SocketName)
+{
+	const APawn* Pawn = GetPawn();
+	if (!Pawn) return;
+
+	const USkeletalMeshComponent* Mesh = Pawn->FindComponentByClass<USkeletalMeshComponent>();
+	const bool bHasSocket = Mesh && Mesh->DoesSocketExist(SocketName);
+	ApplyEffectsAtLocation(bHasSocket ? Mesh->GetSocketLocation(SocketName) : Pawn->GetActorLocation());
+}
+
 void UPWAbilityModule_InstantEffect::OnTargetDataReady(const FGameplayAbilityTargetDataHandle& DataHandle, const struct FPWTargetingResult& Result)
+{
+	ApplyEffectsToTargets(Result);
+}
+
+void UPWAbilityModule_InstantEffect::ApplyEffectsToTargets(const FPWTargetingResult& Result)
 {
 	if (!OwnerAbility) return;
 
