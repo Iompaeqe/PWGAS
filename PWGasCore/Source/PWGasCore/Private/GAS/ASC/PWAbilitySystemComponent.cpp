@@ -72,6 +72,11 @@ void UPWAbilitySystemComponent::BP_AddAbilities(const FGameplayTagContainer& Abi
 	AbilityLifecycle->AddAbilities(AbilityTags);
 }
 
+void UPWAbilitySystemComponent::BP_AddAbilitySet(const UPWAbilitySet* AbilitySet)
+{
+	AbilityLifecycle->AddAbilitySet(AbilitySet);
+}
+
 void UPWAbilitySystemComponent::BP_AddAbility(const FGameplayTag& AbilityTag, const FGameplayTag& InputTag)
 {
 	AbilityLifecycle->AddAbility(AbilityTag, InputTag);

@@ -13,6 +13,7 @@
 #include "PWAbilitySystemComponent.generated.h"
 
 struct FPWNiagaraEntry;
+class UPWAbilitySet;
 struct FPWASCVfxParams;
 class UNiagaraComponent;
 enum class EInputEventType : uint8;
@@ -44,6 +45,8 @@ public:
 	//Ability Helpers
 	UFUNCTION(BlueprintCallable, Category="GASCore|Ability", meta=(DisplayName="Add Abilities"))
 	void BP_AddAbilities(const FGameplayTagContainer& AbilityTags);
+	UFUNCTION(BlueprintCallable, Category="GASCore|Ability", meta=(DisplayName="Add Ability Set"))
+	void BP_AddAbilitySet(const UPWAbilitySet* AbilitySet);
 	UFUNCTION(BlueprintCallable, Category="GASCore|Ability", meta=(DisplayName="Add Ability"))
 	void BP_AddAbility(const FGameplayTag& AbilityTag, const FGameplayTag& InputTag = FGameplayTag());
 	UFUNCTION(BlueprintCallable, Category="GASCore|Ability", meta=(DisplayName="Remove Ability"))

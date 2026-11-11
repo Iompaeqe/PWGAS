@@ -5,6 +5,7 @@
 #include "GAS/Abilities/PWGameplayAbilityBase.h"
 
 class UGameplayAbility;
+class UPWAbilitySet;
 class UPWGameplayAbilityBase;
 struct FGameplayAbilitySpec;
 struct FGameplayAbilitySpecHandle;
@@ -37,6 +38,7 @@ public:
 	 * @param AbilityTags 
 	 */
 	virtual void AddAbilities(const FGameplayTagContainer& AbilityTags) const;
+	virtual void AddAbilitySet(const UPWAbilitySet* AbilitySet) const;
 	virtual void AddAbility(const FGameplayTag& AbilityTag, const FGameplayTag& InputTag = FGameplayTag()) const;
 	virtual void RemoveAbility(const FGameplayTag& AbilityTag) const;
 	virtual void UpgradeAbility(const FGameplayTag& AbilityTag);

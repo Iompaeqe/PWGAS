@@ -2,6 +2,7 @@
 
 #include "PWTestWorld.h"
 #include "PWTestTypes.h"
+#include "GAS/Abilities/PWAbilitySet.h"
 #include "GAS/Abilities/Derived/PWGameplayAbility_Channeling.h"
 #include "GAS/Tags/GASCoreTags.h"
 #include "Misc/AutomationTest.h"
@@ -17,6 +18,12 @@ bool FAbilityLifecycleInvalidInputTest::RunTest(const FString& Parameters)
 
 	Abilities.AddAbility(PWTags::Ability::State::AwaitingConfirmation);
 	TestEqual("Unknown tag grants nothing", Test.ASC->GetActivatableAbilities().Num(), 0);
+
+	UPWAbilitySet* AbilitySet = NewObject<UPWAbilitySet>();
+	AbilitySet->Abilities.Add({PWTags::Ability::State::AwaitingConfirmation, PWTags::Input::GlobalCancel});
+	Abilities.AddAbilitySet(AbilitySet);
+	Abilities.AddAbilitySet(nullptr);
+	TestEqual("Unknown set entry grants nothing", Test.ASC->GetActivatableAbilities().Num(), 0);
 
 	const FGameplayAbilitySpecHandle Handle = Test.ASC->GiveAbility(FGameplayAbilitySpec(UPWTestPlainAbility::StaticClass(), 1));
 	Test.ASC->ClearAbility(Handle);

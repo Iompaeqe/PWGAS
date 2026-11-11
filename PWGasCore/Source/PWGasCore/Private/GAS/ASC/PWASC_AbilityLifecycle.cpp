@@ -6,6 +6,7 @@
 #include "GameplayAbilitySpec.h"
 #include "PWGASCoreLogChannels.h"
 #include "GAS/Abilities/PWAbilityInfo.h"
+#include "GAS/Abilities/PWAbilitySet.h"
 #include "GAS/ASC/PWAbilitySystemComponent.h"
 #include "GAS/ASC/PWASC_DataManagement.h"
 #include "GAS/Tags/GASCoreTags.h"
@@ -22,6 +23,15 @@ void FPWASC_AbilityLifecycle::AddAbilities(const FGameplayTagContainer& AbilityT
 	{
 		AddAbility(Tag);
 	}
+	AbilitiesUpdated.Broadcast();
+}
+
+void FPWASC_AbilityLifecycle::AddAbilitySet(const UPWAbilitySet* AbilitySet) const
+{
+	if (!AbilitySet) return;
+
+	for (const FPWAbilitySetEntry& Entry : AbilitySet->Abilities)
+		AddAbility(Entry.AbilityTag, Entry.InputTag);
 	AbilitiesUpdated.Broadcast();
 }
 
