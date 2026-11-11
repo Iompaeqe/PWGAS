@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameplayEffect.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "GASCoreFunctions.generated.h"
 
@@ -18,13 +19,13 @@ struct FEffectModifierValue
 	
 public:
 	UPROPERTY(BlueprintReadWrite)
-	EGameplayEffectDurationType DurationType;
+	EGameplayEffectDurationType DurationType = EGameplayEffectDurationType::Instant;
 	UPROPERTY(BlueprintReadWrite)
-	float Duration;
+	float Duration = 0.0f;
 	UPROPERTY(BlueprintReadWrite)
-	float Period;
+	float Period = 0.0f;
 	UPROPERTY(BlueprintReadWrite)
-	float Value;
+	float Value = 0.0f;
 };
 
 UCLASS()
