@@ -27,6 +27,7 @@ void UPWAbilityModule_MultiProjectile::SpreadSpawnProjectiles(const FPWTargeting
 
 	BuildSpreadOrder();
 	CurrentSpreadIndex = 0;
+	CastId = FGuid::NewGuid();
 
 	SpreadSpawnOneProjectile(Target);
 
@@ -72,6 +73,14 @@ void UPWAbilityModule_MultiProjectile::SpreadSpawnOneProjectile(const FPWTargeti
 	// Clear timer if we've spawned all projectiles
 	if (CurrentSpreadIndex >= ProjectileCount)
 		OwnerAbility->GetWorld()->GetTimerManager().ClearTimer(SpreadTimerHandle);
+}
+
+USpellParams* UPWAbilityModule_MultiProjectile::MakeSpellParams_Implementation(const FPWTargetingResult& Target)
+{
+	USpellParams* Params = Super::MakeSpellParams_Implementation(Target);
+	if (Params && ProjectileCount > 1)
+		Params->CastId = CastId;
+	return Params;
 }
 
 void UPWAbilityModule_MultiProjectile::BuildSpreadOrder()

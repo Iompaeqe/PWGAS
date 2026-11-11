@@ -52,8 +52,11 @@ private:
 	int32 CurrentSpreadIndex = 0;
 	TArray<int32> CachedSpreadOrder;
 	FTimerHandle SpreadTimerHandle;
+	FGuid CastId;
 	
 protected:
+	virtual USpellParams* MakeSpellParams_Implementation(const FPWTargetingResult& Target) override;
+
 	void BuildSpreadOrder();
 	FRotator ComputeSpreadRotation(int32 SpreadIndex) const;
 	
