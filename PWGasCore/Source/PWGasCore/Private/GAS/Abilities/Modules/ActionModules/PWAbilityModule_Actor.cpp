@@ -18,7 +18,8 @@ USpellParams* UPWAbilityModule_Actor::MakeSpellParams_Implementation(const FPWTa
 	USpellParams* Params = OwnerAbility->MakeSpellParams();
 	UActorSpellParamsExtension* ActorParams = Params->AddExtension<UActorSpellParamsExtension>();
 	ActorParams->SpawnLocation = Target.Location;
-	ActorParams->SpawnRotation = (Target.Location - OwnerAbility->GetPawn()->GetActorLocation()).Rotation();
+	if (const AActor* Avatar = OwnerAbility->GetAvatarActorFromActorInfo())
+		ActorParams->SpawnRotation = (Target.Location - Avatar->GetActorLocation()).Rotation();
 	ActorParams->bAttachToOwner = bAttachToOwner;
 	ActorParams->AttachSocket = SpawnSocket;
 	Params->TargetCollisionMask = TargetMask;
@@ -123,13 +124,12 @@ void UPWAbilityModule_Actor::DestroySpawnedActors()
 
 FTransform UPWAbilityModule_Actor::BuildSpawnTransform(const FPWTargetingResult& Target) const
 {
-	FVector Loc;
-	FRotator Rot;
-
 	AActor* Avatar = OwnerAbility ? OwnerAbility->GetAvatarActorFromActorInfo() : nullptr;
 	if (!Avatar)
 		return FTransform::Identity;
 
+	FVector Loc = Avatar->GetActorLocation();
+	FRotator Rot = (Target.Location - Loc).Rotation();
 
 	if (bSpawnAtTarget)
 	{
@@ -149,11 +149,6 @@ FTransform UPWAbilityModule_Actor::BuildSpawnTransform(const FPWTargetingResult&
 				}
 			}
 		}
-	}
-	else
-	{
-		Loc = Avatar->GetActorLocation();
-		Rot = (Target.Location - Loc).Rotation();
 	}
 
 	if (bZeroPitch)

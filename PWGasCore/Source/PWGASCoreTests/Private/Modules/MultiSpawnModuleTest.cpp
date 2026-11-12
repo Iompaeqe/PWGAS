@@ -546,4 +546,26 @@ bool FMultiProjectilePreviewTest::RunTest(const FString& Parameters)
 	return true;
 }
 
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FActorModuleMissingSocketTest, "PW.Modules.Actor.MissingSocket", EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FActorModuleMissingSocketTest::RunTest(const FString& Parameters)
+{
+	FPWTestWorld Test;
+	Test.Actor->SetActorLocation(FVector(500.f, 200.f, 100.f));
+	UPWTestModularAbility* Ability = Test.ActivateAbility<UPWTestModularAbility>();
+
+	UPWAbilityModule_Actor* Module = NewObject<UPWAbilityModule_Actor>(Ability);
+	Module->Initialize(Ability);
+	Module->ActorClass = APWTestSpellActor::StaticClass();
+	Module->SpawnSocket = "NoSuchSocket";
+
+	const AActor* Spawned = Module->SpawnActorWithTargetingResult(MakeTargetInFront(Test.Actor, 1000.f));
+	if (!TestNotNull("Spawned", Spawned))
+		return false;
+
+	TestEqual("A missing socket falls back to the caster", Spawned->GetActorLocation(), Test.Actor->GetActorLocation());
+	TestEqual("Facing the target", (float)FRotator::NormalizeAxis(Spawned->GetActorRotation().Yaw), 0.f, 0.1f);
+	return true;
+}
+
 #endif

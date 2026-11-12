@@ -13,7 +13,8 @@ USpellParams* UPWAbilityModule_Projectile::MakeSpellParams_Implementation(const 
 	USpellParams* Params = OwnerAbility->MakeSpellParams();
 	UProjectileSpellParamsExtension* ProjectileParams = Params->AddExtension<UProjectileSpellParamsExtension>();
 	ProjectileParams->SpawnLocation = Target.Location;
-	ProjectileParams->SpawnRotation = (Target.Location - OwnerAbility->GetPawn()->GetActorLocation()).Rotation();
+	if (const AActor* Avatar = OwnerAbility->GetAvatarActorFromActorInfo())
+		ProjectileParams->SpawnRotation = (Target.Location - Avatar->GetActorLocation()).Rotation();
 	ProjectileParams->bAttachToOwner = bAttachToOwner;
 	ProjectileParams->AttachSocket = SpawnSocket;
 	
