@@ -34,6 +34,33 @@
 		{
 			"Name": "GameplayAbilities",
 			"Enabled": true
+		},
+		{
+			"Name": "Niagara",
+			"Enabled": true
+		},
+		{
+			"Name": "PWSharedTypes",
+			"Enabled": true
+		},
+		{
+			"Name": "PWContracts",
+			"Enabled": true
+		},
+		{
+			"Name": "PWTeams",
+			"Enabled": true,
+			"Optional": true
+		},
+		{
+			"Name": "PWAbility",
+			"Enabled": true,
+			"Optional": true
+		},
+		{
+			"Name": "PWAttributes",
+			"Enabled": true,
+			"Optional": true
 		}
 	]
 }
