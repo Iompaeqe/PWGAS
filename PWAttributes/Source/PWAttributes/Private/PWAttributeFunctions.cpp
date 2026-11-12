@@ -1,25 +1,23 @@
 ﻿// copyright mkurtt96
 
 
-#include "AttributeSetPerAttribute/Library/PWAttributeFunctions.h"
+#include "PWAttributeFunctions.h"
 
 #include "AbilitySystemComponent.h"
-#include "AttributeSetPerAttribute/PWAttributeSet_Tagged.h"
+#include "PWAttributeSetBase.h"
 
 
 bool UPWAttributeFunctions::ResolveAttributeOnASC(const UAbilitySystemComponent* ASC, const FGameplayTag& Tag, FGameplayAttribute& Out)
 {
 	if (!ASC || !Tag.IsValid()) return false;
 
-	// Iterate all spawned sets; the first tagged set that resolves wins.
-	for (UAttributeSet* Set : ASC->GetSpawnedAttributes())
+	for (const UAttributeSet* Set : ASC->GetSpawnedAttributes())
 	{
-		if (const UPWAttributeSet_Tagged* T = Cast<UPWAttributeSet_Tagged>(Set))
+		const UPWAttributeSetBase* PWSet = Cast<UPWAttributeSetBase>(Set);
+		if (const FGameplayAttribute* Attribute = PWSet ? PWSet->GetTagMap().Find(Tag) : nullptr)
 		{
-			if (T->GetAttributeForTag(Tag, Out))
-			{
-				return true;
-			}
+			Out = *Attribute;
+			return true;
 		}
 	}
 	return false;

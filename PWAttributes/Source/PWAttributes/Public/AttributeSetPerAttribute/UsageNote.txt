@@ -1,4 +1,0 @@
-This one Attribute type per Attribute Set is designed for smaller game designs, 
-it's not a good choice for large amounts of attributes ona single character.
-
-if you feature more than 10 to 15 attributes, group the attributes in Attribute Sets as intended by Epic.

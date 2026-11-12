@@ -2,8 +2,6 @@
 
 #include "PWAttributes.h"
 
-#include "AttributeSetPerAttribute/BasicAttributes/AS_Health.h"
-
 #define LOCTEXT_NAMESPACE "FPWAttributesModule"
 
 namespace PWTags::Attributes { 

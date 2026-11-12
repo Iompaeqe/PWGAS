@@ -2,6 +2,7 @@
 
 #include "PWTestWorld.h"
 #include "PWTestTypes.h"
+#include "PWAttributeFunctions.h"
 #include "GAS/Tags/GASCoreTags.h"
 #include "Misc/AutomationTest.h"
 #include "Net/UnrealNetwork.h"
@@ -26,6 +27,7 @@ bool FAttributeSetTagsTest::RunTest(const FString& Parameters)
 
 	Set->SetAttributeValue(Cooldown, 40.f);
 	TestEqual("Set and get by tag", Set->GetAttributeValue(Cooldown), 40.f);
+	TestEqual("Library finds it through the component", UPWAttributeFunctions::GetAttributeValue(Test.ASC, Cooldown), 40.f);
 	return true;
 }
 
