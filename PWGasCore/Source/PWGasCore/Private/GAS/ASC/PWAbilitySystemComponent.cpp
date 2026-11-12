@@ -135,28 +135,29 @@ bool UPWAbilitySystemComponent::BP_AdjustCooldownForAbilityTag(const FGameplayTa
 	return CooldownHandler->AdjustCooldownForAbilityTag(AbilityTag, SecondsToReduce);
 }
 
-void UPWAbilitySystemComponent::ServerSendInputEvent_Implementation(const FGameplayTag& EventTag, const FGameplayEventData& Payload)
+void UPWAbilitySystemComponent::ServerSendInputEvent_Implementation(const FGameplayTag& InputTag, const EInputEventType EventType)
 {
-	HandleGameplayEvent(EventTag, &Payload);
+	if (InputTag.MatchesTag(PWTags::Input::Root))
+		DispatchInputEvent(InputTag, EventType);
+}
+
+void UPWAbilitySystemComponent::DispatchInputEvent(const FGameplayTag& InputTag, const EInputEventType EventType)
+{
+	FGameplayEventData Payload;
+	Payload.EventTag = PWTags::Event::Input;
+	Payload.EventMagnitude = (EventType == EInputEventType::Pressed) ? 1.f : 0.f;
+	Payload.InstigatorTags.AddTag(InputTag);
+	HandleGameplayEvent(PWTags::Event::Input, &Payload);
 }
 
 void UPWAbilitySystemComponent::SendInputEvent(const FGameplayTag& InputTag, EInputEventType EventType)
 {
 	if (!InputTag.IsValid()) return;
 
-	FGameplayEventData Payload;
-	Payload.EventTag = PWTags::Event::Input;
-	Payload.EventMagnitude = (EventType == EInputEventType::Pressed) ? 1.f : 0.f; // 1=Pressed, 0=Released
-	Payload.InstigatorTags.AddTag(InputTag); // carry which input
+	DispatchInputEvent(InputTag, EventType);
 
-	// Local (prediction): let locally-running abilities react immediately.
-	HandleGameplayEvent(PWTags::Event::Input, &Payload);
-
-	// If we're a client, mirror to server for authoritative handling.
 	if (!IsOwnerActorAuthoritative())
-	{
-		ServerSendInputEvent(PWTags::Event::Input, Payload);
-	}
+		ServerSendInputEvent(InputTag, EventType);
 }
 
 void UPWAbilitySystemComponent::Multicast_PlayNiagara_Implementation(const FPWNiagaraEntry& Entry)

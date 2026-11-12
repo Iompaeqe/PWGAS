@@ -72,7 +72,8 @@ public:
 	bool BP_AdjustCooldownForAbilityTag(const FGameplayTag& AbilityTag, float SecondsToReduce);
 
 	UFUNCTION(Server, Reliable)
-	void ServerSendInputEvent(const FGameplayTag& EventTag, const FGameplayEventData& Payload);
+	void ServerSendInputEvent(const FGameplayTag& InputTag, EInputEventType EventType);
+	void DispatchInputEvent(const FGameplayTag& InputTag, EInputEventType EventType);
 	UFUNCTION(BlueprintCallable, Category="GASCore|Input")
 	void SendInputEvent(const FGameplayTag& InputTag, EInputEventType EventType);
 	

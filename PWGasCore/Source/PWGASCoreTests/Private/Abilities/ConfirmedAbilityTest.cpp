@@ -45,4 +45,23 @@ bool FConfirmedAbilityNoGraphTest::RunTest(const FString& Parameters)
 	return true;
 }
 
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FInputEventFromClientTest, "PW.ASC.InputEvent.FromClient", EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FInputEventFromClientTest::RunTest(const FString& Parameters)
+{
+	FPWTestWorld Test;
+
+	const FGameplayAbilitySpecHandle Handle = Test.ASC->GiveAbility(FGameplayAbilitySpec(UPWTestConfirmedAbility::StaticClass(), 1));
+	const auto Effects = [&]() { return Test.ASC->GetGameplayEffectCount(UPWTestDurationEffect::StaticClass(), nullptr); };
+	Test.ASC->TryActivateAbility(Handle);
+
+	Test.ASC->ServerSendInputEvent_Implementation(PWTags::Event::Input, EInputEventType::Pressed);
+	TestEqual("A tag that is not an input is ignored", Effects(), 0);
+
+	Test.ASC->ServerSendInputEvent_Implementation(PWTags::Input::GlobalCancel, EInputEventType::Pressed);
+	TestEqual("An input tag is handled", Effects(), 1);
+
+	return true;
+}
+
 #endif
