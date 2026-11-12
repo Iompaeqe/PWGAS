@@ -52,8 +52,9 @@ void UPWAbilityModule_InstantEffect::ApplyEffects()
 	Targets.Add(GetPawn());
 
 	FScopedPredictionWindow Prediction(SourceASC);
-	for (AActor* Target : Targets)
+	for (const TWeakObjectPtr<AActor>& WeakTarget : Targets)
 	{
+		const AActor* Target = WeakTarget.Get();
 		if (!Target) continue;
 		UAbilitySystemComponent* TargetASC = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(Target);
 		if (TargetASC)
@@ -76,8 +77,9 @@ void UPWAbilityModule_InstantEffect::RemoveTargetEffects(const bool bInfiniteOnl
 	UAbilitySystemComponent* SourceASC = OwnerAbility->GetAbilitySystemComponentFromActorInfo();
 	if (!SourceASC) return;
 
-	for (AActor* Target : Targets)
+	for (const TWeakObjectPtr<AActor>& WeakTarget : Targets)
 	{
+		const AActor* Target = WeakTarget.Get();
 		if (!Target) continue;
 		UAbilitySystemComponent* TargetASC = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(Target);
 		if (TargetASC)
@@ -144,14 +146,17 @@ void UPWAbilityModule_InstantEffect::ApplyEffectsToTargets(const FPWTargetingRes
 	UAbilitySystemComponent* SourceASC = OwnerAbility->GetAbilitySystemComponentFromActorInfo();
 	if (!SourceASC) return;
 
-	Targets = Result.HitActors;
+	Targets.Reset();
+	for (AActor* Hit : Result.HitActors)
+		Targets.Add(Hit);
 	if (Targets.Num() == 0)
 		return;
 
 	FScopedPredictionWindow Prediction(SourceASC);
 
-	for (AActor* Target : Targets)
+	for (const TWeakObjectPtr<AActor>& WeakTarget : Targets)
 	{
+		const AActor* Target = WeakTarget.Get();
 		if (!Target) continue;
 		UAbilitySystemComponent* TargetASC = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(Target);
 		if (TargetASC)

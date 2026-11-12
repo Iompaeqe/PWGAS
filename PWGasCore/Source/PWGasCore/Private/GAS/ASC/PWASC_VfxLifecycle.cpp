@@ -67,10 +67,10 @@ UNiagaraComponent* FPWASC_VfxLifecycle::PlayNiagara_Local(const FPWNiagaraEntry&
 	{
 		Comp->SetAutoDestroy(false);
 
-		if (UNiagaraComponent** Existing = ActiveNiagaraVfx.Find(Entry.UniqueId))
+		if (const TWeakObjectPtr<UNiagaraComponent>* Existing = ActiveNiagaraVfx.Find(Entry.UniqueId))
 		{
-			if (*Existing)
-				(*Existing)->DestroyComponent();
+			if (Existing->IsValid())
+				Existing->Get()->DestroyComponent();
 		}
 
 		ActiveNiagaraVfx.FindOrAdd(Entry.UniqueId) = Comp;
@@ -85,11 +85,11 @@ void FPWASC_VfxLifecycle::StopNiagara_Local(const int32 UniqueId)
 	if (UniqueId == INDEX_NONE)
 		return;
 
-	if (UNiagaraComponent** Found = ActiveNiagaraVfx.Find(UniqueId))
+	if (const TWeakObjectPtr<UNiagaraComponent>* Found = ActiveNiagaraVfx.Find(UniqueId))
 	{
 		//UE_LOG(LogPWGASCoreAbilitySystem, Log, TEXT("UPWAbilitySystemComponent::StopNiagara_Local, Auth: %hhd, UniqueId: %d, Niagara Found, cancelling"), ASC.GetOwner()->HasAuthority(), UniqueId);
-		if (*Found)
-			(*Found)->DestroyComponent();
+		if (Found->IsValid())
+			Found->Get()->DestroyComponent();
 		ActiveNiagaraVfx.Remove(UniqueId);
 	}
 }

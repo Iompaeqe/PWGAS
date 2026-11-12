@@ -20,5 +20,5 @@ public:
 	void StopNiagaraList_Local(const TArray<int32>& Ids);
 
 protected:
-	TMap<int32, UNiagaraComponent*> ActiveNiagaraVfx;
+	TMap<int32, TWeakObjectPtr<UNiagaraComponent>> ActiveNiagaraVfx;
 };

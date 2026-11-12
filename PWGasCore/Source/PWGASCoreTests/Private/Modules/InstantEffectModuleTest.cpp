@@ -44,6 +44,13 @@ bool FInstantEffectModuleTest::RunTest(const FString& Parameters)
 	Module->RemoveEffects();
 	TestEqual("Removed from target", TargetASC->GetGameplayEffectCount(UPWTestEffect::StaticClass(), nullptr), 0);
 
+	Module->ProcessEvent(Module->FindFunctionChecked("OnTargetDataReady"), &Params);
+	TargetASC->GetOwner()->Destroy();
+	Params.Result.HitActors.Reset();
+	CollectGarbage(GARBAGE_COLLECTION_KEEPFLAGS);
+	Module->RemoveEffects();
+	TestEqual("A destroyed target is skipped", Test.ASC->GetGameplayEffectCount(UPWTestEffect::StaticClass(), nullptr), 0);
+
 	return true;
 }
 
