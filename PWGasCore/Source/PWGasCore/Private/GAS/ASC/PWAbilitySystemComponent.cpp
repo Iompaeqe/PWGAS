@@ -10,6 +10,7 @@
 #include "GAS/ASC/PWASC_InputBinding.h"
 #include "GAS/ASC/PWASC_VfxLifecycle.h"
 #include "GAS/Data/GASCoreEnums.h"
+#include "GAS/EffectContext/EffectContextFunctions.h"
 #include "GAS/Data/PWNiagaraEntry.h"
 #include "GAS/Tags/GASCoreTags.h"
 #include "PWGASCoreLogChannels.h"
@@ -74,6 +75,17 @@ void UPWAbilitySystemComponent::OnRep_ActivateAbilities()
 {
 	Super::OnRep_ActivateAbilities();
 	AbilityLifecycle->AbilitiesUpdated.Broadcast();
+}
+
+FGameplayEffectContextHandle UPWAbilitySystemComponent::MakeEffectContext() const
+{
+	const FGameplayEffectContextHandle Context = Super::MakeEffectContext();
+	if (UEffectContextFunctions::GetPWContext(Context))
+		return Context;
+
+	FGameplayEffectContextHandle PWContext(new FPWGameplayEffectContext());
+	PWContext.AddInstigator(Context.GetInstigator(), Context.GetEffectCauser());
+	return PWContext;
 }
 
 void UPWAbilitySystemComponent::BP_AddAbilities(const FGameplayTagContainer& AbilityTags)

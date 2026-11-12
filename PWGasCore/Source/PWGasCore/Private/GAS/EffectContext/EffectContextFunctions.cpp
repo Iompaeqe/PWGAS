@@ -3,17 +3,25 @@
 #include "GAS/EffectContext/EffectContextFunctions.h"
 
 
+FPWGameplayEffectContext* UEffectContextFunctions::GetPWContext(const FGameplayEffectContextHandle& Handle)
+{
+	FGameplayEffectContext* Context = const_cast<FGameplayEffectContext*>(Handle.Get());
+	if (Context && Context->GetScriptStruct()->IsChildOf(FPWGameplayEffectContext::StaticStruct()))
+		return static_cast<FPWGameplayEffectContext*>(Context);
+	return nullptr;
+}
+
 void UEffectContextFunctions::CopyHitResultToContext(FGameplayEffectContextHandle& Handle, const FHitResult& Hit)
 {
-	if (FPWGameplayEffectContext* Ctx = static_cast<FPWGameplayEffectContext*>(Handle.Get()))
+	if (FPWGameplayEffectContext* Ctx = GetPWContext(Handle))
 	{
 		Ctx->SetCachedHit(Hit);
 	}
 }
 
-inline bool UEffectContextFunctions::GetHitResult(const FGameplayEffectContextHandle& Handle, FHitResult& OutHit)
+bool UEffectContextFunctions::GetHitResult(const FGameplayEffectContextHandle& Handle, FHitResult& OutHit)
 {
-	if (const FPWGameplayEffectContext* Ctx = static_cast<const FPWGameplayEffectContext*>(Handle.Get()))
+	if (const FPWGameplayEffectContext* Ctx = GetPWContext(Handle))
 	{
 		if (const FHitResult* Hit = Ctx->GetCachedHit())
 		{

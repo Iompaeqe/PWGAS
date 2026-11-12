@@ -17,8 +17,8 @@ public:
 	UFUNCTION(BlueprintPure, Category="GASCore|EffectContext")
 	static bool IsValid(const FGameplayEffectContextHandle& Handle){ return Handle.IsValid(); }
 
-	template <typename T>
-	static T* Get(const FGameplayEffectContextHandle& Handle) { return static_cast<T*>(Handle.Get()); }
+	// Null when the handle holds a context of another type.
+	static FPWGameplayEffectContext* GetPWContext(const FGameplayEffectContextHandle& Handle);
 
 	UFUNCTION(BlueprintCallable, Category="GASCore|EffectContext")
 	static void CopyHitResultToContext(UPARAM(ref) FGameplayEffectContextHandle& Handle, const FHitResult& Hit);

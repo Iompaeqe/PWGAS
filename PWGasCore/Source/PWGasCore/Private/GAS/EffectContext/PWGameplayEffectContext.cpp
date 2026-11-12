@@ -22,6 +22,8 @@ FPWGameplayEffectContext* FPWGameplayEffectContext::Duplicate() const
 
 bool FPWGameplayEffectContext::NetSerialize(FArchive& Ar, UPackageMap* Map, bool& bOutSuccess)
 {
+	Super::NetSerialize(Ar, Map, bOutSuccess);
+
 	uint32 RepBits = 0;
 	if (Ar.IsSaving())
 	{

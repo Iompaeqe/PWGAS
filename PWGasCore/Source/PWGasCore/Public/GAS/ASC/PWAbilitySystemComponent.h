@@ -35,6 +35,7 @@ public:
 	virtual void InitAbilityActorInfo(AActor* InOwnerActor, AActor* InAvatarActor) override;
 	virtual void OnRemoveAbility(FGameplayAbilitySpec& AbilitySpec) override;
 	virtual void OnRep_ActivateAbilities() override;
+	virtual FGameplayEffectContextHandle MakeEffectContext() const override;
 
 	FPWASC_DataManagement& Data() const { return *DataManagement; }
 	FPWASC_AbilityLifecycle& Abilities() const { return *AbilityLifecycle; }
