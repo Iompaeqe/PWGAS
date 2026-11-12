@@ -44,29 +44,19 @@ public:
 	UFUNCTION(BlueprintCallable, Category="Module")
 	void SpreadSpawnProjectiles(const FPWTargetingResult& Target);
 	UFUNCTION(BlueprintCallable, Category="Module")
-	void SpreadSpawnOneProjectile(const FPWTargetingResult& Target);
+	void SpreadSpawnNextStep(const FPWTargetingResult& Target);
 
 	virtual AActor* SpawnActorWithTargetingResult(const FPWTargetingResult& Target) override;
 
 private:
-	int32 CurrentSpreadIndex = 0;
-	TArray<int32> CachedSpreadOrder;
+	int32 CurrentSpreadStep = 0;
+	TArray<TArray<int32>> SpreadSteps;
 	FTimerHandle SpreadTimerHandle;
 	FGuid CastId;
-	
+
 protected:
 	virtual USpellParams* MakeSpellParams_Implementation(const FPWTargetingResult& Target) override;
 
-	void BuildSpreadOrder();
+	void BuildSpreadSteps();
 	FRotator ComputeSpreadRotation(int32 SpreadIndex) const;
-	
-	void Build_LeftToRight();
-	void Build_RightToLeft();
-	void Build_CenterOut();
-	void Build_OutIn();
-	void Build_CenterFanOutRight();
-	void Build_CenterFanOutLeft();
-	void Build_OutFanInRight();
-	void Build_OutFanInLeft();
-	void Build_Random(bool bThreeDimensional);
 };
