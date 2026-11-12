@@ -7,26 +7,14 @@
 #include "Targeting/Data/PWTargetingData.h"
 #include "PWAbilityModule_MultiActor.generated.h"
 
+class UPWSpawnPattern;
+
 UENUM(BlueprintType)
-enum class EActorSpawnPattern : uint8
+enum class EActorPatternOrientation : uint8
 {
-    CircleClockwise UMETA(DisplayName="Circle → Clockwise"),
-    CircleCounterClockwise UMETA(DisplayName="Circle ← Counter-Clockwise"),
-    SpreadOutFromCenter UMETA(DisplayName="Center → Spread Out (Steps)"),
-    SpreadIntoCenter UMETA(DisplayName="Edges → Spread Into Center (Steps)"),
-    GatherAtCenter UMETA(DisplayName="Gather At Center"),
-    GridPattern UMETA(DisplayName="Grid Pattern"),
-    LineHorizontal UMETA(DisplayName="Horizontal Line (Perpendicular to cast)"),
-    LineVertical UMETA(DisplayName="Vertical Line (Along cast direction)"),
-    LineHorizontalForward UMETA(DisplayName="Horizontal Forward"),
-    LineHorizontalBackward UMETA(DisplayName="Horizontal Backward"),
-    LineHorizontalSpreadOut UMETA(DisplayName="Horizontal Spread Out"),
-    LineHorizontalSpreadIn UMETA(DisplayName="Horizontal Spread In"),
-    LineVerticalForward UMETA(DisplayName="Vertical Forward"),
-    LineVerticalBackward UMETA(DisplayName="Vertical Backward"),
-    LineVerticalSpreadOut UMETA(DisplayName="Vertical Spread Out"),
-    LineVerticalSpreadIn UMETA(DisplayName="Vertical Spread In"),
-    Random UMETA(DisplayName="Random Positions")
+    Caster UMETA(DisplayName="Relative To Caster"),
+    World UMETA(DisplayName="Relative To World"),
+    Camera UMETA(DisplayName="Relative To Camera")
 };
 
 UCLASS(Blueprintable, BlueprintType, EditInlineNew, DefaultToInstanced)
@@ -35,21 +23,44 @@ class PWGASCORE_API UPWAbilityModule_MultiActor : public UPWAbilityModule_Actor
     GENERATED_BODY()
 
 public:
+    UPWAbilityModule_MultiActor() { bSpawnAtTarget = true; }
+
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(ClampMin=1))
     int32 ActorCount = 3;
     
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-    EActorSpawnPattern SpawnPattern = EActorSpawnPattern::CircleClockwise;
-    
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(ClampMin=0.0f))
     float SpawnDelay = 0.f;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Instanced, Category="Pattern")
+    TObjectPtr<UPWSpawnPattern> Pattern;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Pattern")
+    EActorPatternOrientation PatternOrientation = EActorPatternOrientation::Caster;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Pattern")
+    FVector PatternOffset = FVector::ZeroVector;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Pattern")
+    FRotator PatternRotation = FRotator::ZeroRotator;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Pattern")
+    bool bFaceCenter = true;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Pattern")
+    bool bSnapToGround = false;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Pattern", meta=(EditCondition="bSnapToGround", ClampMin=0.0f))
+    float GroundTraceDistance = 1000.f;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Pattern", meta=(EditCondition="bSnapToGround"))
+    float GroundOffset = 0.f;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Pattern", meta=(EditCondition="bSnapToGround"))
+    TEnumAsByte<ECollisionChannel> GroundChannel = ECC_WorldStatic;
     
 	UPROPERTY()
 	float Radius = 0.f;
     
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(ClampMin=1, ToolTip="Step size for spread patterns - how many actors per ring/line segment"))
-    int32 StepCount = 2;
-
     UFUNCTION(BlueprintCallable, Category="Module")
     void SpawnMultipleActors(const FPWTargetingResult& Target);
     
@@ -60,7 +71,8 @@ public:
 
 private:
     FPWTargetingResult CachedTargetResult;
-    FVector GetCastDirection(const FPWTargetingResult& Target) const;
+    FQuat GetPatternBasis(const FPWTargetingResult& Target) const;
+    FVector SnapToGround(const FVector& Location) const;
     
     int32 CurrentSpawnIndex = 0;
     TArray<FVector> CachedSpawnPositions;
@@ -69,23 +81,4 @@ private:
     
     void BuildSpawnPositions(const FVector& CenterLocation, float InRadius);
     float GetEffectiveRadius() const;
-    
-    // Pattern builders
-    void Build_CircleClockwise(const FVector& Center, float InRadius);
-    void Build_CircleCounterClockwise(const FVector& Center, float InRadius);
-    void Build_SpreadOutFromCenter(const FVector& Center, float InRadius);
-    void Build_SpreadIntoCenter(const FVector& Center, float InRadius);
-    void Build_GatherAtCenter(const FVector& Center, float InRadius);
-    void Build_GridPattern(const FVector& Center, float InRadius);
-    void Build_LineHorizontal(const FVector& Center, float InRadius);
-    void Build_LineVertical(const FVector& Center, float InRadius);
-    void Build_LineHorizontalForward(const FVector& Center, float InRadius);
-    void Build_LineHorizontalBackward(const FVector& Center, float InRadius);
-    void Build_LineHorizontalSpreadOut(const FVector& Center, float InRadius);
-    void Build_LineHorizontalSpreadIn(const FVector& Center, float InRadius);
-    void Build_LineVerticalForward(const FVector& Center, float InRadius);
-    void Build_LineVerticalBackward(const FVector& Center, float InRadius);
-    void Build_LineVerticalSpreadOut(const FVector& Center, float InRadius);
-    void Build_LineVerticalSpreadIn(const FVector& Center, float InRadius);
-    void Build_Random(const FVector& Center, float InRadius);
 };
