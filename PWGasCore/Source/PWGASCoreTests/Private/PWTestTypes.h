@@ -186,3 +186,21 @@ class UPWTestAuraAbility : public UPWModularGameplayAbility
 public:
 	UPWTestAuraAbility();
 };
+
+UCLASS(NotBlueprintable, HideDropdown)
+class UPWTestInstantHitEffect : public UGameplayEffect
+{
+	GENERATED_BODY()
+
+public:
+	UPWTestInstantHitEffect();
+};
+
+UCLASS(NotBlueprintable, HideDropdown)
+class UPWTestTimedHitEffect : public UGameplayEffect
+{
+	GENERATED_BODY()
+
+public:
+	UPWTestTimedHitEffect();
+};

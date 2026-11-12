@@ -129,3 +129,25 @@ UPWTestAuraAbility::UPWTestAuraAbility()
 	Effect->Effects.Add({UPWTestPeriodicDamageEffect::StaticClass(), 1});
 	DataModules.Add(Effect);
 }
+
+static FGameplayModifierInfo MakeHealthHit(const float Amount)
+{
+	FGameplayModifierInfo Hit;
+	Hit.Attribute = UPWTestAttributeSet::GetHealthAttribute();
+	Hit.ModifierOp = EGameplayModOp::AddBase;
+	Hit.ModifierMagnitude = FScalableFloat(Amount);
+	return Hit;
+}
+
+UPWTestInstantHitEffect::UPWTestInstantHitEffect()
+{
+	Modifiers.Add(MakeHealthHit(25.f));
+}
+
+UPWTestTimedHitEffect::UPWTestTimedHitEffect()
+{
+	DurationPolicy = EGameplayEffectDurationType::HasDuration;
+	DurationMagnitude = FScalableFloat(1.f);
+	Period = 0.25f;
+	Modifiers.Add(MakeHealthHit(10.f));
+}
