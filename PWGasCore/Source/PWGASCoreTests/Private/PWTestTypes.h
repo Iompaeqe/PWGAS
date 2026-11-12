@@ -13,6 +13,7 @@
 #include "PWGasCore/Public/Targeting/Types/PWTargetPolicyBase.h"
 #include "GAS/Abilities/Derived/PWGameplayAbility_Channeling.h"
 #include "GAS/Abilities/Derived/PWGameplayAbility_Charged.h"
+#include "PWAttributeSetBase.h"
 #include "PWTestTypes.generated.h"
 
 UCLASS(NotBlueprintable, HideDropdown)
@@ -153,4 +154,17 @@ class UPWTestChannelingAbility : public UPWGameplayAbility_Channeling
 
 public:
 	UPWTestChannelingAbility();
+};
+
+UCLASS(NotBlueprintable)
+class UPWTestAttributeSet : public UPWAttributeSetBase
+{
+	GENERATED_BODY()
+
+public:
+	UPWTestAttributeSet();
+
+	UPROPERTY(ReplicatedUsing = OnRep_Health) FGameplayAttributeData Health; UFUNCTION() void OnRep_Health(const FGameplayAttributeData& OldValue) const { GAMEPLAYATTRIBUTE_REPNOTIFY(ThisClass, Health, OldValue); } ATTRIBUTE_ACCESSORS(ThisClass, Health);
+	UPROPERTY(ReplicatedUsing = OnRep_HealthMax) FGameplayAttributeData HealthMax; UFUNCTION() void OnRep_HealthMax(const FGameplayAttributeData& OldValue) const { GAMEPLAYATTRIBUTE_REPNOTIFY(ThisClass, HealthMax, OldValue); } ATTRIBUTE_ACCESSORS(ThisClass, HealthMax);
+	UPROPERTY() FGameplayAttributeData Cooldown; ATTRIBUTE_ACCESSORS(ThisClass, Cooldown);
 };

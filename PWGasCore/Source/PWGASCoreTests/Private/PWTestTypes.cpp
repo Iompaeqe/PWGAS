@@ -2,6 +2,8 @@
 
 #include "PWTestTypes.h"
 
+#include "GAS/Tags/GASCoreTags.h"
+
 UPWTestEffect::UPWTestEffect()
 {
 	DurationPolicy = EGameplayEffectDurationType::Infinite;
@@ -96,4 +98,12 @@ UPWTestChannelingAbility::UPWTestChannelingAbility()
 	CooldownGameplayEffectClass = UPWTestDurationEffect::StaticClass();
 	MaxChannelDuration = 1.f;
 	ChannelTickInterval = 0.25f;
+}
+
+PW_REPLICATE_ATTRIBUTES(UPWTestAttributeSet)
+
+UPWTestAttributeSet::UPWTestAttributeSet()
+{
+	AttributeTagRoot = PWTags::Ability::Root;
+	AddClamped(GetHealthAttribute(), GetHealthMaxAttribute());
 }
