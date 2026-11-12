@@ -22,6 +22,10 @@ public:
 	UFUNCTION(BlueprintCallable)
 	FPWAbilityInfo GetAbilityByTag(const FGameplayTag& AbilityTag);
 
+#if WITH_EDITOR
+	virtual EDataValidationResult IsDataValid(FDataValidationContext& Context) const override;
+#endif
+
 	//Example function to generate description text
 	UFUNCTION(BlueprintCallable, Category = "Ability")
 	virtual void MakeDescriptionsUsingAbilityTag(const FGameplayTag& AbilityTag, UPWAbilitySystemComponent* ASC, FText& OutDescription);

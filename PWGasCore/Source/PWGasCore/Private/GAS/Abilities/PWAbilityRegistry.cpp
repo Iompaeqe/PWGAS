@@ -7,6 +7,7 @@
 #include "GAS/Abilities/AbilityDataAsset.h"
 #include "GAS/Abilities/PWAbilityInfo.h"
 #include "GAS/ASC/PWAbilitySystemComponent.h"
+#include "Misc/DataValidation.h"
 
 struct FDescriptionNamedArguments
 {
@@ -30,6 +31,31 @@ FPWAbilityInfo UPWAbilityRegistry::GetAbilityByTag(const FGameplayTag& AbilityTa
 	}
 	return FPWAbilityInfo();
 }
+
+#if WITH_EDITOR
+EDataValidationResult UPWAbilityRegistry::IsDataValid(FDataValidationContext& Context) const
+{
+	TMap<FGameplayTag, FString> SeenTags;
+	for (const TSoftObjectPtr<UAbilityDataAsset>& SoftAbilityDA : Abilities)
+	{
+		const UAbilityDataAsset* AbilityDA = SoftAbilityDA.LoadSynchronous();
+		if (!AbilityDA)
+		{
+			Context.AddError(FText::FromString(TEXT("Registry has an empty entry.")));
+			continue;
+		}
+
+		if (const FString* Other = SeenTags.Find(AbilityDA->Ability.Tag))
+			Context.AddError(FText::FromString(FString::Printf(TEXT("%s and %s use the same tag [%s]."), **Other, *AbilityDA->GetName(), *AbilityDA->Ability.Tag.ToString())));
+		SeenTags.Add(AbilityDA->Ability.Tag, AbilityDA->GetName());
+
+		if (AbilityDA->IsDataValid(Context) == EDataValidationResult::Invalid)
+			Context.AddError(FText::FromString(FString::Printf(TEXT("%s is not valid."), *AbilityDA->GetName())));
+	}
+
+	return Context.GetNumErrors() > 0 ? EDataValidationResult::Invalid : EDataValidationResult::Valid;
+}
+#endif
 
 void UPWAbilityRegistry::MakeDescriptionsUsingAbilityTag(const FGameplayTag& AbilityTag, UPWAbilitySystemComponent* ASC, FText& OutDescription)
 {

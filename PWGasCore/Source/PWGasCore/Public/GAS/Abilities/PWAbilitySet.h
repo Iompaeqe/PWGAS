@@ -26,4 +26,8 @@ class PWGASCORE_API UPWAbilitySet : public UDataAsset
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ability")
 	TArray<FPWAbilitySetEntry> Abilities;
+
+#if WITH_EDITOR
+	virtual EDataValidationResult IsDataValid(FDataValidationContext& Context) const override;
+#endif
 };

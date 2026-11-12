@@ -19,8 +19,12 @@ bool FAbilityLifecycleInvalidInputTest::RunTest(const FString& Parameters)
 	Abilities.AddAbility(PWTags::Ability::State::AwaitingConfirmation);
 	TestEqual("Unknown tag grants nothing", Test.ASC->GetActivatableAbilities().Num(), 0);
 
+	FPWAbilitySetEntry Unknown;
+	Unknown.AbilityTag = PWTags::Ability::State::AwaitingConfirmation;
+	Unknown.InputTag = PWTags::Input::GlobalCancel;
+
 	UPWAbilitySet* AbilitySet = NewObject<UPWAbilitySet>();
-	AbilitySet->Abilities.Add({PWTags::Ability::State::AwaitingConfirmation, PWTags::Input::GlobalCancel});
+	AbilitySet->Abilities.Add(Unknown);
 	Abilities.AddAbilitySet(AbilitySet);
 	Abilities.AddAbilitySet(nullptr);
 	TestEqual("Unknown set entry grants nothing", Test.ASC->GetActivatableAbilities().Num(), 0);
