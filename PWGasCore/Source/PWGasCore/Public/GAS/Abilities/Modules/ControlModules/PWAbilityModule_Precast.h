@@ -20,9 +20,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TObjectPtr<UPWPrecastVisualizer> Visualizer;
 
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float PreviewRadius = 150.f;
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float PreviewRange = 9999.f;
 	
 	UFUNCTION(BlueprintCallable, Category="Module")
@@ -37,9 +37,13 @@ public:
 	UFUNCTION(BlueprintPure, Category="Module")
 	FPWTargetingResult GetPrecastResult() const { return CachedResult; }
 
+	virtual void OnAbilityEnded_Implementation() override;
+
 protected:
 	UPROPERTY()
 	FPWTargetingResult CachedResult;
+
+	bool bRunning = false;
 
 private:
 	UPWPrecastControllerComponent* GetPrecastController() const;

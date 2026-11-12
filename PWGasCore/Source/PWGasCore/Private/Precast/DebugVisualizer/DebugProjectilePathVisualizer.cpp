@@ -26,27 +26,23 @@ void UDebugProjectilePathVisualizer::Update_Implementation(const FPWPrecastVisua
 		return;
 	}
 
-	// --- Draw projectile path ---
-	const TArray<FVector>& Points = Data.PathPoints;
+	TArray<FPWPrecastPath> Paths = Data.Paths;
+	if (Paths.IsEmpty() && Data.PathPoints.Num() > 1)
+		Paths.AddDefaulted_GetRef().Points = Data.PathPoints;
 
-	if (Points.Num() > 1)
+	for (const FPWPrecastPath& Path : Paths)
 	{
-		for (int32 Index = 1; Index < Points.Num(); ++Index)
-		{
-			const FVector& From = Points[Index - 1];
-			const FVector& To   = Points[Index];
+		for (int32 Index = 1; Index < Path.Points.Num(); ++Index)
+			DrawDebugLine(World, Path.Points[Index - 1], Path.Points[Index], PathColor, false, 0.f, 0, LineThickness);
 
-			DrawDebugLine(
-				World,
-				From,
-				To,
-				PathColor,
-				/*bPersistentLines=*/false,
-				/*LifeTime=*/0.0f,    // one frame; we get called every tick
-				/*DepthPriority=*/0,
-				/*Thickness=*/LineThickness
-			);
-		}
+		if (Paths.Num() > 1 && !Path.ImpactPoint.IsNearlyZero())
+			DrawDebugSphere(World, Path.ImpactPoint, 15.f, 8, ImpactSphereColor, false, 0.f, 0, LineThickness);
+	}
+
+	for (const FTransform& Spawn : Data.SpawnTransforms)
+	{
+		DrawDebugSphere(World, Spawn.GetLocation(), 20.f, 8, ImpactSphereColor, false, 0.f, 0, LineThickness);
+		DrawDebugLine(World, Spawn.GetLocation(), Spawn.GetLocation() + Spawn.GetRotation().GetForwardVector() * 50.f, ImpactNormalColor, false, 0.f, 0, LineThickness);
 	}
 
 	// --- Explosion radius at impact point ---

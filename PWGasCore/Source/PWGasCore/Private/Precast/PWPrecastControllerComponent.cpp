@@ -3,6 +3,7 @@
 
 #include "Precast/PWPrecastControllerComponent.h"
 
+#include "GAS/Abilities/Modules/ActionModules/PWActionModule.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/GameplayStaticsTypes.h"
 #include "Precast/Data/PWPrecastTypes.h"
@@ -48,9 +49,15 @@ void UPWPrecastControllerComponent::StopPrecast()
 	RangePolicy = nullptr;
 	TargetResolver = nullptr;
 	Visualizer = nullptr;
+	ActionModule = nullptr;
 	
 	Result = FPWTargetingResult();
 	bRunning = false;
+}
+
+void UPWPrecastControllerComponent::SetActionModule(UPWActionModule* InActionModule)
+{
+	ActionModule = InActionModule;
 }
 
 void UPWPrecastControllerComponent::UpdateProjectileSimConfig(const FPWProjectileSimConfig& Cfg)
@@ -88,7 +95,13 @@ void UPWPrecastControllerComponent::TickComponent(float DeltaTime, ELevelTick Ti
 		VisualUpdate.ImpactNormal = FVector::UpVector;
 
 		// projectile path computation
-		BuildProjectileVisual(VisualUpdate);
+		if (ProjCfg.InitialSpeed > 0.f)
+			BuildProjectileVisual(VisualUpdate);
+		if (ActionModule.IsValid())
+		{
+			ActionModule->GetPreviewTransforms(Result, VisualUpdate.SpawnTransforms);
+			VisualUpdate.ActorClass = ActionModule->GetPreviewActorClass();
+		}
 		Visualizer->Update(VisualUpdate);
 	}
 }
@@ -122,9 +135,35 @@ FVector UPWPrecastControllerComponent::GetOriginLocation() const
 void UPWPrecastControllerComponent::BuildProjectileVisual(FPWPrecastVisualUpdate& OutVisualUpdate)
 {
 	const FVector Start = GetOriginLocation();
-	const FVector AimDir = (Result.Location - Start).GetSafeNormal();
 
-	FPredictProjectilePathParams Params;  
+	TArray<FVector> AimPoints;
+	if (ActionModule.IsValid())
+		ActionModule->GetPreviewAimPoints(Result, AimPoints);
+	if (AimPoints.IsEmpty())
+		AimPoints.Add(Result.Location);
+
+	const int32 Middle = AimPoints.Num() / 2;
+	OutVisualUpdate.Paths.Reset();
+	for (int32 i = 0; i < AimPoints.Num(); ++i)
+	{
+		FHitResult Hit;
+		OutVisualUpdate.Paths.Add(SimulatePath(Start, AimPoints[i], Hit));
+		if (i == Middle)
+		{
+			Result.bHasHit = Hit.bBlockingHit;
+			Result.Hit = Hit;
+		}
+	}
+
+	const FPWPrecastPath& Main = OutVisualUpdate.Paths[Middle];
+	OutVisualUpdate.PathPoints = Main.Points;
+	OutVisualUpdate.ImpactPoint = Main.ImpactPoint;
+	OutVisualUpdate.ImpactNormal = Main.ImpactNormal;
+}
+
+FPWPrecastPath UPWPrecastControllerComponent::SimulatePath(const FVector& Start, const FVector& AimPoint, FHitResult& OutHit) const
+{
+	FPredictProjectilePathParams Params;
 	Params.bTraceWithCollision = true;
 	Params.ProjectileRadius = ProjCfg.ProjectileRadius;
 	Params.MaxSimTime = ProjCfg.MaxSimTime;
@@ -133,21 +172,22 @@ void UPWPrecastControllerComponent::BuildProjectileVisual(FPWPrecastVisualUpdate
 	Params.DrawDebugType = EDrawDebugTrace::None;
 	if (!FMath::IsNearlyZero(ProjCfg.GravityZOverride))
 		Params.OverrideGravityZ = ProjCfg.GravityZOverride;
+	if (const APawn* Pawn = GetPawn())
+		Params.ActorsToIgnore.Add(const_cast<APawn*>(Pawn));
 
 	Params.StartLocation = Start;
-	Params.LaunchVelocity = AimDir * ProjCfg.InitialSpeed;
+	Params.LaunchVelocity = (AimPoint - Start).GetSafeNormal() * ProjCfg.InitialSpeed;
 
 	FPredictProjectilePathResult PathResult;
 	UGameplayStatics::PredictProjectilePath(GetWorld(), Params, PathResult);
+	OutHit = PathResult.HitResult;
 
-	OutVisualUpdate.PathPoints.Reset();
-	for (const auto& PathPointData : PathResult.PathData)
-		OutVisualUpdate.PathPoints.Add(PathPointData.Location);
+	FPWPrecastPath Path;
+	for (const FPredictProjectilePathPointData& Point : PathResult.PathData)
+		Path.Points.Add(Point.Location);
 
-	const bool bHit = PathResult.HitResult.bBlockingHit;
-	Result.bHasHit = bHit;
-	Result.Hit = PathResult.HitResult;
-
-	OutVisualUpdate.ImpactPoint = bHit ? PathResult.HitResult.ImpactPoint : (OutVisualUpdate.PathPoints.Num() ? OutVisualUpdate.PathPoints.Last() : Result.Location);
-	OutVisualUpdate.ImpactNormal = (bHit && ProjCfg.bAlignToGroundNormal) ? PathResult.HitResult.ImpactNormal : FVector::UpVector;
+	Path.bHit = OutHit.bBlockingHit;
+	Path.ImpactPoint = Path.bHit ? OutHit.ImpactPoint : (Path.Points.Num() ? Path.Points.Last() : AimPoint);
+	Path.ImpactNormal = (Path.bHit && ProjCfg.bAlignToGroundNormal) ? OutHit.ImpactNormal : FVector::UpVector;
+	return Path;
 }

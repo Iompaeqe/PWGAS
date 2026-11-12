@@ -24,6 +24,7 @@ void UPWAbilityModule_Precast::StartPrecast()
 		UPWTargetResolver* TargetResolver = nullptr;
 		FName OriginSocket = NAME_None;
 		FPWProjectileSimConfig ProjectileConfig;
+		ProjectileConfig.InitialSpeed = 0.f;
 
 		if (const UPWAbilityModule_Targeting* TargetingModule = OwnerAbility->GetTargetingModule())
 		{
@@ -58,6 +59,8 @@ void UPWAbilityModule_Precast::StartPrecast()
 			OriginSocket,
 			ProjectileConfig
 		);
+		C->SetActionModule(OwnerAbility->GetActionModule<UPWActionModule>());
+		bRunning = true;
 	}
 }
 
@@ -68,14 +71,22 @@ void UPWAbilityModule_Precast::StopPrecast()
 	
 	if (UPWPrecastControllerComponent* C = GetPrecastController())
 	{
-		C->StopPrecast();
 		CachedResult = C->GetTargetingResult();
+		C->StopPrecast();
 	}
+	bRunning = false;
+}
+
+void UPWAbilityModule_Precast::OnAbilityEnded_Implementation()
+{
+	if (bRunning)
+		StopPrecast();
 }
 
 void UPWAbilityModule_Precast::UpdateProjectileSimConfig(const FPWProjectileSimConfig& Cfg)
 {
-	GetPrecastController()->UpdateProjectileSimConfig(Cfg);
+	if (UPWPrecastControllerComponent* C = GetPrecastController())
+		C->UpdateProjectileSimConfig(Cfg);
 }
 
 UPWPrecastControllerComponent* UPWAbilityModule_Precast::GetPrecastController() const

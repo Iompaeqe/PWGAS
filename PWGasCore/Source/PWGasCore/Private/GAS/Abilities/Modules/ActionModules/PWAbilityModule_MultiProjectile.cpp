@@ -53,20 +53,32 @@ void UPWAbilityModule_MultiProjectile::SpreadSpawnNextStep(const FPWTargetingRes
 	if (!SpreadSteps.IsValidIndex(CurrentSpreadStep))
 		return;
 
-	const FVector Origin = OwnerAbility->GetAvatarActorFromActorInfo()->GetActorLocation();
-	const FVector ToTarget = Target.Location - Origin;
-
 	for (const int32 SpreadIndex : SpreadSteps[CurrentSpreadStep])
-	{
-		FPWTargetingResult SpreadTarget = Target;
-		SpreadTarget.Rotation = (ToTarget.Rotation().Quaternion() * ComputeSpreadRotation(SpreadIndex).Quaternion()).Rotator();
-		SpreadTarget.Location = Origin + SpreadTarget.Rotation.Vector() * ToTarget.Size();
-		Super::SpawnActorWithTargetingResult(SpreadTarget);
-	}
+		Super::SpawnActorWithTargetingResult(MakeSpreadTarget(Target, SpreadIndex));
 	CurrentSpreadStep++;
 
 	if (CurrentSpreadStep >= SpreadSteps.Num())
 		OwnerAbility->GetWorld()->GetTimerManager().ClearTimer(SpreadTimerHandle);
+}
+
+FPWTargetingResult UPWAbilityModule_MultiProjectile::MakeSpreadTarget(const FPWTargetingResult& Target, const int32 SpreadIndex) const
+{
+	const FVector Origin = OwnerAbility->GetAvatarActorFromActorInfo()->GetActorLocation();
+	const FVector ToTarget = Target.Location - Origin;
+
+	FPWTargetingResult SpreadTarget = Target;
+	SpreadTarget.Rotation = (ToTarget.Rotation().Quaternion() * ComputeSpreadRotation(SpreadIndex).Quaternion()).Rotator();
+	SpreadTarget.Location = Origin + SpreadTarget.Rotation.Vector() * ToTarget.Size();
+	return SpreadTarget;
+}
+
+void UPWAbilityModule_MultiProjectile::GetPreviewAimPoints(const FPWTargetingResult& Target, TArray<FVector>& OutAimPoints) const
+{
+	if (ProjectileCount <= 1 || !OwnerAbility->GetAvatarActorFromActorInfo())
+		return;
+
+	for (int32 SpreadIndex = 0; SpreadIndex < ProjectileCount; ++SpreadIndex)
+		OutAimPoints.Add(MakeSpreadTarget(Target, SpreadIndex).Location);
 }
 
 USpellParams* UPWAbilityModule_MultiProjectile::MakeSpellParams_Implementation(const FPWTargetingResult& Target)

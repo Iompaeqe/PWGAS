@@ -475,4 +475,75 @@ bool FSpawnPatternGridTest::RunTest(const FString& Parameters)
 	return true;
 }
 
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMultiActorPreviewTest, "PW.Modules.MultiActor.Preview", EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FMultiActorPreviewTest::RunTest(const FString& Parameters)
+{
+	FPWTestWorld Test;
+	UPWTestModularAbility* Ability = Test.ActivateAbility<UPWTestModularAbility>();
+
+	UPWAbilityModule_MultiActor* Module = NewObject<UPWAbilityModule_MultiActor>(Ability);
+	Module->Initialize(Ability);
+	Module->ActorClass = APWTestSpellActor::StaticClass();
+	Module->ActorCount = 5;
+	Module->Radius = 200.f;
+	Module->PatternOffset = FVector(50, 0, 0);
+	Module->PatternRotation = FRotator(0, 30, 0);
+	Module->Pattern = NewObject<UPWSpawnPattern_Line>(Module);
+
+	TArray<TSubclassOf<UPWDataModule>> Required;
+	Module->GetRequiredDataModules(Required);
+	TestTrue("Asks for a radius module", Required.Contains(UPWAbilityModule_Radius::StaticClass()));
+
+	FPWTargetingResult Target;
+	Target.Location = FVector(1000, 0, 0);
+
+	TArray<FTransform> Preview;
+	Module->GetPreviewTransforms(Target, Preview);
+	Module->SpawnMultipleActors(Target);
+
+	const TArray<APWTestSpellActor*> Actors = Test.GetActors<APWTestSpellActor>();
+	TestEqual("Spawned count", Actors.Num(), 5);
+	TestEqual("Preview count", Preview.Num(), 5);
+	for (const FTransform& Transform : Preview)
+		TestTrue("Preview matches a spawned actor", Actors.ContainsByPredicate([&](const APWTestSpellActor* Actor)
+		{
+			return Actor->GetActorLocation().Equals(Transform.GetLocation(), 0.5f) && Actor->GetActorRotation().Equals(Transform.Rotator(), 0.5f);
+		}));
+
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMultiProjectilePreviewTest, "PW.Modules.MultiProjectile.Preview", EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FMultiProjectilePreviewTest::RunTest(const FString& Parameters)
+{
+	FPWTestWorld Test;
+	UPWAbilityModule_MultiProjectile* Module = MakeSpreadModule(Test, 4, EProjectileSpreadPattern::CenterOut);
+	Module->SpreadDelay = 0.f;
+	const FPWTargetingResult Target = MakeTargetInFront(Test.Actor, 1000.f);
+
+	TArray<FVector> AimPoints;
+	Module->GetPreviewAimPoints(Target, AimPoints);
+	Module->SpreadSpawnProjectiles(Target);
+
+	const TArray<APWTestSpellActor*> Actors = Test.GetActors<APWTestSpellActor>();
+	TestEqual("One aim point per projectile", AimPoints.Num(), 4);
+	TestEqual("Spawned count", Actors.Num(), 4);
+
+	const FVector Origin = Test.Actor->GetActorLocation();
+	for (const FVector& AimPoint : AimPoints)
+	{
+		const FRotator Aim = (AimPoint - Origin).Rotation();
+		TestTrue("A projectile flies along each previewed path", Actors.ContainsByPredicate([&](const APWTestSpellActor* Actor) { return Actor->GetActorRotation().Equals(Aim, 0.5f); }));
+	}
+
+	UPWAbilityModule_MultiProjectile* Single = MakeSpreadModule(Test, 1, EProjectileSpreadPattern::LeftToRight);
+	AimPoints.Reset();
+	Single->GetPreviewAimPoints(Target, AimPoints);
+	TestEqual("A single projectile uses the plain aim", AimPoints.Num(), 0);
+
+	return true;
+}
+
 #endif

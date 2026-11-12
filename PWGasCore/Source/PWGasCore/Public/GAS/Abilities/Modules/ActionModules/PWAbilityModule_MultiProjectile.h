@@ -47,6 +47,7 @@ public:
 	void SpreadSpawnNextStep(const FPWTargetingResult& Target);
 
 	virtual AActor* SpawnActorWithTargetingResult(const FPWTargetingResult& Target) override;
+	virtual void GetPreviewAimPoints(const FPWTargetingResult& Target, TArray<FVector>& OutAimPoints) const override;
 
 private:
 	int32 CurrentSpreadStep = 0;
@@ -58,5 +59,6 @@ protected:
 	virtual USpellParams* MakeSpellParams_Implementation(const FPWTargetingResult& Target) override;
 
 	void BuildSpreadSteps();
+	FPWTargetingResult MakeSpreadTarget(const FPWTargetingResult& Target, int32 SpreadIndex) const;
 	FRotator ComputeSpreadRotation(int32 SpreadIndex) const;
 };

@@ -13,6 +13,7 @@ class UPWTargetingSource;
 class UPWRangePolicy;
 class UPWPrecastVisualizer;
 class UPWTargetResolver;
+class UPWActionModule;
 
 UCLASS(ClassGroup=(GASCore), meta=(BlueprintSpawnableComponent))
 class PWGASCORE_API UPWPrecastControllerComponent : public UActorComponent
@@ -35,6 +36,7 @@ public:
 	FPWTargetingResult GetTargetingResult() const { return Result; }
 
 	void UpdateProjectileSimConfig(const FPWProjectileSimConfig& Cfg);
+	void SetActionModule(UPWActionModule* InActionModule);
 
 protected:
 	virtual void BeginPlay() override;
@@ -45,6 +47,8 @@ private:
 	UPROPERTY() TObjectPtr<UPWRangePolicy> RangePolicy = nullptr;
 	UPROPERTY() TObjectPtr<UPWPrecastVisualizer> Visualizer = nullptr;
 	UPROPERTY() TObjectPtr<UPWTargetResolver> TargetResolver = nullptr;
+
+	TWeakObjectPtr<UPWActionModule> ActionModule;
 
 	bool bRunning = false;
 
@@ -62,4 +66,5 @@ private:
 	APawn* GetPawn() const;
 	FVector GetOriginLocation() const;
 	void BuildProjectileVisual(FPWPrecastVisualUpdate& OutVisualUpdate);
+	FPWPrecastPath SimulatePath(const FVector& Start, const FVector& AimPoint, FHitResult& OutHit) const;
 };

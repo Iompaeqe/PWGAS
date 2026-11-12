@@ -24,6 +24,13 @@ public:
 
 	virtual void ExtendParamsWithData(USpellParams* Params) const;
 
+	UFUNCTION(BlueprintCallable, Category="Module")
+	virtual void ExecuteAction() {}
+
+	virtual void GetPreviewTransforms(const FPWTargetingResult& Target, TArray<FTransform>& OutTransforms) const {}
+	virtual TSubclassOf<AActor> GetPreviewActorClass() const { return nullptr; }
+	virtual void GetPreviewAimPoints(const FPWTargetingResult& Target, TArray<FVector>& OutAimPoints) const {}
+
 	FSimpleMulticastDelegate OnActionFinished;
 	bool IsActionPending() const { return bActionPending; }
 
