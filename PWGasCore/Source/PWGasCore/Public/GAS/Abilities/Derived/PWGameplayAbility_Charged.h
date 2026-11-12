@@ -12,12 +12,15 @@ class PWGASCORE_API UPWGameplayAbility_Charged : public UPWModularGameplayAbilit
 	GENERATED_BODY()
 
 protected:
+	// Starts charging on activation; turn off to call Start Charging from the graph.
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Charge")
 	bool bAutoStartCharge = true;
 
+	// Seconds needed to reach a full charge.
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Charge")
 	float ChargeDuration = 2.0f;
 
+	// Seconds between On Charge Tick events.
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Charge")
 	float ChargeTickInterval = 0.1f;
 

@@ -14,15 +14,19 @@ class PWGASCORE_API UProjectileSpellParamsExtension : public UActorSpellParamsEx
 	GENERATED_BODY()
 
 public:
+	// Launch speed in units per second, copied from the module's projectile config.
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	float InitialSpeed = 1200.f;
 
+	// Gravity applied to the projectile; 0 uses the projectile's own setting.
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	float GravityZOverride = 0.f;
 
+	// Collision radius of the projectile.
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	float ProjectileRadius = 8.f;
 
+	// Distance the projectile is meant to travel; 0 leaves it to the actor.
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	float Range = 0.f;
 };
@@ -33,6 +37,7 @@ class PWGASCORE_API UPWAbilityModule_Projectile : public UPWAbilityModule_Actor
 	GENERATED_BODY()
 
 public:
+	// Speed, gravity and size of the projectile, also used to draw its precast path.
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	FPWProjectileSimConfig ProjectileConfig;
 	

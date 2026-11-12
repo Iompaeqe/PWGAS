@@ -16,9 +16,11 @@ class PWGASCORE_API UPWAbilityModule_Range : public UPWDataModule
 	GENERATED_BODY()
 
 public:
+	// How a target point beyond the range is handled, for example clamped to max range.
 	UPROPERTY(EditDefaultsOnly, Instanced, BlueprintReadOnly)
 	TObjectPtr<UPWRangePolicy> RangePolicy;
 	
+	// Maximum cast distance by ability level.
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	FScalableFloat Range = 1200.f;
 

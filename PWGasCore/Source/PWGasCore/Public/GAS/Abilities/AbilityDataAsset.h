@@ -13,6 +13,7 @@ class PWGASCORE_API UAbilityDataAsset : public UDataAsset
 	GENERATED_BODY()
 
 public:
+	// Everything the registry and UI need to know about one ability.
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	FPWAbilityInfo Ability;
 

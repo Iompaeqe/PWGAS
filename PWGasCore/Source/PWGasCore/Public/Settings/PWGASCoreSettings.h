@@ -21,6 +21,7 @@ public:
 	TSoftObjectPtr<UPWAbilityRegistry> GetAbilityRegistry(const FGameplayTag& AbilityTag) const;
 	
 protected:
+	// Registry asset that maps ability tags to ability classes for the whole game.
 	UPROPERTY(EditAnywhere, config, Category="GAS Core Registry")
 	TSoftObjectPtr<UPWAbilityRegistry> AbilityRegistry;
 

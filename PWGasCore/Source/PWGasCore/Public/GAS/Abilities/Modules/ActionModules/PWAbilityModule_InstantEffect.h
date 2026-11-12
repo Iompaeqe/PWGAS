@@ -13,6 +13,7 @@ class PWGASCORE_API UPWAbilityModule_InstantEffect : public UPWActionModule
 	GENERATED_BODY()
 
 public:
+	// Applies the effects as soon as the ability activates and removes the infinite ones when it ends.
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Module")
 	bool bApplyOnActivated = false;
 

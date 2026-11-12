@@ -50,8 +50,10 @@ class PWGASCORE_API UPWGameplayAbilityBase : public UGameplayAbility
 public:
 	UPWGameplayAbilityBase();
 	
+	// The ability's identity tag; its cooldown tag is this tag plus .Cooldown.
 	UPROPERTY(EditDefaultsOnly, Category="Ability", meta=(GameplayTagFilter = "Ability.Skill"))
 	FGameplayTag AbilityTag;
+	// Montage tags the avatar resolves through its anim set provider; Get Anim Montage From Actor picks one by index.
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Animation", meta=(GameplayTagFilter = "AnimMontage"))
 	TArray<FGameplayTag> AnimationTags;
 	
@@ -74,10 +76,12 @@ public:
 	APawn* GetPawn() const;
 	
 protected:
+	// Independent abilities run alongside anything, Replaceable ones are cancelled by the next exclusive ability, Blocking ones stop other exclusive abilities from starting.
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Activation")
 	EPWActivationGroup ActivationGroup;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Cooldowns", meta=(ToolTip="Used with GE_Cooldown that handles cooldown tag and duration dynamically."))
 	FScalableFloat Cooldown;
+	// The ability is cancelled as soon as its owner gains any of these tags, for example a stun.
 	UPROPERTY(EditDefaultsOnly, Category = Tags, meta=(Categories="AbilityTagCategory"))
 	FGameplayTagContainer CancellationTags;
 	

@@ -17,21 +17,27 @@ class PWGASCORE_API UActorSpellParamsExtension : public USpellParamsExtension
 	GENERATED_BODY()
 
 public:
+	// Where the actor was asked to spawn, filled in by the module at cast time.
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	FVector SpawnLocation = FVector::ZeroVector;
 
+	// Facing the actor was asked to spawn with, filled in by the module at cast time.
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	FRotator SpawnRotation = FRotator::ZeroRotator;
 
+	// Relations the spawned actor may collide with, copied from the module.
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	int32 TargetMask = (int32)ERelationMask::All;
 
+	// Lifetime in seconds for the spawned actor to use; 0 leaves it to the actor.
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	float Duration = 0.f;
 
+	// Whether the spawned actor is attached to the caster.
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	bool bAttachToOwner = false;
 
+	// Socket on the caster's mesh the actor is attached to.
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	FName AttachSocket = NAME_None;
 };
@@ -46,8 +52,10 @@ public:
 	/** Actor class to spawn. Must implement PWSpellParamsInterface. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(MustImplement="PWSpellParamsInterface"))
 	TSubclassOf<AActor> ActorClass;
+	// Relations the spawned actor collides with; anyone outside the mask is passed through.
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(Bitmask, BitmaskEnum="/Script/PWSharedTypes.ERelationMask"))
 	int32 TargetMask = (int32)ERelationMask::All;
+	// Spawns as soon as the ability activates, so no graph is needed.
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	bool bSpawnOnActivated = false;
 
@@ -67,6 +75,7 @@ public:
 	/** If true, pitch will be flattened (useful for ground spawns). */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	bool bZeroPitch = false;
+	// Draws a red sphere at the spawn position for three seconds.
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	bool bDebugSpawnPosition = false;
 

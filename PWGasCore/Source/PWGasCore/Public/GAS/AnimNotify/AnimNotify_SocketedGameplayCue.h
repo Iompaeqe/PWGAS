@@ -29,10 +29,13 @@ protected:
 	// GameplayCue tag to invoke.
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = GameplayCue, meta = (Categories = "GameplayCue"))
 	FGameplayCueTag GameplayCue;
+	// Socket on the mesh the cue is played at.
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = GameplayCue, meta = (Categories = "GameplayCue"))
 	FName SocketName;
+	// Offset added to the socket location, in world space.
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = GameplayCue, meta = (Categories = "GameplayCue"))
 	FVector OffsetLocation;
+	// Rotation added to the socket rotation.
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = GameplayCue, meta = (Categories = "GameplayCue"))
 	FRotator OffsetRotation;
 };

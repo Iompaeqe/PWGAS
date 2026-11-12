@@ -19,6 +19,7 @@ protected:
 	UPROPERTY(BlueprintReadOnly)
 	bool bConfirmed = false;
 
+	// Inputs that confirm the cast while the ability waits, grouped by whether the press or the release confirms.
 	UPROPERTY(EditDefaultsOnly, meta=(GameplayTagFilter = "Input"))
 	TMap<EPWInputEventType, FGameplayTagContainer> ConfirmInputs;
 

@@ -15,6 +15,7 @@ class PWGASCORE_API USelfTargeting : public UPWTargetingSource
 	GENERATED_BODY()
 
 public:
+	// Moves the target point from the caster, in the caster's own space.
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Targeting")
 	FVector Offset = FVector::ZeroVector;
 

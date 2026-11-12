@@ -14,12 +14,15 @@ class PWGASCORE_API UPWGameplayAbility_Channeling : public UPWModularGameplayAbi
 protected:
 	UPWGameplayAbility_Channeling();
 
+	// Starts channeling on activation; turn off to call Start Channeling from the graph.
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Channel")
 	bool bAutoStartChannel = true;
 
+	// Seconds between On Channel Tick events.
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Channel")
 	float ChannelTickInterval = 0.5f;
 
+	// Seconds until the channel ends by itself; 0 channels until stopped.
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Channel")
 	float MaxChannelDuration = 0.f; // 0 = infinite
 

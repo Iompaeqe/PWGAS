@@ -27,6 +27,7 @@ protected:
 	UPROPERTY(BlueprintReadOnly)
 	TArray<AActor*> OverlappingActors;
 
+	// Draws the aura's sphere when it starts.
 	UPROPERTY(EditAnywhere)
 	bool bDrawDebug = false;
 

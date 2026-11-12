@@ -17,6 +17,7 @@ class PWGASCORE_API UPWAbilityRegistry : public UPrimaryDataAsset
 	GENERATED_BODY()
 
 public:
+	// Every ability the game can grant by tag; set this registry in Project Settings.
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TArray<TSoftObjectPtr<UAbilityDataAsset>> Abilities;
 	UFUNCTION(BlueprintCallable)

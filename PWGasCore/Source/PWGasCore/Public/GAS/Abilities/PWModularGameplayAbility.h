@@ -49,10 +49,13 @@ public:
 	// == Modules  == //
 	// ============== //
 
+	// What the ability does: spawn an actor, fire a projectile, apply an effect or run an aura.
 	UPROPERTY(EditDefaultsOnly, Instanced, Category="Ability|Modules")
 	TObjectPtr<UPWActionModule> ActionModule;
+	// Values the other modules share, such as effects, range and radius.
 	UPROPERTY(EditDefaultsOnly, Instanced, Category="Ability|Modules")
 	TArray<TObjectPtr<UPWDataModule>> DataModules;
+	// How the ability is aimed and presented: targeting, precast preview and visual effects.
 	UPROPERTY(EditDefaultsOnly, Instanced, Category="Ability|Modules")
 	TArray<TObjectPtr<UPWControlModule>> ControlModules;
 

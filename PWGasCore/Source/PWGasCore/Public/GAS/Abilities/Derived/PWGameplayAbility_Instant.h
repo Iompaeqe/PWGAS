@@ -14,6 +14,7 @@ class PWGASCORE_API UPWGameplayAbility_Instant : public UPWModularGameplayAbilit
 
 public:
 
+	// Pays the cost and starts the cooldown on activation; turn off to commit from the graph.
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Ability|Commit")
 	bool bAutoCommit = true;
 

@@ -14,9 +14,11 @@ class PWGASCORE_API UPWGameplayAbility_Passive : public UPWModularGameplayAbilit
 protected:
 	UPWGameplayAbility_Passive();
 	
+	// Fires On Passive Tick repeatedly while the passive is active.
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Passive|Tick")
 	bool bEnablePassiveTick = false;
 
+	// Seconds between On Passive Tick events.
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Passive|Tick")
 	float PassiveTickInterval = 1.0f;
 

@@ -13,6 +13,7 @@ class PWGASCORE_API UPWAbilityModule_Radius : public UPWDataModule
 	GENERATED_BODY()
 
 public:
+	// Area radius by ability level, shared by targeting, previews and spawn patterns.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FScalableFloat Radius = 400.f;
 
