@@ -68,8 +68,21 @@ bool FInstantEffectAtLocationTest::RunTest(const FString& Parameters)
 
 	UPWTestTargetResolver* Resolver = NewObject<UPWTestTargetResolver>(Ability);
 	Resolver->Actors.Add(TargetASC->GetOwner());
+	UPWAbilityModule_Resolver* ResolverModule = NewObject<UPWAbilityModule_Resolver>(Ability);
+	ResolverModule->Resolver = Resolver;
+	ResolverModule->Initialize(Ability);
+	Ability->ControlModules.Add(ResolverModule);
+
+	Module->ApplyEffectsAtLocation(FVector(100, 0, 0));
+	TestEqual("A resolver alone is enough, no targeting module", TargetASC->GetGameplayEffectCount(UPWTestEffect::StaticClass(), nullptr), 1);
+	Module->RemoveEffects();
+
+	Module->ApplyEffects();
+	TestEqual("Apply Effects with a resolver alone gathers around the caster", TargetASC->GetGameplayEffectCount(UPWTestEffect::StaticClass(), nullptr), 1);
+	TestEqual("The caster was the resolve point", Resolver->LastLocation, Test.Actor->GetActorLocation());
+	Module->RemoveEffects();
+
 	UPWAbilityModule_Targeting* Targeting = NewObject<UPWAbilityModule_Targeting>(Ability);
-	Targeting->TargetResolver = Resolver;
 	Targeting->Initialize(Ability);
 	Ability->ControlModules.Add(Targeting);
 
@@ -78,6 +91,11 @@ bool FInstantEffectAtLocationTest::RunTest(const FString& Parameters)
 
 	Module->ApplyEffectsAtSocket("NoSuchSocket");
 	TestEqual("Applied at socket fallback", TargetASC->GetGameplayEffectCount(UPWTestEffect::StaticClass(), nullptr), 2);
+
+	FPWTargetingResult AroundCaster;
+	TestTrue("A resolver with no targeting source resolves around the caster", Targeting->ComputeTarget(AroundCaster));
+	TestEqual("The caster is the target point", AroundCaster.Location, Test.Actor->GetActorLocation());
+	TestEqual("The resolver's targets are returned", AroundCaster.HitActors.Num(), 1);
 
 	Resolver->Actors.Add(TargetASC->GetOwner());
 	Module->ApplyEffectsAtLocation(FVector(100, 0, 0));

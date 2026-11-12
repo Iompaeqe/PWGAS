@@ -45,6 +45,13 @@ void UPWAbilityModule_InstantEffect::ApplyEffects()
 	}
 
 	// No Targeting - Use Self
+	// A resolver with no targeting gathers around the caster.
+	if (const UPWAbilityModule_Resolver* ResolverModule = OwnerAbility->GetResolverModule())
+	{
+		ApplyEffectsToTargets(ResolverModule->ResolveAroundCaster());
+		return;
+	}
+
 	UAbilitySystemComponent* SourceASC = OwnerAbility->GetAbilitySystemComponentFromActorInfo();
 	if (!SourceASC) return;
 
@@ -104,11 +111,19 @@ void UPWAbilityModule_InstantEffect::ApplyEffectsAtLocation(const FVector& Locat
 {
 	if (!OwnerAbility) return;
 
-	const UPWAbilityModule_Targeting* Targeting = OwnerAbility->GetTargetingModule();
-	if (!Targeting) return;
-
 	FPWTargetingResult Result;
 	Result.Location = Location;
+
+	const UPWAbilityModule_Targeting* Targeting = OwnerAbility->GetTargetingModule();
+	if (!Targeting)
+	{
+		if (const UPWAbilityModule_Resolver* ResolverModule = OwnerAbility->GetResolverModule())
+		{
+			ResolverModule->ResolveTargets(Result);
+			ApplyEffectsToTargets(Result);
+		}
+		return;
+	}
 	Targeting->InitializePolicies();
 	if (Targeting->TargetingSource)
 		Targeting->TargetingSource->SampleFrom(GetPawn(), Location, Result);

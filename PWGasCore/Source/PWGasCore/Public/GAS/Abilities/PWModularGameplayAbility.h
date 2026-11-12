@@ -15,6 +15,7 @@
 #include "Modules/ControlModules/PWAbilityModule_Niagara.h"
 #include "Modules/ControlModules/PWAbilityModule_Precast.h"
 #include "Modules/ControlModules/PWAbilityModule_Targeting.h"
+#include "Modules/ControlModules/PWAbilityModule_Resolver.h"
 #include "Modules/DataModules/PWAbilityModule_Effect.h"
 #include "Modules/DataModules/PWAbilityModule_Radius.h"
 #include "Modules/DataModules/PWAbilityModule_Range.h"
@@ -112,6 +113,8 @@ public:
 	UPWAbilityModule_Precast* GetPrecastModule() const;
 	UFUNCTION(BlueprintPure, Category="Modules")
 	UPWAbilityModule_Targeting* GetTargetingModule() const;
+	UFUNCTION(BlueprintPure, Category="Modules")
+	UPWAbilityModule_Resolver* GetResolverModule() const;
 	//Data Modules
 	UFUNCTION(BlueprintPure, Category="Modules")
 	UPWAbilityModule_Effect* GetEffectModule() const;
@@ -142,6 +145,8 @@ protected:
 	// ============== //
 
 	void EnsureRequiredDataModules();
+
+	virtual void PostLoad() override;
 
 private:
 	static TMap<UClass*, TArray<UPWAbilityModule*>> CachedByType;

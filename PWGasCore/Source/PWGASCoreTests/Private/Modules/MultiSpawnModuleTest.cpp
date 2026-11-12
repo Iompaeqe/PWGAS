@@ -620,4 +620,42 @@ bool FProjectileParamsRotationTest::RunTest(const FString& Parameters)
 	return true;
 }
 
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FActorModuleNoTargetingTest, "PW.Modules.Actor.NoTargeting", EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FActorModuleNoTargetingTest::RunTest(const FString& Parameters)
+{
+	{
+		FPWTestWorld Test;
+		Test.Actor->SetActorLocation(FVector(300.f, 100.f, 50.f));
+		UPWTestModularAbility* Ability = Test.ActivateAbility<UPWTestModularAbility>();
+
+		UPWAbilityModule_Actor* Module = NewObject<UPWAbilityModule_Actor>(Ability);
+		Module->Initialize(Ability);
+		Module->ActorClass = APWTestSpellActor::StaticClass();
+		Module->bSpawnAtTarget = true;
+		Module->SpawnActor();
+
+		const TArray<APWTestSpellActor*> Actors = Test.GetActors<APWTestSpellActor>();
+		if (!TestEqual("Spawns without a targeting module", Actors.Num(), 1))
+			return false;
+		TestEqual("On the caster", Actors[0]->GetActorLocation(), Test.Actor->GetActorLocation());
+		TestFalse("The action is finished", Module->IsActionPending());
+	}
+	{
+		FPWTestWorld Test;
+		UPWTestModularAbility* Ability = Test.ActivateAbility<UPWTestModularAbility>();
+
+		UPWAbilityModule_Projectile* Module = NewObject<UPWAbilityModule_Projectile>(Ability);
+		Module->Initialize(Ability);
+		Module->ActorClass = APWTestSpellActor::StaticClass();
+		Module->SpawnProjectile();
+
+		const TArray<APWTestSpellActor*> Actors = Test.GetActors<APWTestSpellActor>();
+		if (!TestEqual("A projectile fires without a targeting module", Actors.Num(), 1))
+			return false;
+		TestTrue("Straight ahead of the caster", Actors[0]->GetActorRotation().Equals(Test.Actor->GetActorRotation(), 0.1f));
+	}
+	return true;
+}
+
 #endif

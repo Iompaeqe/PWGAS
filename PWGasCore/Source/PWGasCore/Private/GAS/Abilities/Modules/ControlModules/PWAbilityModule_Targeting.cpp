@@ -6,6 +6,7 @@
 #include "Debug/Logging.h"
 #include "GAS/Abilities/PWModularGameplayAbility.h"
 #include "GAS/Abilities/Modules/DataModules/PWAbilityModule_Range.h"
+#include "GAS/Abilities/Modules/ControlModules/PWAbilityModule_Resolver.h"
 #include "PWGasCore/Public/Targeting/Types/PWTargetPolicyBase.h"
 
 static bool GetSingleHitFromHandle(const FGameplayAbilityTargetDataHandle& Handle, FHitResult& OutHit)
@@ -79,19 +80,27 @@ bool UPWAbilityModule_Targeting::ComputeTarget(FPWTargetingResult& Out)
 		return false;
 	}
 
-	APlayerController* PC = OwnerAbility->GetPC();
-	if (!PC)
-	{
-		pwlogability(Error, "ComputeTarget failed: PlayerController is null for %s", *OwnerAbility->GetName());
-		return false;
-	}
-
 	InitializePolicies();
 
-	// --- Targeting ---
-	if (!TargetingSource || !TargetingSource->Sample(PC, Out))
+	if (TargetingSource)
 	{
-		return false;
+		APlayerController* PC = OwnerAbility->GetPC();
+		if (!PC)
+		{
+			pwlogability(Error, "ComputeTarget failed: PlayerController is null for %s", *OwnerAbility->GetName());
+			return false;
+		}
+		if (!TargetingSource->Sample(PC, Out))
+			return false;
+	}
+	else
+	{
+		// No source: the caster is the target point, so a resolver alone gathers targets around it.
+		const AActor* Avatar = OwnerAbility->GetAvatarActorFromActorInfo();
+		if (!Avatar)
+			return false;
+		Out.Location = Avatar->GetActorLocation();
+		Out.Rotation = Avatar->GetActorRotation();
 	}
 
 	FinalizeTargetingResult(Out);
@@ -104,9 +113,6 @@ void UPWAbilityModule_Targeting::InitializePolicies() const
 {
 	if (TargetingSource)
 		TargetingSource->Initialize(OwnerAbility);
-
-	if (TargetResolver)
-		TargetResolver->Initialize(OwnerAbility);
 
 	const UPWAbilityModule_Range* RangeModule = OwnerAbility->GetRangeModule();
 	if (RangeModule && RangeModule->RangePolicy)
@@ -127,20 +133,9 @@ void UPWAbilityModule_Targeting::FinalizeTargetingResult(FPWTargetingResult& InO
 	}
 
 	// --- Resolve targets ---
-	TArray<AActor*> OutActors;
-	if (TargetResolver && AvatarActor)
-	{
-		TargetResolver->Resolve(AvatarActor, InOut, OutActors);
-	}
-
 	InOut.HitActors.Reset();
-	for (AActor* A : OutActors)
-	{
-		if (IsValid(A))
-		{
-			InOut.HitActors.AddUnique(A);
-		}
-	}
+	if (const UPWAbilityModule_Resolver* ResolverModule = OwnerAbility->GetResolverModule())
+		ResolverModule->ResolveTargets(InOut);
 
 	// --- Final rotation & flags ---
 	const FVector Origin = AvatarActor ? AvatarActor->GetActorLocation() : FVector::ZeroVector;
@@ -169,6 +164,4 @@ void UPWAbilityModule_Targeting::MakeTargetingResultFromTargetData(const FGamepl
 
 void UPWAbilityModule_Targeting::GetRequiredDataModules_Implementation(TArray<TSubclassOf<UPWDataModule>>& OutRequiredModules)
 {
-	if (TargetResolver)
-		TargetResolver->GetRequiredDataModules(OutRequiredModules);
 }

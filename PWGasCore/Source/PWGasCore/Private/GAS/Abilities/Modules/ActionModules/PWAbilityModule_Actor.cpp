@@ -98,7 +98,18 @@ void UPWAbilityModule_Actor::SpawnActor()
 	UPWAbilityModule_Targeting* Targeting = OwnerAbility->GetTargetingModule();
 	if (!Targeting)
 	{
-		// no targeting fallback
+		// Without a targeting module the caster is the target: spawn on it, or aim straight ahead of it.
+		const AActor* Avatar = OwnerAbility->GetAvatarActorFromActorInfo();
+		if (!Avatar)
+			return;
+
+		FPWTargetingResult Target;
+		Target.Rotation = Avatar->GetActorRotation();
+		Target.Location = Avatar->GetActorLocation() + (bSpawnAtTarget ? FVector::ZeroVector : Avatar->GetActorForwardVector() * 10000.f);
+
+		StartAction();
+		SpawnActorWithTargetingResult(Target);
+		FinishAction();
 		return;
 	}
 
@@ -161,8 +172,6 @@ FTransform UPWAbilityModule_Actor::BuildSpawnTransform(const FPWTargetingResult&
 void UPWAbilityModule_Actor::GetRequiredDataModules_Implementation(TArray<TSubclassOf<UPWDataModule>>& OutRequiredModules)
 {
 	Super::GetRequiredDataModules_Implementation(OutRequiredModules);
-
-	OutRequiredModules.Add(UPWAbilityModule_Targeting::StaticClass());
 }
 
 void UPWAbilityModule_Actor::OnTargetDataReady(const FGameplayAbilityTargetDataHandle& DataHandle, const FPWTargetingResult& Result)

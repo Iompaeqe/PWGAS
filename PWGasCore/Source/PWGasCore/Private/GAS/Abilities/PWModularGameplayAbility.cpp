@@ -186,6 +186,34 @@ UPWAbilityModule_Precast* UPWModularGameplayAbility::GetPrecastModule() const
 	return GetControlModule<UPWAbilityModule_Precast>();
 }
 
+UPWAbilityModule_Resolver* UPWModularGameplayAbility::GetResolverModule() const
+{
+	return GetControlModule<UPWAbilityModule_Resolver>();
+}
+
+void UPWModularGameplayAbility::PostLoad()
+{
+	Super::PostLoad();
+
+	// Abilities saved before the resolver had its own module kept it on the Targeting module.
+	UPWAbilityModule_Targeting* Targeting = GetTargetingModule();
+	if (!Targeting)
+		return;
+
+	Targeting->ConditionalPostLoad();
+	if (!Targeting->TargetResolver_DEPRECATED)
+		return;
+
+	if (!GetResolverModule())
+	{
+		UPWAbilityModule_Resolver* Module = NewObject<UPWAbilityModule_Resolver>(this, NAME_None, GetMaskedFlags(RF_PropagateToSubObjects) | RF_Transactional);
+		Module->Resolver = Targeting->TargetResolver_DEPRECATED;
+		Module->Resolver->Rename(nullptr, Module, REN_DontCreateRedirectors | REN_DoNotDirty | REN_NonTransactional);
+		ControlModules.Add(Module);
+	}
+	Targeting->TargetResolver_DEPRECATED = nullptr;
+}
+
 UPWAbilityModule_Targeting* UPWModularGameplayAbility::GetTargetingModule() const
 {
 	return GetControlModule<UPWAbilityModule_Targeting>();

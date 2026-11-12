@@ -16,12 +16,12 @@ class PWGASCORE_API UPWAbilityModule_Targeting : public UPWControlModule
 	GENERATED_BODY()
 	
 public:
-	// Where the ability aims: the cursor, the screen center or the caster.
+	// Where the ability aims: the cursor, the screen center or the caster; empty targets the caster.
 	UPROPERTY(EditDefaultsOnly, Instanced, BlueprintReadOnly)
 	TObjectPtr<UPWTargetingSource> TargetingSource;
-	// Which actors at the aimed point become targets; leave empty when only a location is needed.
-	UPROPERTY(EditDefaultsOnly, Instanced, BlueprintReadOnly)
-	TObjectPtr<UPWTargetResolver> TargetResolver;
+	// Moved to the Target Resolver module. Old abilities are converted when they load.
+	UPROPERTY(Instanced, meta=(DeprecatedProperty, DeprecationMessage="Use the Target Resolver module."))
+	TObjectPtr<UPWTargetResolver> TargetResolver_DEPRECATED;
 
 	UFUNCTION(BlueprintCallable, Category="Module")
 	bool ComputeTarget(FPWTargetingResult& Out);

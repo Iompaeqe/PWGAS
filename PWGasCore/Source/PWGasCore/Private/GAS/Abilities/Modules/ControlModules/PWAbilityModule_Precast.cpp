@@ -30,9 +30,14 @@ void UPWAbilityModule_Precast::StartPrecast()
 		{
 			TargetingModule->InitializePolicies();
 			TargetingSource = TargetingModule->TargetingSource;
-			TargetResolver = TargetingModule->TargetResolver;
 		}
 
+		if (const UPWAbilityModule_Resolver* ResolverModule = OwnerAbility->GetResolverModule())
+		{
+			TargetResolver = ResolverModule->Resolver;
+			if (TargetResolver)
+				TargetResolver->Initialize(OwnerAbility);
+		}
 		if (const UPWAbilityModule_Range* RangeModule = OwnerAbility->GetRangeModule())
 		{
 			RangePolicy = RangeModule->RangePolicy;
