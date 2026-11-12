@@ -50,7 +50,6 @@ public class PWGasCore : ModuleRules
 				"GameplayTags",
 				"DeveloperSettings",
 				"PWContracts", 
-				"GameplayMessageRuntime",
 				"Niagara"
 				// ... add private dependencies that you statically link with here ...	
 			}

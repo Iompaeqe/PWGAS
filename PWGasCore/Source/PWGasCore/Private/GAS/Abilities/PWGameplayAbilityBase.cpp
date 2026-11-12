@@ -12,14 +12,12 @@
 #include "PWGASCoreLogChannels.h"
 #include "Ability/SpellParams.h"
 #include "GameFramework/Character.h"
-#include "GameFramework/GameplayMessageSubsystem.h"
 #include "GameFramework/PlayerState.h"
 #include "GAS/ASC/PWAbilitySystemComponent.h"
 #include "GAS/Tags/GASCoreTags.h"
 #include "VisualAndAudio/PWAnimSetProvider.h"
 
 
-UE_DEFINE_GAMEPLAY_TAG(Tag_Ability_Message_Cooldown, "Ability.Message.Cooldown");
 
 #define ENSURE_ABILITY_IS_INSTANTIATED_OR_RETURN(FunctionName, ReturnValue) \
 { \
@@ -33,6 +31,7 @@ return ReturnValue; \
 UPWGameplayAbilityBase::UPWGameplayAbilityBase()
 {
 	ActivationGroup = EPWActivationGroup::Independent;
+	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 }
 
 float UPWGameplayAbilityBase::GetCooldown(int32 Level) const
@@ -264,21 +263,10 @@ void UPWGameplayAbilityBase::ApplyCooldown(const FGameplayAbilitySpecHandle Hand
 		ApplyGameplayEffectSpecToOwner(Handle, ActorInfo, ActivationInfo, SpecHandle);
 	}
 
-	bool bIsNetAuthority = ActorInfo->IsNetAuthority();
-	UE_LOG(LogGameplayTags, Log, TEXT("bIsNetAuthority %hs"), bIsNetAuthority? "true":"false");
-
-	if (const FGameplayAbilityActorInfo* Info = GetCurrentActorInfo())
-	{
-		if (Info->IsLocallyControlled())
-		{
-			FCooldownMessage Message = FCooldownMessage();
-			Message.ASC = Cast<UPWAbilitySystemComponent>(GetAbilitySystemComponentFromActorInfo());
-			Message.AbilityTag = AbilityTag;
-			Message.Duration = Cd;
-			UGameplayMessageSubsystem& MessageSystem = UGameplayMessageSubsystem::Get(GetWorld());
-			MessageSystem.BroadcastMessage(Tag_Ability_Message_Cooldown, Message);
-		}
-	}
+	const FGameplayAbilityActorInfo* Info = GetCurrentActorInfo();
+	UPWAbilitySystemComponent* ASC = GetPWAbilitySystemComponentFromActorInfo();
+	if (Info && ASC && Info->IsLocallyControlled())
+		ASC->Cooldown().CooldownStarted.Broadcast(AbilityTag, Cd);
 }
 
 void UPWGameplayAbilityBase::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)

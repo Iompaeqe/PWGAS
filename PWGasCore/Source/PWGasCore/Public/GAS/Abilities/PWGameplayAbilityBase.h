@@ -11,7 +11,6 @@ class USpellParams;
 class UPWAbilitySystemComponent;
 class UGameplayTagsSettings;
 
-UE_DECLARE_GAMEPLAY_TAG_EXTERN(Tag_Ability_Message_Cooldown);
 
 UENUM(BlueprintType)
 enum class EPWActivationGroup : uint8
@@ -20,16 +19,6 @@ enum class EPWActivationGroup : uint8
 	Exclusive_Replaceable = 1,
 	Exclusive_Blocking = 2,
 	MAX = 3	UMETA(Hidden)
-};
-
-USTRUCT()
-struct FCooldownMessage
-{
-	GENERATED_BODY()
-
-	UPWAbilitySystemComponent* ASC;
-	FGameplayTag AbilityTag;
-	float Duration;
 };
 
 USTRUCT(BlueprintType)
