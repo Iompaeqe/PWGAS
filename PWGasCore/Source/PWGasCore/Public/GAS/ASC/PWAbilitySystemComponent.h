@@ -79,7 +79,7 @@ public:
 	void SendInputEvent(const FGameplayTag& InputTag, EPWInputEventType EventType);
 	
 	UFUNCTION(NetMulticast, Reliable, Category="GASCore|NiagaraVfx")
-	void Multicast_PlayNiagara(const FPWNiagaraEntry& Entry);
+	void Multicast_PlayNiagara(const FPWNiagaraEntry& Entry, bool bOwnerAlreadyPlayed);
 	UFUNCTION(NetMulticast, Reliable, Category="GASCore|NiagaraVfx")
 	void Multicast_StopNiagara(const TArray<int32>& Ids);
 	

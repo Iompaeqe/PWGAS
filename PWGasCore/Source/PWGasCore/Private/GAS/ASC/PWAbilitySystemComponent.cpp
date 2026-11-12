@@ -173,8 +173,13 @@ void UPWAbilitySystemComponent::SendInputEvent(const FGameplayTag& InputTag, EPW
 		ServerSendInputEvent(InputTag, EventType);
 }
 
-void UPWAbilitySystemComponent::Multicast_PlayNiagara_Implementation(const FPWNiagaraEntry& Entry)
+void UPWAbilitySystemComponent::Multicast_PlayNiagara_Implementation(const FPWNiagaraEntry& Entry, const bool bOwnerAlreadyPlayed)
 {
+	if (IsNetMode(NM_DedicatedServer))
+		return;
+	if (bOwnerAlreadyPlayed && AbilityActorInfo.IsValid() && AbilityActorInfo->IsLocallyControlled())
+		return;
+
 	//UE_LOG(LogPWGASCoreAbilitySystem, Log, TEXT("UPWAbilitySystemComponent::Multicast_PlayNiagara_Implementation, Auth: %hhd, UniqueId: %d"), GetOwner()->HasAuthority(), Entry.UniqueId);
 	Vfx().PlayNiagara_Local(Entry);
 }

@@ -78,8 +78,10 @@ UNiagaraComponent* UPWAbilityModule_Niagara::InternalPlay(int32 Index, const FTr
 		LocalComp = ASC->Vfx().PlayNiagara_Local(*Entry);
 
 	// Server: multicast to everyone (including server).
+	// The owner plays its own copy when it runs the ability, so the multicast skips it.
+	const bool bOwnerPlays = bIsLocallyControlled || OwnerAbility->GetNetExecutionPolicy() == EGameplayAbilityNetExecutionPolicy::LocalPredicted;
 	if (bIsAuthority)
-		ASC->Multicast_PlayNiagara(*Entry);
+		ASC->Multicast_PlayNiagara(*Entry, bOwnerPlays);
 
 	return LocalComp;
 }

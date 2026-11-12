@@ -8,6 +8,20 @@
 #include "GAS/ASC/PWAbilitySystemComponent.h"
 #include "GAS/Data/PWNiagaraEntry.h"
 #include "PWGASCoreLogChannels.h"
+#include "Engine/Engine.h"
+
+static TAutoConsoleVariable<bool> CVarDebugNiagaraVfx(TEXT("PW.Debug.NiagaraVfx"), false, TEXT("Prints every Niagara effect an ability system component plays or stops, on screen and in the log."));
+
+static void DebugVfx(const UPWAbilitySystemComponent& ASC, const TCHAR* Action, const FString& What)
+{
+	if (!CVarDebugNiagaraVfx.GetValueOnGameThread())
+		return;
+
+	const FString Message = FString::Printf(TEXT("[%s] %s %s for %s"), *GetDebugStringForWorld(ASC.GetWorld()), Action, *What, *GetNameSafe(ASC.GetAvatarActor()));
+	UE_LOG(LogPWGASCoreAbilitySystem, Log, TEXT("%s"), *Message);
+	if (GEngine)
+		GEngine->AddOnScreenDebugMessage(INDEX_NONE, 5.f, FColor::Cyan, Message);
+}
 
 UNiagaraComponent* FPWASC_VfxLifecycle::PlayNiagara_Local(const FPWNiagaraEntry& Entry)
 {
@@ -60,6 +74,8 @@ UNiagaraComponent* FPWASC_VfxLifecycle::PlayNiagara_Local(const FPWNiagaraEntry&
 
 	if (!Comp)
 		return nullptr;
+
+	DebugVfx(ASC, TEXT("Play"), FString::Printf(TEXT("%s (id %d)"), *GetNameSafe(Entry.NiagaraSystem), Entry.UniqueId));
 	
 
 	const bool bShouldTrackLoop = Entry.bLooping && Entry.UniqueId != INDEX_NONE;
@@ -88,6 +104,7 @@ void FPWASC_VfxLifecycle::StopNiagara_Local(const int32 UniqueId)
 	if (const TWeakObjectPtr<UNiagaraComponent>* Found = ActiveNiagaraVfx.Find(UniqueId))
 	{
 		//UE_LOG(LogPWGASCoreAbilitySystem, Log, TEXT("UPWAbilitySystemComponent::StopNiagara_Local, Auth: %hhd, UniqueId: %d, Niagara Found, cancelling"), ASC.GetOwner()->HasAuthority(), UniqueId);
+		DebugVfx(ASC, TEXT("Stop"), FString::Printf(TEXT("id %d"), UniqueId));
 		if (Found->IsValid())
 			Found->Get()->DestroyComponent();
 		ActiveNiagaraVfx.Remove(UniqueId);
