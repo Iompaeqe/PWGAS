@@ -41,8 +41,10 @@ public:
 	virtual void AddAbilitySet(const UPWAbilitySet* AbilitySet) const;
 	virtual void AddAbility(const FGameplayTag& AbilityTag, const FGameplayTag& InputTag = FGameplayTag()) const;
 	virtual void RemoveAbility(const FGameplayTag& AbilityTag) const;
-	virtual void UpgradeAbility(const FGameplayTag& AbilityTag);
-	virtual void DowngradeAbility(const FGameplayTag& AbilityTag);
+	// False when the ability is missing or already at its max level.
+	virtual bool UpgradeAbility(const FGameplayTag& AbilityTag);
+	// False when the ability is missing or already at level 1.
+	virtual bool DowngradeAbility(const FGameplayTag& AbilityTag);
 
 	void RemoveGrantedAbility(const FGameplayAbilitySpecHandle& Handle) const;
 

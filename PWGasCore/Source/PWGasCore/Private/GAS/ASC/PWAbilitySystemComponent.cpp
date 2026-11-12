@@ -108,14 +108,14 @@ void UPWAbilitySystemComponent::BP_RemoveAbility(const FGameplayTag& AbilityTag)
 	AbilityLifecycle->RemoveAbility(AbilityTag);
 }
 
-void UPWAbilitySystemComponent::BP_UpgradeAbility(const FGameplayTag& AbilityTag)
+bool UPWAbilitySystemComponent::BP_UpgradeAbility(const FGameplayTag& AbilityTag)
 {
-	AbilityLifecycle->UpgradeAbility(AbilityTag);
+	return AbilityLifecycle->UpgradeAbility(AbilityTag);
 }
 
-void UPWAbilitySystemComponent::BP_DowngradeAbility(const FGameplayTag& AbilityTag)
+bool UPWAbilitySystemComponent::BP_DowngradeAbility(const FGameplayTag& AbilityTag)
 {
-	AbilityLifecycle->DowngradeAbility(AbilityTag);
+	return AbilityLifecycle->DowngradeAbility(AbilityTag);
 }
 
 bool UPWAbilitySystemComponent::BP_GetCooldownRemainingForTag(const FGameplayTag& CooldownTag, float& TimeRemaining, float& CooldownDuration) const

@@ -204,3 +204,21 @@ class UPWTestTimedHitEffect : public UGameplayEffect
 public:
 	UPWTestTimedHitEffect();
 };
+
+UCLASS(NotBlueprintable, HideDropdown)
+class UPWTestLeveledAbility : public UPWModularGameplayAbility
+{
+	GENERATED_BODY()
+
+public:
+	UPWTestLeveledAbility();
+};
+
+UCLASS(NotBlueprintable, HideDropdown)
+class UPWTestInterruptibleAbility : public UPWGameplayAbilityBase
+{
+	GENERATED_BODY()
+
+public:
+	UPWTestInterruptibleAbility();
+};

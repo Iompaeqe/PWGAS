@@ -37,6 +37,9 @@ void FPWASC_AbilityLifecycle::AddAbilitySet(const UPWAbilitySet* AbilitySet) con
 
 void FPWASC_AbilityLifecycle::AddAbility(const FGameplayTag& AbilityTag, const FGameplayTag& InputTag) const
 {
+	if (!ASC.IsOwnerActorAuthoritative())
+		return;
+
 	const FPWAbilityInfo AbilityData = UPWGASCoreSettings::Get()->GetAbilityByTag(AbilityTag);
 	if (!AbilityData.IsValid() || !AbilityData.AbilityClass)
 	{
@@ -44,14 +47,19 @@ void FPWASC_AbilityLifecycle::AddAbility(const FGameplayTag& AbilityTag, const F
 		return;
 	}
 
-	FGameplayAbilitySpec Spec = FGameplayAbilitySpec(AbilityData.AbilityClass, 1);
-	FGameplayAbilitySpecHandle SpecHandle = ASC.GiveAbility(Spec);
+	// Granting an ability the owner already has only rebinds its input.
+	if (ASC.Data().GetSpecOfAbility(AbilityTag))
+	{
+		if (InputTag.IsValid())
+			ASC.Input().EquipAbility(AbilityTag, InputTag);
+		return;
+	}
 
+	const FGameplayAbilitySpecHandle SpecHandle = ASC.GiveAbility(FGameplayAbilitySpec(AbilityData.AbilityClass, 1));
 	if (InputTag.IsValid())
 		ASC.Input().EquipAbility(AbilityTag, InputTag);
 
-	bool Activated = ApplyActivationPolicies(SpecHandle, PWTags::Ability::Activation::OnGranted);
-
+	ApplyActivationPolicies(SpecHandle, PWTags::Ability::Activation::OnGranted);
 	AbilityAdded.Broadcast(AbilityTag);
 }
 
@@ -68,26 +76,34 @@ void FPWASC_AbilityLifecycle::RemoveAbility(const FGameplayTag& AbilityTag) cons
 	AbilityRemoved.Broadcast(AbilityTag);
 }
 
-void FPWASC_AbilityLifecycle::UpgradeAbility(const FGameplayTag& AbilityTag)
+bool FPWASC_AbilityLifecycle::UpgradeAbility(const FGameplayTag& AbilityTag)
 {
+	if (!ASC.IsOwnerActorAuthoritative())
+		return false;
+
 	FGameplayAbilitySpec* Spec = ASC.Data().GetSpecOfAbility(AbilityTag);
-	if (!Spec) return;
+	if (!Spec || IsAbilityMaxLevel(AbilityTag))
+		return false;
 
 	Spec->Level++;
-
 	AbilityUpdated.Broadcast(AbilityTag);
 	ASC.MarkAbilitySpecDirty(*Spec);
+	return true;
 }
 
-void FPWASC_AbilityLifecycle::DowngradeAbility(const FGameplayTag& AbilityTag)
+bool FPWASC_AbilityLifecycle::DowngradeAbility(const FGameplayTag& AbilityTag)
 {
+	if (!ASC.IsOwnerActorAuthoritative())
+		return false;
+
 	FGameplayAbilitySpec* Spec = ASC.Data().GetSpecOfAbility(AbilityTag);
-	if (!Spec) return;
+	if (!Spec || Spec->Level <= 1)
+		return false;
 
 	Spec->Level--;
-
 	AbilityUpdated.Broadcast(AbilityTag);
 	ASC.MarkAbilitySpecDirty(*Spec);
+	return true;
 }
 
 void FPWASC_AbilityLifecycle::RemoveGrantedAbility(const FGameplayAbilitySpecHandle& Handle) const
@@ -113,11 +129,13 @@ int32 FPWASC_AbilityLifecycle::GetAbilityLevel(const FGameplayTag& AbilityTag) c
 
 bool FPWASC_AbilityLifecycle::IsAbilityMaxLevel(const FGameplayTag& AbilityTag) const
 {
-	const FPWAbilityInfo AbilityData = UPWGASCoreSettings::Get()->GetAbilityByTag(AbilityTag);
 	const FGameplayAbilitySpec* Spec = ASC.Data().GetSpecOfAbility(AbilityTag);
-	if (!Spec) return false;
-	if (Spec->Level == AbilityData.MaxLevel) return true;
-	return false;
+	if (!Spec)
+		return false;
+
+	// An ability that is not in the registry has no level cap.
+	const FPWAbilityInfo AbilityData = UPWGASCoreSettings::Get()->GetAbilityByTag(AbilityTag);
+	return AbilityData.IsValid() && Spec->Level >= AbilityData.MaxLevel;
 }
 
 void FPWASC_AbilityLifecycle::ForEachAbility(const FForEachAbility& Delegate) const

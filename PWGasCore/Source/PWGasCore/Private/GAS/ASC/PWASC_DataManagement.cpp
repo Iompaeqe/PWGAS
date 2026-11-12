@@ -30,7 +30,7 @@ FGameplayAbilitySpec* FPWASC_DataManagement::GetSpecOfAbility(const FGameplayTag
 {
 	FScopedAbilityListLock ActiveScopeLock(ASC);
 	for (FGameplayAbilitySpec& Spec : ASC.GetActivatableAbilities())
-		if (Spec.Ability.Get()->GetAssetTags().HasTag(AbilityTag))
+		if (Spec.Ability && Spec.Ability->GetAssetTags().HasTag(AbilityTag))
 			return &Spec;
 
 	return nullptr;
@@ -150,7 +150,8 @@ TArray<FGameplayTag> FPWASC_DataManagement::GetAbilitiesWithTags(const FGameplay
 	FScopedAbilityListLock ActiveScopeLock(ASC);
 	for (const FGameplayAbilitySpec& Spec : ASC.GetActivatableAbilities())
 	{
-		FGameplayTagContainer AllTags = Spec.Ability.Get()->GetAssetTags();
+		if (!Spec.Ability) continue;
+		FGameplayTagContainer AllTags = Spec.Ability->GetAssetTags();
 		if (bIncludeDynamicTags)
 		{
 			AllTags.AppendTags(Spec.GetDynamicSpecSourceTags());
@@ -185,7 +186,8 @@ FGameplayTag FPWASC_DataManagement::GetFirstAbilityWithTag(const FGameplayTagCon
 	FScopedAbilityListLock ActiveScopeLock(ASC);
 	for (const FGameplayAbilitySpec& Spec : ASC.GetActivatableAbilities())
 	{
-		FGameplayTagContainer AllTags = Spec.Ability.Get()->GetAssetTags();
+		if (!Spec.Ability) continue;
+		FGameplayTagContainer AllTags = Spec.Ability->GetAssetTags();
 		if (bIncludeDynamicTags)
 		{
 			AllTags.AppendTags(Spec.GetDynamicSpecSourceTags());
@@ -221,7 +223,8 @@ TArray<FGameplayAbilitySpec*> FPWASC_DataManagement::GetSpecsWithTags(const FGam
 	FScopedAbilityListLock ActiveScopeLock(ASC);
 	for (FGameplayAbilitySpec& Spec : ASC.GetActivatableAbilities())
 	{
-		FGameplayTagContainer AllTags = Spec.Ability.Get()->GetAssetTags();
+		if (!Spec.Ability) continue;
+		FGameplayTagContainer AllTags = Spec.Ability->GetAssetTags();
 		if (bIncludeDynamicTags)
 		{
 			AllTags.AppendTags(Spec.GetDynamicSpecSourceTags());
@@ -250,7 +253,8 @@ FGameplayAbilitySpec* FPWASC_DataManagement::GetFirstSpecWithTag(const FGameplay
 	FScopedAbilityListLock ActiveScopeLock(ASC);
 	for (FGameplayAbilitySpec& Spec : ASC.GetActivatableAbilities())
 	{
-		FGameplayTagContainer AllTags = Spec.Ability.Get()->GetAssetTags();
+		if (!Spec.Ability) continue;
+		FGameplayTagContainer AllTags = Spec.Ability->GetAssetTags();
 		if (bIncludeDynamicTags)
 		{
 			AllTags.AppendTags(Spec.GetDynamicSpecSourceTags());

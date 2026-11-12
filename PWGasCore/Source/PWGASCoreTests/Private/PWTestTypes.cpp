@@ -151,3 +151,17 @@ UPWTestTimedHitEffect::UPWTestTimedHitEffect()
 	Period = 0.25f;
 	Modifiers.Add(MakeHealthHit(10.f));
 }
+
+UPWTestLeveledAbility::UPWTestLeveledAbility()
+{
+	AbilityTag = PWTags::Ability::Skill::Root;
+
+	FGameplayTagContainer Tags = GetAssetTags();
+	Tags.AddTag(AbilityTag);
+	SetAssetTags(Tags);
+}
+
+UPWTestInterruptibleAbility::UPWTestInterruptibleAbility()
+{
+	CancellationTags.AddTag(PWTags::Ability::Activation::Failed);
+}

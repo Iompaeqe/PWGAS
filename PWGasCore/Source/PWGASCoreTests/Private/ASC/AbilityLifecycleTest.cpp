@@ -2,7 +2,10 @@
 
 #include "PWTestWorld.h"
 #include "PWTestTypes.h"
+#include "GAS/Abilities/AbilityDataAsset.h"
+#include "GAS/Abilities/PWAbilityRegistry.h"
 #include "GAS/Abilities/PWAbilitySet.h"
+#include "Settings/PWGASCoreSettings.h"
 #include "GAS/Abilities/Derived/PWGameplayAbility_Channeling.h"
 #include "GAS/Tags/GASCoreTags.h"
 #include "Misc/AutomationTest.h"
@@ -55,6 +58,52 @@ bool FAbilityLifecycleForeignAbilityTest::RunTest(const FString& Parameters)
 	Test.ASC->CancelAbilityHandle(Plain);
 	TestFalse("Plain ability ended", Test.ASC->FindAbilitySpecFromHandle(Plain)->IsActive());
 
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FAbilityLifecycleLevelsTest, "PW.ASC.AbilityLifecycle.Levels", EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FAbilityLifecycleLevelsTest::RunTest(const FString& Parameters)
+{
+	const FGameplayTag Tag = PWTags::Ability::Skill::Root;
+
+	UAbilityDataAsset* Data = NewObject<UAbilityDataAsset>();
+	Data->Ability.Tag = Tag;
+	Data->Ability.AbilityClass = UPWTestLeveledAbility::StaticClass();
+	Data->Ability.MaxLevel = 3;
+	UPWAbilityRegistry* Registry = NewObject<UPWAbilityRegistry>();
+	Registry->Abilities.Add(Data);
+
+	UPWGASCoreSettings* Settings = GetMutableDefault<UPWGASCoreSettings>();
+	TSoftObjectPtr<UPWAbilityRegistry>* RegistrySlot = Settings->GetClass()->FindPropertyByName("AbilityRegistry")->ContainerPtrToValuePtr<TSoftObjectPtr<UPWAbilityRegistry>>(Settings);
+	const TSoftObjectPtr<UPWAbilityRegistry> Original = *RegistrySlot;
+	*RegistrySlot = Registry;
+
+	{
+		FPWTestWorld Test;
+		FPWASC_AbilityLifecycle& Abilities = Test.ASC->Abilities();
+
+		Abilities.AddAbility(Tag);
+		Abilities.AddAbility(Tag);
+		TestEqual("Granting twice keeps one copy", Test.ASC->GetActivatableAbilities().Num(), 1);
+		TestEqual("Starts at level 1", Abilities.GetAbilityLevel(Tag), 1);
+
+		TestFalse("Cannot go below level 1", Abilities.DowngradeAbility(Tag));
+		TestEqual("Still level 1", Abilities.GetAbilityLevel(Tag), 1);
+
+		TestTrue("Upgrade to 2", Abilities.UpgradeAbility(Tag));
+		TestTrue("Upgrade to 3", Abilities.UpgradeAbility(Tag));
+		TestTrue("At max level", Abilities.IsAbilityMaxLevel(Tag));
+		TestFalse("Cannot pass max level", Abilities.UpgradeAbility(Tag));
+		TestEqual("Stays at max level", Abilities.GetAbilityLevel(Tag), 3);
+
+		TestTrue("Downgrade to 2", Abilities.DowngradeAbility(Tag));
+		TestEqual("Level 2", Abilities.GetAbilityLevel(Tag), 2);
+
+		TestFalse("Upgrading an ability the owner lacks fails", Abilities.UpgradeAbility(PWTags::Ability::Activation::Failed));
+	}
+
+	*RegistrySlot = Original;
 	return true;
 }
 

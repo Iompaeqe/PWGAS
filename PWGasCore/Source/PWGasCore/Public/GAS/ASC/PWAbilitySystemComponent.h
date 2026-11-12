@@ -54,18 +54,18 @@ public:
 	UFUNCTION(BlueprintCallable, Category="GASCore|Ability", meta=(DisplayName="Remove Ability"))
 	void BP_RemoveAbility(const FGameplayTag& AbilityTag);
 	UFUNCTION(BlueprintCallable, Category="GASCore|Ability", meta=(DisplayName="Upgrade Ability"))
-	void BP_UpgradeAbility(const FGameplayTag& AbilityTag);
+	bool BP_UpgradeAbility(const FGameplayTag& AbilityTag);
 	UFUNCTION(BlueprintCallable, Category="GASCore|Ability", meta=(DisplayName="Downgrade Ability"))
-	void BP_DowngradeAbility(const FGameplayTag& AbilityTag);
+	bool BP_DowngradeAbility(const FGameplayTag& AbilityTag);
 
 	//Cooldown Helpers
-	UFUNCTION(BlueprintCallable, Category="GASCore|Cooldown", meta=(DisplayName="GetCooldown Remaining For Tag"))
+	UFUNCTION(BlueprintCallable, Category="GASCore|Cooldown", meta=(DisplayName="Get Cooldown Remaining For Tag"))
 	bool BP_GetCooldownRemainingForTag(const FGameplayTag& CooldownTag, float& TimeRemaining, float& CooldownDuration) const;
-	UFUNCTION(BlueprintCallable, Category="GASCore|Cooldown", meta=(DisplayName="GetCooldown Remaining For Ability Tag"))
+	UFUNCTION(BlueprintCallable, Category="GASCore|Cooldown", meta=(DisplayName="Get Cooldown Remaining For Ability Tag"))
 	bool BP_GetCooldownRemainingForAbilityTag(const FGameplayTag& AbilityTag, float& TimeRemaining, float& TotalDuration) const;
 	UFUNCTION(BlueprintCallable, Category="GASCore|Cooldown", meta=(DisplayName="Clear Cooldown For Tag"))
 	int32 BP_ClearCooldownByTag(const FGameplayTag& CooldownTag);
-	UFUNCTION(BlueprintCallable, Category="GASCore|Cooldown", meta=(DisplayName="Clea rCooldown For Ability Tag"))
+	UFUNCTION(BlueprintCallable, Category="GASCore|Cooldown", meta=(DisplayName="Clear Cooldown For Ability Tag"))
 	int32 BP_ClearCooldownForAbilityTag(const FGameplayTag& AbilityTag);
 	UFUNCTION(BlueprintCallable, Category="GASCore|Cooldown", meta=(DisplayName="Adjust Cooldown For Tag"))
 	bool BP_AdjustCooldownForTag(const FGameplayTag& CooldownTag, float SecondsToReduce);
