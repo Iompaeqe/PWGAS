@@ -138,7 +138,7 @@ void UPWAbilityModule_Targeting::FinalizeTargetingResult(FPWTargetingResult& InO
 	{
 		if (IsValid(A))
 		{
-			InOut.HitActors.Add(A);
+			InOut.HitActors.AddUnique(A);
 		}
 	}
 

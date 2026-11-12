@@ -72,6 +72,10 @@ bool FInstantEffectAtLocationTest::RunTest(const FString& Parameters)
 	Module->ApplyEffectsAtSocket("NoSuchSocket");
 	TestEqual("Applied at socket fallback", TargetASC->GetGameplayEffectCount(UPWTestEffect::StaticClass(), nullptr), 2);
 
+	Resolver->Actors.Add(TargetASC->GetOwner());
+	Module->ApplyEffectsAtLocation(FVector(100, 0, 0));
+	TestEqual("A target resolved twice is hit once", TargetASC->GetGameplayEffectCount(UPWTestEffect::StaticClass(), nullptr), 3);
+
 	USelfTargeting* Source = NewObject<USelfTargeting>(Targeting);
 	Source->Offset = FVector(50, 0, 0);
 	Targeting->TargetingSource = Source;
