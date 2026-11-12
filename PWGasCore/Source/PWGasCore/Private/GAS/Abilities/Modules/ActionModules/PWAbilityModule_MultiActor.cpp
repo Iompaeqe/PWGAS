@@ -2,7 +2,7 @@
 
 #include "GAS/Abilities/Modules/ActionModules/PWAbilityModule_MultiActor.h"
 
-#include "GAS/Abilities/Modules/ActionModules/SpawnPatterns/PWSpawnPatterns.h"
+#include "GAS/Abilities/Modules/ActionModules/SpawnPatterns/PWSpawnPattern_Circle.h"
 #include "GAS/Abilities/Modules/DataModules/PWAbilityModule_Radius.h"
 #include "GAS/Abilities/PWModularGameplayAbility.h"
 #include "Engine/World.h"

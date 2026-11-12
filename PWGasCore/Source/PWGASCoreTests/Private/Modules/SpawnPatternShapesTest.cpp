@@ -1,6 +1,10 @@
 // Copyright (c) 2025 Metehan Goksel Kurtulan (Iompaeqe)
 
-#include "GAS/Abilities/Modules/ActionModules/SpawnPatterns/PWSpawnPatterns.h"
+#include "GAS/Abilities/Modules/ActionModules/SpawnPatterns/PWSpawnPattern_Circle.h"
+#include "GAS/Abilities/Modules/ActionModules/SpawnPatterns/PWSpawnPattern_Grid.h"
+#include "GAS/Abilities/Modules/ActionModules/SpawnPatterns/PWSpawnPattern_Line.h"
+#include "GAS/Abilities/Modules/ActionModules/SpawnPatterns/PWSpawnPattern_Random.h"
+#include "GAS/Abilities/Modules/ActionModules/SpawnPatterns/PWSpawnPattern_Rings.h"
 #include "Misc/AutomationTest.h"
 
 #if WITH_DEV_AUTOMATION_TESTS

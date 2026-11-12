@@ -3,7 +3,13 @@
 #include "PWTestWorld.h"
 #include "PWTestTypes.h"
 #include "Targeting/Data/PWTargetingData.h"
-#include "GAS/Abilities/Modules/ActionModules/SpawnPatterns/PWSpawnPatterns.h"
+#include "GAS/Abilities/Modules/ActionModules/SpawnPatterns/PWSpawnPattern_Circle.h"
+#include "GAS/Abilities/Modules/ActionModules/SpawnPatterns/PWSpawnPattern_Grid.h"
+#include "GAS/Abilities/Modules/ActionModules/SpawnPatterns/PWSpawnPattern_Line.h"
+#include "GAS/Abilities/Modules/ActionModules/SpawnPatterns/PWSpawnPattern_Random.h"
+#include "GAS/Abilities/Modules/ActionModules/SpawnPatterns/PWSpawnPattern_Rings.h"
+#include "GAS/Abilities/Modules/ActionModules/SpawnPatterns/PWSpreadPattern_Fan.h"
+#include "GAS/Abilities/Modules/ActionModules/SpawnPatterns/PWSpreadPattern_Random.h"
 #include "Misc/AutomationTest.h"
 
 #if WITH_DEV_AUTOMATION_TESTS
@@ -180,7 +186,7 @@ bool FMultiActorPositionsTest::RunTest(const FString& Parameters)
 	return true;
 }
 
-static UPWAbilityModule_MultiProjectile* MakeSpreadModule(const FPWTestWorld& Test, const int32 Count, const EProjectileSpreadPattern Pattern)
+static UPWAbilityModule_MultiProjectile* MakeSpreadModule(const FPWTestWorld& Test, const int32 Count, const EPWSpreadOrder Order = EPWSpreadOrder::LeftToRight, const EPWSpreadGrouping Grouping = EPWSpreadGrouping::OneByOne, const bool bRightFirst = true)
 {
 	UPWTestModularAbility* Ability = Test.ActivateAbility<UPWTestModularAbility>();
 	UPWAbilityModule_MultiProjectile* Module = NewObject<UPWAbilityModule_MultiProjectile>(Ability);
@@ -189,7 +195,12 @@ static UPWAbilityModule_MultiProjectile* MakeSpreadModule(const FPWTestWorld& Te
 	Module->ProjectileCount = Count;
 	Module->SpreadAngle = 30.f;
 	Module->SpreadDelay = 0.1f;
-	Module->SpreadPattern = Pattern;
+
+	UPWSpreadPattern_Fan* Fan = NewObject<UPWSpreadPattern_Fan>(Module);
+	Fan->Order = Order;
+	Fan->Grouping = Grouping;
+	Fan->bRightFirst = bRightFirst;
+	Module->Pattern = Fan;
 	return Module;
 }
 
@@ -224,37 +235,49 @@ bool FMultiProjectilePatternsTest::RunTest(const FString& Parameters)
 {
 	{
 		FPWTestWorld Test;
-		TestEqual("Left to right, one at a time", SpawnStepSizes(Test, MakeSpreadModule(Test, 4, EProjectileSpreadPattern::LeftToRight)), TArray<int32>({1, 1, 1, 1}));
+		TestEqual("Left to right, one at a time", SpawnStepSizes(Test, MakeSpreadModule(Test, 4, EPWSpreadOrder::LeftToRight)), TArray<int32>({1, 1, 1, 1}));
 	}
 	{
 		FPWTestWorld Test;
-		UPWAbilityModule_MultiProjectile* Module = MakeSpreadModule(Test, 4, EProjectileSpreadPattern::CenterFanOutRight);
+		UPWAbilityModule_MultiProjectile* Module = MakeSpreadModule(Test, 4, EPWSpreadOrder::CenterOut, EPWSpreadGrouping::OneByOne, true);
 		Module->SpreadSpawnProjectiles(MakeTargetInFront(Test.Actor, 1000.f));
 		TestEqual("Fan out starts right of center", FirstYaw(Test), 5.f, 0.1f);
 	}
 	{
 		FPWTestWorld Test;
-		TestEqual("Fan out with an even count fires all four", SpawnStepSizes(Test, MakeSpreadModule(Test, 4, EProjectileSpreadPattern::CenterFanOutLeft)), TArray<int32>({1, 1, 1, 1}));
+		TestEqual("Fan out with an even count fires all four", SpawnStepSizes(Test, MakeSpreadModule(Test, 4, EPWSpreadOrder::CenterOut, EPWSpreadGrouping::OneByOne, false)), TArray<int32>({1, 1, 1, 1}));
 	}
 	{
 		FPWTestWorld Test;
-		TestEqual("Center out in pairs, odd", SpawnStepSizes(Test, MakeSpreadModule(Test, 5, EProjectileSpreadPattern::CenterOut)), TArray<int32>({1, 2, 2}));
+		TestEqual("Center out in pairs, odd", SpawnStepSizes(Test, MakeSpreadModule(Test, 5, EPWSpreadOrder::CenterOut, EPWSpreadGrouping::Pairs)), TArray<int32>({1, 2, 2}));
 	}
 	{
 		FPWTestWorld Test;
-		TestEqual("Center out in pairs, even", SpawnStepSizes(Test, MakeSpreadModule(Test, 4, EProjectileSpreadPattern::CenterOut)), TArray<int32>({2, 2}));
+		TestEqual("Center out in pairs, even", SpawnStepSizes(Test, MakeSpreadModule(Test, 4, EPWSpreadOrder::CenterOut, EPWSpreadGrouping::Pairs)), TArray<int32>({2, 2}));
 	}
 	{
 		FPWTestWorld Test;
-		TestEqual("Out in ends on the center", SpawnStepSizes(Test, MakeSpreadModule(Test, 5, EProjectileSpreadPattern::OutIn)), TArray<int32>({2, 2, 1}));
+		TestEqual("Out in ends on the center", SpawnStepSizes(Test, MakeSpreadModule(Test, 5, EPWSpreadOrder::EdgesIn, EPWSpreadGrouping::Pairs)), TArray<int32>({2, 2, 1}));
 	}
 	{
 		FPWTestWorld Test;
-		TestEqual("Center then all sides", SpawnStepSizes(Test, MakeSpreadModule(Test, 5, EProjectileSpreadPattern::CenterToSides)), TArray<int32>({1, 4}));
+		TestEqual("Center then all sides", SpawnStepSizes(Test, MakeSpreadModule(Test, 5, EPWSpreadOrder::CenterOut, EPWSpreadGrouping::CenterAndSides)), TArray<int32>({1, 4}));
 	}
 	{
 		FPWTestWorld Test;
-		TestEqual("All sides then center", SpawnStepSizes(Test, MakeSpreadModule(Test, 5, EProjectileSpreadPattern::SidesToCenter)), TArray<int32>({4, 1}));
+		UPWAbilityModule_MultiProjectile* Module = MakeSpreadModule(Test, 4);
+		Module->Pattern = NewObject<UPWSpreadPattern_Random>(Module);
+		TestEqual("Random fires one at a time", SpawnStepSizes(Test, Module), TArray<int32>({1, 1, 1, 1}));
+	}
+	{
+		FPWTestWorld Test;
+		UPWAbilityModule_MultiProjectile* Module = MakeSpreadModule(Test, 3);
+		Module->Pattern = nullptr;
+		TestEqual("No pattern falls back to a left to right fan", SpawnStepSizes(Test, Module), TArray<int32>({1, 1, 1}));
+	}
+	{
+		FPWTestWorld Test;
+		TestEqual("All sides then center", SpawnStepSizes(Test, MakeSpreadModule(Test, 5, EPWSpreadOrder::EdgesIn, EPWSpreadGrouping::CenterAndSides)), TArray<int32>({4, 1}));
 	}
 	return true;
 }
@@ -519,7 +542,7 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMultiProjectilePreviewTest, "PW.Modules.MultiP
 bool FMultiProjectilePreviewTest::RunTest(const FString& Parameters)
 {
 	FPWTestWorld Test;
-	UPWAbilityModule_MultiProjectile* Module = MakeSpreadModule(Test, 4, EProjectileSpreadPattern::CenterOut);
+	UPWAbilityModule_MultiProjectile* Module = MakeSpreadModule(Test, 4, EPWSpreadOrder::CenterOut, EPWSpreadGrouping::Pairs);
 	Module->SpreadDelay = 0.f;
 	const FPWTargetingResult Target = MakeTargetInFront(Test.Actor, 1000.f);
 
@@ -538,7 +561,7 @@ bool FMultiProjectilePreviewTest::RunTest(const FString& Parameters)
 		TestTrue("A projectile flies along each previewed path", Actors.ContainsByPredicate([&](const APWTestSpellActor* Actor) { return Actor->GetActorRotation().Equals(Aim, 0.5f); }));
 	}
 
-	UPWAbilityModule_MultiProjectile* Single = MakeSpreadModule(Test, 1, EProjectileSpreadPattern::LeftToRight);
+	UPWAbilityModule_MultiProjectile* Single = MakeSpreadModule(Test, 1, EPWSpreadOrder::LeftToRight);
 	AimPoints.Reset();
 	Single->GetPreviewAimPoints(Target, AimPoints);
 	TestEqual("A single projectile uses the plain aim", AimPoints.Num(), 0);
@@ -565,6 +588,35 @@ bool FActorModuleMissingSocketTest::RunTest(const FString& Parameters)
 
 	TestEqual("A missing socket falls back to the caster", Spawned->GetActorLocation(), Test.Actor->GetActorLocation());
 	TestEqual("Facing the target", (float)FRotator::NormalizeAxis(Spawned->GetActorRotation().Yaw), 0.f, 0.1f);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FProjectileParamsRotationTest, "PW.Modules.Projectile.ParamsRotation", EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FProjectileParamsRotationTest::RunTest(const FString& Parameters)
+{
+	FPWTestWorld Test;
+	UPWTestModularAbility* Ability = Test.ActivateAbility<UPWTestModularAbility>();
+
+	UPWAbilityModule_Projectile* Module = NewObject<UPWAbilityModule_Projectile>(Ability);
+	Module->Initialize(Ability);
+	Module->ActorClass = APWTestSpellActor::StaticClass();
+	Module->SpawnRelativeOffset = FVector(0.f, 0.f, 80.f);
+
+	// A close target, where a rotation taken from the wrong origin is far off.
+	FPWTargetingResult Target;
+	Target.Location = Test.Actor->GetActorLocation() + FVector(200.f, 0.f, 0.f);
+
+	const AActor* Spawned = Module->SpawnActorWithTargetingResult(Target);
+	if (!TestNotNull("Spawned", Spawned))
+		return false;
+
+	const USpellParams* Params = Module->MakeSpellParams(Target);
+	const UProjectileSpellParamsExtension* Projectile = Params ? Params->FindExtension<UProjectileSpellParamsExtension>() : nullptr;
+	if (!TestNotNull("Projectile params", Projectile))
+		return false;
+
+	TestTrue("Params carry the rotation the projectile spawns with", Projectile->SpawnRotation.Equals(Spawned->GetActorRotation(), 0.1f));
 	return true;
 }
 

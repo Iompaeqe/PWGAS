@@ -4,24 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "PWAbilityModule_Projectile.h"
+#include "SpawnPatterns/PWSpreadPattern.h"
 #include "PWAbilityModule_MultiProjectile.generated.h"
-
-UENUM(BlueprintType)
-enum class EProjectileSpreadPattern : uint8
-{
-	LeftToRight UMETA(DisplayName="Left → Right"),
-	RightToLeft UMETA(DisplayName="Right → Left"),
-	CenterToSides UMETA(DisplayName="Center → Delay → Sides"),
-	SidesToCenter UMETA(DisplayName="Sides → Delay → Center"),
-	CenterOut UMETA(DisplayName="Center → Delay → Outwards (paired sides)"),
-	OutIn UMETA(DisplayName="Outwards → Delay → Center (paired sides)"),
-	CenterFanOutRight UMETA(DisplayName="Center → Right → Left (delayed fan)"),
-	CenterFanOutLeft UMETA(DisplayName="Center → Left → Right (delayed fan)"),
-	OutFanInRight UMETA(DisplayName="OutRight → Inward (delayed fan)"),
-	OutFanInLeft UMETA(DisplayName="OutLeft → Inward (delayed fan)"),
-	Random2D UMETA(DisplayName="Random 2D"),
-	Random3D UMETA(DisplayName="Random 3D (with pitch)")
-};
 
 UCLASS(Blueprintable, BlueprintType, EditInlineNew, DefaultToInstanced)
 class PWGASCORE_API UPWAbilityModule_MultiProjectile : public UPWAbilityModule_Projectile
@@ -29,14 +13,18 @@ class PWGASCORE_API UPWAbilityModule_MultiProjectile : public UPWAbilityModule_P
 	GENERATED_BODY()
 
 public:
+	// How many projectiles are fired per cast.
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	int32 ProjectileCount = 1;
+	// Total angle in degrees the projectiles fan across.
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float SpreadAngle = 20.f;
+	// Seconds between the steps of the spread pattern; 0 fires everything at once.
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float SpreadDelay = 0.f;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	EProjectileSpreadPattern SpreadPattern = EProjectileSpreadPattern::LeftToRight;
+	// Where each projectile is aimed and when it fires; empty uses a left to right fan.
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Instanced, Category="Pattern")
+	TObjectPtr<UPWSpreadPattern> Pattern;
 
 	UFUNCTION(BlueprintCallable, Category="Module")
 	void SpreadSpawnProjectiles(const FPWTargetingResult& Target);
@@ -48,6 +36,7 @@ public:
 
 private:
 	int32 CurrentSpreadStep = 0;
+	TArray<FPWSpreadShot> Shots;
 	TArray<TArray<int32>> SpreadSteps;
 	FTimerHandle SpreadTimerHandle;
 	FGuid CastId;
@@ -56,6 +45,6 @@ protected:
 	virtual USpellParams* MakeSpellParams_Implementation(const FPWTargetingResult& Target) override;
 
 	void BuildSpreadSteps();
-	FPWTargetingResult MakeSpreadTarget(const FPWTargetingResult& Target, int32 SpreadIndex) const;
-	FRotator ComputeSpreadRotation(int32 SpreadIndex) const;
+	FPWTargetingResult MakeSpreadTarget(const FPWTargetingResult& Target, const FRotator& Offset) const;
+	TArray<FPWSpreadShot> BuildShots() const;
 };

@@ -2,9 +2,8 @@
 
 #include "GAS/Abilities/Modules/ActionModules/PWAbilityModule_MultiProjectile.h"
 
-#include "Algo/RandomShuffle.h"
-#include "Algo/Reverse.h"
 #include "GAS/Abilities/PWModularGameplayAbility.h"
+#include "GAS/Abilities/Modules/ActionModules/SpawnPatterns/PWSpreadPattern_Fan.h"
 
 
 AActor* UPWAbilityModule_MultiProjectile::SpawnActorWithTargetingResult(const FPWTargetingResult& Target)
@@ -54,20 +53,20 @@ void UPWAbilityModule_MultiProjectile::SpreadSpawnNextStep(const FPWTargetingRes
 		return;
 
 	for (const int32 SpreadIndex : SpreadSteps[CurrentSpreadStep])
-		Super::SpawnActorWithTargetingResult(MakeSpreadTarget(Target, SpreadIndex));
+		Super::SpawnActorWithTargetingResult(MakeSpreadTarget(Target, Shots[SpreadIndex].Offset));
 	CurrentSpreadStep++;
 
 	if (CurrentSpreadStep >= SpreadSteps.Num())
 		OwnerAbility->GetWorld()->GetTimerManager().ClearTimer(SpreadTimerHandle);
 }
 
-FPWTargetingResult UPWAbilityModule_MultiProjectile::MakeSpreadTarget(const FPWTargetingResult& Target, const int32 SpreadIndex) const
+FPWTargetingResult UPWAbilityModule_MultiProjectile::MakeSpreadTarget(const FPWTargetingResult& Target, const FRotator& Offset) const
 {
 	const FVector Origin = OwnerAbility->GetAvatarActorFromActorInfo()->GetActorLocation();
 	const FVector ToTarget = Target.Location - Origin;
 
 	FPWTargetingResult SpreadTarget = Target;
-	SpreadTarget.Rotation = (ToTarget.Rotation().Quaternion() * ComputeSpreadRotation(SpreadIndex).Quaternion()).Rotator();
+	SpreadTarget.Rotation = (ToTarget.Rotation().Quaternion() * Offset.Quaternion()).Rotator();
 	SpreadTarget.Location = Origin + SpreadTarget.Rotation.Vector() * ToTarget.Size();
 	return SpreadTarget;
 }
@@ -77,8 +76,8 @@ void UPWAbilityModule_MultiProjectile::GetPreviewAimPoints(const FPWTargetingRes
 	if (ProjectileCount <= 1 || !OwnerAbility->GetAvatarActorFromActorInfo())
 		return;
 
-	for (int32 SpreadIndex = 0; SpreadIndex < ProjectileCount; ++SpreadIndex)
-		OutAimPoints.Add(MakeSpreadTarget(Target, SpreadIndex).Location);
+	for (const FPWSpreadShot& Shot : BuildShots())
+		OutAimPoints.Add(MakeSpreadTarget(Target, Shot.Offset).Location);
 }
 
 USpellParams* UPWAbilityModule_MultiProjectile::MakeSpellParams_Implementation(const FPWTargetingResult& Target)
@@ -89,77 +88,26 @@ USpellParams* UPWAbilityModule_MultiProjectile::MakeSpellParams_Implementation(c
 	return Params;
 }
 
+TArray<FPWSpreadShot> UPWAbilityModule_MultiProjectile::BuildShots() const
+{
+	const UPWSpreadPattern* UsedPattern = Pattern ? Pattern.Get() : GetDefault<UPWSpreadPattern_Fan>();
+	return UsedPattern->BuildShots(ProjectileCount, SpreadAngle);
+}
+
 void UPWAbilityModule_MultiProjectile::BuildSpreadSteps()
 {
+	Shots = BuildShots();
 	SpreadSteps.Reset();
 
-	const auto FromCenter = [this](const int32 Index) { return FMath::Abs(2 * Index - (ProjectileCount - 1)); };
-	const auto IsCenter = [&](const int32 Index) { return FromCenter(Index) == (ProjectileCount - 1) % 2; };
-
 	TArray<int32> Order;
-	for (int32 i = 0; i < ProjectileCount; ++i)
+	for (int32 i = 0; i < Shots.Num(); ++i)
 		Order.Add(i);
-
-	const auto SortFromCenter = [&](const bool bOutward, const bool bRightFirst)
-	{
-		Order.Sort([&](const int32 A, const int32 B)
-		{
-			if (FromCenter(A) != FromCenter(B))
-				return bOutward ? FromCenter(A) < FromCenter(B) : FromCenter(A) > FromCenter(B);
-			return bRightFirst ? A > B : A < B;
-		});
-	};
-
-	switch (SpreadPattern)
-	{
-	case EProjectileSpreadPattern::RightToLeft: Algo::Reverse(Order); break;
-	case EProjectileSpreadPattern::CenterToSides:
-	case EProjectileSpreadPattern::CenterOut:
-	case EProjectileSpreadPattern::CenterFanOutRight: SortFromCenter(true, true); break;
-	case EProjectileSpreadPattern::CenterFanOutLeft: SortFromCenter(true, false); break;
-	case EProjectileSpreadPattern::SidesToCenter:
-	case EProjectileSpreadPattern::OutIn:
-	case EProjectileSpreadPattern::OutFanInRight: SortFromCenter(false, true); break;
-	case EProjectileSpreadPattern::OutFanInLeft: SortFromCenter(false, false); break;
-	case EProjectileSpreadPattern::Random2D:
-	case EProjectileSpreadPattern::Random3D: Algo::RandomShuffle(Order); break;
-	default: break;
-	}
+	Order.StableSort([this](const int32 A, const int32 B) { return Shots[A].Step < Shots[B].Step; });
 
 	for (const int32 Index : Order)
 	{
-		bool bSameStep = false;
-		if (SpreadSteps.Num() > 0)
-		{
-			const int32 Previous = SpreadSteps.Last().Last();
-			switch (SpreadPattern)
-			{
-			case EProjectileSpreadPattern::CenterToSides:
-			case EProjectileSpreadPattern::SidesToCenter: bSameStep = IsCenter(Index) == IsCenter(Previous); break;
-			case EProjectileSpreadPattern::CenterOut:
-			case EProjectileSpreadPattern::OutIn: bSameStep = FromCenter(Index) == FromCenter(Previous); break;
-			default: break;
-			}
-		}
-
-		if (!bSameStep)
+		if (SpreadSteps.Num() == 0 || Shots[SpreadSteps.Last().Last()].Step != Shots[Index].Step)
 			SpreadSteps.AddDefaulted();
 		SpreadSteps.Last().Add(Index);
 	}
-}
-
-FRotator UPWAbilityModule_MultiProjectile::ComputeSpreadRotation(int32 SpreadIndex) const
-{
-	const float HalfSpread = SpreadAngle * 0.5f;
-	float OffsetYaw = 0.f;
-
-	if (ProjectileCount > 1)
-		OffsetYaw = FMath::Lerp(-HalfSpread, +HalfSpread, SpreadIndex / float(ProjectileCount - 1));
-
-	FRotator Rot(0, OffsetYaw, 0);
-
-	if (SpreadPattern == EProjectileSpreadPattern::Random3D)
-		Rot.Pitch = FMath::FRandRange(-HalfSpread, +HalfSpread);
-
-	return Rot;
 }

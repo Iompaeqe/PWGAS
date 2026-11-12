@@ -15,4 +15,8 @@ public:
 	// Positions around the pattern center in spawn order. X is forward, Y is right.
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category="Pattern")
 	TArray<FVector> BuildPositions(int32 Count, float Radius) const;
+
+protected:
+	// Reorders positions so the middle ones come first.
+	static void OrderFromCenter(TArray<FVector>& Positions);
 };
