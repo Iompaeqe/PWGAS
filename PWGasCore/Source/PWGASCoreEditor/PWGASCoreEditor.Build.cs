@@ -25,6 +25,10 @@ public class PWGASCoreEditor : ModuleRules
                 "GameplayTags",
                 "PWGasCore",
                 "GameplayTagsEditor", 
+                "AssetRegistry",
+                "AssetTools",
+                "GameplayAbilities",
+                "DeveloperSettings",
                 "InputCore",  
             }
         );

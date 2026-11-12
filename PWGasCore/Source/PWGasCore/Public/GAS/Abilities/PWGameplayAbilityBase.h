@@ -133,10 +133,9 @@ public:
 	// == Editor Helpers  == //
 	// ===================== //
 	void SyncIdentityIntoAssetTags();
-	static void AddTagIfMissing(UGameplayTagsSettings* Settings, const FName& TagFName, const FString& Comment);
-	static bool EnsureProjectTagExists(const FString& Tag, const FString& Comment = TEXT(""));
 
 public:
+	FString GetIdentityTagName() const;
 	void GenerateIdentityTag();
 
 protected:

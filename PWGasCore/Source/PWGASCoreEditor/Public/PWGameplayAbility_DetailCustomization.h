@@ -14,4 +14,5 @@ public:
 private:
 	TArray<TWeakObjectPtr<UObject>> SelectedObjects;
 	FReply OnGenerateTagsClicked();
+	static void FindOrCreateAbilityData(const class UPWGameplayAbilityBase* GA);
 };
