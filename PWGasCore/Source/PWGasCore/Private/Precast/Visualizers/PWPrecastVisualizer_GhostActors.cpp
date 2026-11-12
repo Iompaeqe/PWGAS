@@ -1,7 +1,8 @@
 // Copyright (c) 2025 Metehan Goksel Kurtulan (Iompaeqe)
 
-#include "Precast/Visualizers/PWPrecastVisualizers.h"
+#include "Precast/Visualizers/PWPrecastVisualizer_GhostActors.h"
 
+#include "Components/InstancedStaticMeshComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Engine/StaticMesh.h"
 #include "Engine/World.h"
@@ -108,25 +109,4 @@ void UPWPrecastVisualizer_GhostActors::AddGhostMesh(AActor* Ghost, UStaticMesh* 
 		for (int32 i = 0; i < Component->GetNumMaterials(); ++i)
 			Component->SetMaterial(i, GhostMaterial);
 	Component->RegisterComponent();
-}
-
-void UPWPrecastVisualizer_Group::Ensure_Implementation(APlayerController* PC, float PreviewRadius, FName OriginSocket)
-{
-	for (UPWPrecastVisualizer* Visualizer : Visualizers)
-		if (Visualizer)
-			Visualizer->Ensure(PC, PreviewRadius, OriginSocket);
-}
-
-void UPWPrecastVisualizer_Group::Update_Implementation(const FPWPrecastVisualUpdate& Data)
-{
-	for (UPWPrecastVisualizer* Visualizer : Visualizers)
-		if (Visualizer)
-			Visualizer->Update(Data);
-}
-
-void UPWPrecastVisualizer_Group::Hide_Implementation()
-{
-	for (UPWPrecastVisualizer* Visualizer : Visualizers)
-		if (Visualizer)
-			Visualizer->Hide();
 }

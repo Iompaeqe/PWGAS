@@ -1,19 +1,18 @@
-﻿// Copyright (c) 2025 Metehan Goksel Kurtulan (Iompaeqe)
+// Copyright (c) 2025 Metehan Goksel Kurtulan (Iompaeqe)
 
-
-#include "Precast/DebugVisualizer/DebugProjectilePathVisualizer.h"
+#include "Precast/Visualizers/PWPrecastVisualizer_DebugPath.h"
 
 #include "DrawDebugHelpers.h"
 #include "Engine/World.h"
 #include "Precast/Data/PWPrecastData.h"
 
-void UDebugProjectilePathVisualizer::Ensure_Implementation(APlayerController* PC, float PreviewRadius, FName /*OriginSocket*/)
+void UPWPrecastVisualizer_DebugPath::Ensure_Implementation(APlayerController* PC, float PreviewRadius, FName /*OriginSocket*/)
 {
 	CachedPC    = PC;
 	CachedRadius = PreviewRadius;
 }
 
-void UDebugProjectilePathVisualizer::Update_Implementation(const FPWPrecastVisualUpdate& Data)
+void UPWPrecastVisualizer_DebugPath::Update_Implementation(const FPWPrecastVisualUpdate& Data)
 {
 	if (!CachedPC.IsValid())
 	{
@@ -30,13 +29,17 @@ void UDebugProjectilePathVisualizer::Update_Implementation(const FPWPrecastVisua
 	if (Paths.IsEmpty() && Data.PathPoints.Num() > 1)
 		Paths.AddDefaulted_GetRef().Points = Data.PathPoints;
 
+	const float Radius = (Data.Radius > 0.f) ? Data.Radius : CachedRadius;
+	const bool bHasRadius = Radius > KINDA_SMALL_NUMBER;
+
 	for (const FPWPrecastPath& Path : Paths)
 	{
 		for (int32 Index = 1; Index < Path.Points.Num(); ++Index)
 			DrawDebugLine(World, Path.Points[Index - 1], Path.Points[Index], PathColor, false, 0.f, 0, LineThickness);
 
+		// Every projectile shows its own area; without a radius it gets a small marker.
 		if (Paths.Num() > 1 && !Path.ImpactPoint.IsNearlyZero())
-			DrawDebugSphere(World, Path.ImpactPoint, 15.f, 8, ImpactSphereColor, false, 0.f, 0, LineThickness);
+			DrawDebugSphere(World, Path.ImpactPoint, bHasRadius ? Radius : 15.f, bHasRadius ? SphereSegments : 8, ImpactSphereColor, false, 0.f, 0, LineThickness);
 	}
 
 	for (const FTransform& Spawn : Data.SpawnTransforms)
@@ -47,9 +50,8 @@ void UDebugProjectilePathVisualizer::Update_Implementation(const FPWPrecastVisua
 
 	// --- Explosion radius at impact point ---
 	const FVector ImpactPoint = Data.ImpactPoint;
-	const float   Radius      = (Data.Radius > 0.f) ? Data.Radius : CachedRadius;
 
-	if (!ImpactPoint.IsNearlyZero() && Radius > KINDA_SMALL_NUMBER)
+	if (Paths.Num() <= 1 && !ImpactPoint.IsNearlyZero() && bHasRadius)
 	{
 		DrawDebugSphere(
 			World,
@@ -83,7 +85,7 @@ void UDebugProjectilePathVisualizer::Update_Implementation(const FPWPrecastVisua
 	}
 }
 
-void UDebugProjectilePathVisualizer::Hide_Implementation()
+void UPWPrecastVisualizer_DebugPath::Hide_Implementation()
 {
 	// Nothing to do for debug lines with LifeTime=0:
 	// they only live for a single frame and will stop appearing

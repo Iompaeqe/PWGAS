@@ -1,13 +1,14 @@
-﻿// Copyright (c) 2025 Metehan Goksel Kurtulan (Iompaeqe)
+// Copyright (c) 2025 Metehan Goksel Kurtulan (Iompaeqe)
 
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Precast/Data/PWPrecastTypes.h"
-#include "DebugProjectilePathVisualizer.generated.h"
+#include "Precast/Visualizers/PWPrecastVisualizer.h"
+#include "PWPrecastVisualizer_DebugPath.generated.h"
 
-UCLASS()
-class PWGASCORE_API UDebugProjectilePathVisualizer : public UPWPrecastVisualizer
+// Draws the projectile path, landing area and surface normal with debug lines.
+UCLASS(meta=(DisplayName="Debug Path"))
+class PWGASCORE_API UPWPrecastVisualizer_DebugPath : public UPWPrecastVisualizer
 {
 	GENERATED_BODY()
 
@@ -30,15 +31,19 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category="Debug")
 	float LineThickness = 2.0f;
 
+	// Segments used to draw the impact sphere; higher is rounder.
 	UPROPERTY(EditDefaultsOnly, Category="Debug")
 	int32 SphereSegments = 24;
 
+	// Color of the predicted path.
 	UPROPERTY(EditDefaultsOnly, Category="Debug")
 	FColor PathColor = FColor::Cyan;
 
+	// Color of the sphere drawn at the impact point.
 	UPROPERTY(EditDefaultsOnly, Category="Debug")
 	FColor ImpactSphereColor = FColor::Red;
 
+	// Color of the arrow showing the surface normal at the impact point.
 	UPROPERTY(EditDefaultsOnly, Category="Debug")
 	FColor ImpactNormalColor = FColor::Yellow;
 

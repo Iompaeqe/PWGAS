@@ -3,8 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Precast/Data/PWPrecastTypes.h"
-#include "PWPrecastVisualizers.generated.h"
+#include "Precast/Visualizers/PWPrecastVisualizer.h"
+#include "PWPrecastVisualizer_GhostActors.generated.h"
 
 class UStaticMesh;
 class UMaterialInterface;
@@ -29,9 +29,11 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category="Ghost")
 	TObjectPtr<UMaterialInterface> Material;
 
+	// Tint and opacity of the ghost preview.
 	UPROPERTY(EditDefaultsOnly, Category="Ghost")
 	FLinearColor GhostColor = FLinearColor(0.2f, 0.8f, 1.f, 0.35f);
 
+	// Offset, rotation and scale applied to the ghost mesh.
 	UPROPERTY(EditDefaultsOnly, Category="Ghost")
 	FTransform GhostTransform;
 
@@ -46,19 +48,4 @@ private:
 	TWeakObjectPtr<APlayerController> CachedPC;
 	TArray<TWeakObjectPtr<AActor>> Ghosts;
 	TSubclassOf<AActor> GhostSourceClass;
-};
-
-// Runs several visualizers together.
-UCLASS(meta=(DisplayName="Group"))
-class PWGASCORE_API UPWPrecastVisualizer_Group : public UPWPrecastVisualizer
-{
-	GENERATED_BODY()
-
-public:
-	UPROPERTY(EditDefaultsOnly, Instanced, Category="Group")
-	TArray<TObjectPtr<UPWPrecastVisualizer>> Visualizers;
-
-	virtual void Ensure_Implementation(APlayerController* PC, float PreviewRadius, FName OriginSocket) override;
-	virtual void Update_Implementation(const FPWPrecastVisualUpdate& Data) override;
-	virtual void Hide_Implementation() override;
 };

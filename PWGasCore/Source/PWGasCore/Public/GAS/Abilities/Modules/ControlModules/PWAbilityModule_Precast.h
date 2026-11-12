@@ -17,13 +17,24 @@ class PWGASCORE_API UPWAbilityModule_Precast : public UPWControlModule
 	GENERATED_BODY()
 
 public:
+	// What is drawn while aiming: a decal, a projectile path, a ghost actor or several of them.
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TObjectPtr<UPWPrecastVisualizer> Visualizer;
 
+	// Radius shown while aiming when the ability has no radius module.
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float PreviewRadius = 150.f;
+	// Range used while aiming when the ability has no range module.
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float PreviewRange = 9999.f;
+
+	// Which of the ability's Animation Tags is the montage that releases the projectile; -1 previews from where the hand is now.
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Release Pose", meta=(ClampMin="-1"))
+	int32 ReleaseAnimationIndex = INDEX_NONE;
+
+	// Time in that montage, in seconds, at which the projectile leaves the hand.
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Release Pose", meta=(ClampMin="0.0", EditCondition="ReleaseAnimationIndex >= 0"))
+	float ReleaseTime = 0.f;
 	
 	UFUNCTION(BlueprintCallable, Category="Module")
 	void StartPrecast();

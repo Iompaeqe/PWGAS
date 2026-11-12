@@ -14,6 +14,7 @@ class UPWRangePolicy;
 class UPWPrecastVisualizer;
 class UPWTargetResolver;
 class UPWActionModule;
+class UAnimMontage;
 
 UCLASS(ClassGroup=(GASCore), meta=(BlueprintSpawnableComponent))
 class PWGASCORE_API UPWPrecastControllerComponent : public UActorComponent
@@ -38,6 +39,9 @@ public:
 	void UpdateProjectileSimConfig(const FPWProjectileSimConfig& Cfg);
 	void SetActionModule(UPWActionModule* InActionModule);
 
+	// Previews from where the origin socket is at this time of the montage, instead of where it is now.
+	void SetReleasePose(const UAnimMontage* Montage, float Time);
+
 protected:
 	virtual void BeginPlay() override;
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
@@ -55,6 +59,9 @@ private:
 	// cached authoring
 	float PreviewRadius = 0.f;
 	float PreviewRange = 0.f;
+	float ActorRadius = 0.f;
+	bool bHasReleaseOrigin = false;
+	FVector ReleaseOrigin = FVector::ZeroVector;
 	FName OriginSocket = NAME_None;
 	FPWProjectileSimConfig ProjCfg;
 
@@ -65,6 +72,7 @@ private:
 	APlayerController* GetPC() const;
 	APawn* GetPawn() const;
 	FVector GetOriginLocation() const;
-	void BuildProjectileVisual(FPWPrecastVisualUpdate& OutVisualUpdate);
+	void BuildProjectileVisual(FPWPrecastVisualUpdate& OutVisualUpdate, TArray<FPWTargetingResult>& OutImpacts);
+	void GatherTargets(const TArray<FPWTargetingResult>& Impacts, TArray<TObjectPtr<AActor>>& OutTargets) const;
 	FPWPrecastPath SimulatePath(const FVector& Start, const FVector& AimPoint, FHitResult& OutHit) const;
 };

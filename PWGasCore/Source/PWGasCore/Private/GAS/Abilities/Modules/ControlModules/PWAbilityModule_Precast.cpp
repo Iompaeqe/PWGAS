@@ -28,6 +28,7 @@ void UPWAbilityModule_Precast::StartPrecast()
 
 		if (const UPWAbilityModule_Targeting* TargetingModule = OwnerAbility->GetTargetingModule())
 		{
+			TargetingModule->InitializePolicies();
 			TargetingSource = TargetingModule->TargetingSource;
 			TargetResolver = TargetingModule->TargetResolver;
 		}
@@ -60,6 +61,14 @@ void UPWAbilityModule_Precast::StartPrecast()
 			ProjectileConfig
 		);
 		C->SetActionModule(OwnerAbility->GetActionModule<UPWActionModule>());
+
+		if (ReleaseAnimationIndex >= 0)
+		{
+			UAnimMontage* Montage = nullptr;
+			float Rate = 1.f;
+			OwnerAbility->GetAnimMontageFromActor(Montage, Rate, ReleaseAnimationIndex);
+			C->SetReleasePose(Montage, ReleaseTime);
+		}
 		bRunning = true;
 	}
 }

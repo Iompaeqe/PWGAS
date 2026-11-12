@@ -23,9 +23,11 @@ struct FPWPrecastVisualUpdate
 {
 	GENERATED_BODY()
 	UPROPERTY(BlueprintReadWrite) TArray<FVector> PathPoints;
-	// One per projectile. PathPoints and the impact below are the middle one.
+	// One per projectile. PathPoints and the impact below are the one aimed at the target.
 	UPROPERTY(BlueprintReadWrite) TArray<FPWPrecastPath> Paths;
 	UPROPERTY(BlueprintReadWrite) TArray<FTransform> SpawnTransforms;
+	// Actors the ability would affect if it were cast now.
+	UPROPERTY(BlueprintReadWrite) TArray<TObjectPtr<AActor>> Targets;
 	UPROPERTY(BlueprintReadWrite) TSubclassOf<AActor> ActorClass;
 	UPROPERTY(BlueprintReadWrite) FVector ImpactPoint = FVector::ZeroVector;
 	UPROPERTY(BlueprintReadWrite) FVector ImpactNormal = FVector::UpVector;
