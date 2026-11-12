@@ -8,35 +8,35 @@
 #include "Engine/World.h"
 #include "TimerManager.h"
 
+int32 UPWAbilityModule_MultiActor::GetActorCount() const
+{
+    const int32 Level = OwnerAbility ? OwnerAbility->GetAbilityLevel() : 1;
+    return FMath::Max(1, ActorCount + FMath::RoundToInt(BonusActors.GetValueAtLevel(Level)));
+}
+
 AActor* UPWAbilityModule_MultiActor::SpawnActorWithTargetingResult(const FPWTargetingResult& Target)
 {
-    if (ActorCount <= 1)
-    {
+    if (GetActorCount() <= 1)
         return Super::SpawnActorWithTargetingResult(Target);
-    }
-    
+
     SpawnMultipleActors(Target);
     return nullptr;
 }
 
 void UPWAbilityModule_MultiActor::SpawnMultipleActors(const FPWTargetingResult& Target)
 {
-    if (ActorCount <= 1)
+    if (GetActorCount() <= 1)
     {
         Super::SpawnActorWithTargetingResult(Target);
         return;
     }
 
-    CachedTargetResult = Target;
-
-    float EffectiveRadius = GetEffectiveRadius();
-    BuildSpawnPositions(Target.Location, EffectiveRadius);
+    BuildSpawnTransforms(Target, CachedSpawnTransforms);
     CurrentSpawnIndex = 0;
 
     SpawnOneActorInSequence(Target);
 
-    // Schedule remaining actors if there's a delay
-    if (SpawnDelay > 0.f && ActorCount > 1)
+    if (SpawnDelay > 0.f)
     {
         OwnerAbility->GetWorld()->GetTimerManager().SetTimer(
             SpawnTimerHandle,
@@ -47,61 +47,89 @@ void UPWAbilityModule_MultiActor::SpawnMultipleActors(const FPWTargetingResult& 
     }
     else
     {
-        for (int32 i = 1; i < ActorCount; ++i)
-        {
+        while (CurrentSpawnIndex < CachedSpawnTransforms.Num())
             SpawnOneActorInSequence(Target);
-        }
     }
 }
 
 void UPWAbilityModule_MultiActor::SpawnOneActorInSequence(const FPWTargetingResult& Target)
 {
-    if (CurrentSpawnIndex >= CachedSpawnPositions.Num())
+    if (CurrentSpawnIndex >= CachedSpawnTransforms.Num())
         return;
 
     FPWTargetingResult ModifiedTarget = Target;
-    ModifiedTarget.Location = CachedSpawnPositions[CurrentSpawnIndex];
-    
-    const FVector ToCenterRaw = CachedCenterLocation - ModifiedTarget.Location;
-    const FVector ToCenter = bSnapToGround ? ToCenterRaw.GetSafeNormal2D() : ToCenterRaw.GetSafeNormal();
-    ModifiedTarget.Rotation = bFaceCenter && !ToCenter.IsZero() ? ToCenter.Rotation() : GetPatternBasis(Target).Rotator();
+    ModifiedTarget.Location = CachedSpawnTransforms[CurrentSpawnIndex].GetLocation();
+    ModifiedTarget.Rotation = CachedSpawnTransforms[CurrentSpawnIndex].Rotator();
 
     Super::SpawnActorWithTargetingResult(ModifiedTarget);
     CurrentSpawnIndex++;
 
-    if (CurrentSpawnIndex >= CachedSpawnPositions.Num())
+    if (CurrentSpawnIndex >= CachedSpawnTransforms.Num())
         OwnerAbility->GetWorld()->GetTimerManager().ClearTimer(SpawnTimerHandle);
+}
+
+void UPWAbilityModule_MultiActor::GetPreviewTransforms(const FPWTargetingResult& Target, TArray<FTransform>& OutTransforms) const
+{
+    if (GetActorCount() <= 1)
+    {
+        Super::GetPreviewTransforms(Target, OutTransforms);
+        return;
+    }
+
+    TArray<FTransform> Transforms;
+    BuildSpawnTransforms(Target, Transforms);
+    for (const FTransform& Transform : Transforms)
+    {
+        FPWTargetingResult ModifiedTarget = Target;
+        ModifiedTarget.Location = Transform.GetLocation();
+        ModifiedTarget.Rotation = Transform.Rotator();
+        OutTransforms.Add(BuildSpawnTransform(ModifiedTarget));
+    }
+}
+
+void UPWAbilityModule_MultiActor::BuildSpawnTransforms(const FPWTargetingResult& Target, TArray<FTransform>& OutTransforms) const
+{
+    OutTransforms.Reset();
+
+    const int32 Count = GetActorCount();
+    const UPWSpawnPattern* UsedPattern = Pattern ? Pattern.Get() : GetDefault<UPWSpawnPattern_Circle>();
+    TArray<FVector> Positions = UsedPattern->BuildPositions(Count, GetEffectiveRadius());
+
+    const FQuat Basis = GetPatternBasis(Target);
+    FVector Center = Target.Location + Basis.RotateVector(PatternOffset);
+    for (FVector& Position : Positions)
+        Position = Center + Basis.RotateVector(Position);
+
+    if (bSnapToGround)
+    {
+        Center = SnapToGround(Center);
+        for (FVector& Position : Positions)
+            Position = SnapToGround(Position);
+    }
+
+    for (const FVector& Position : Positions)
+    {
+        const FVector ToCenterRaw = Center - Position;
+        const FVector ToCenter = bSnapToGround ? ToCenterRaw.GetSafeNormal2D() : ToCenterRaw.GetSafeNormal();
+        OutTransforms.Add(FTransform(bFaceCenter && !ToCenter.IsZero() ? ToCenter.Rotation() : Basis.Rotator(), Position));
+    }
 }
 
 float UPWAbilityModule_MultiActor::GetEffectiveRadius() const
 {
     if (Radius > 0.f)
         return Radius;
-        
-    if (UPWAbilityModule_Radius* RadiusModule = OwnerAbility->GetRadiusModule())
-    {
+
+    if (const UPWAbilityModule_Radius* RadiusModule = OwnerAbility->GetRadiusModule())
         return RadiusModule->GetRadiusValue();
-    }
-    
+
     return 0.f;
 }
 
-void UPWAbilityModule_MultiActor::BuildSpawnPositions(const FVector& CenterLocation, float InRadius)
+void UPWAbilityModule_MultiActor::GetRequiredDataModules_Implementation(TArray<TSubclassOf<UPWDataModule>>& OutRequiredModules)
 {
-    const UPWSpawnPattern* UsedPattern = Pattern ? Pattern.Get() : GetDefault<UPWSpawnPattern_Circle>();
-    CachedSpawnPositions = UsedPattern->BuildPositions(ActorCount, InRadius);
-
-    const FQuat Basis = GetPatternBasis(CachedTargetResult);
-    CachedCenterLocation = CenterLocation + Basis.RotateVector(PatternOffset);
-    for (FVector& Position : CachedSpawnPositions)
-        Position = CachedCenterLocation + Basis.RotateVector(Position);
-
-    if (!bSnapToGround)
-        return;
-
-    CachedCenterLocation = SnapToGround(CachedCenterLocation);
-    for (FVector& Position : CachedSpawnPositions)
-        Position = SnapToGround(Position);
+    Super::GetRequiredDataModules_Implementation(OutRequiredModules);
+    OutRequiredModules.Add(UPWAbilityModule_Radius::StaticClass());
 }
 
 FVector UPWAbilityModule_MultiActor::SnapToGround(const FVector& Location) const
