@@ -3,6 +3,7 @@
 
 #include "Libraries/GASCoreFunctions.h"
 
+#include "AbilitySystemGlobals.h"
 #include "Ability/SpellParams.h"
 #include "GAS/Abilities/Modules/DataModules/PWAbilityModule_Effect.h"
 #include "GAS/ASC/PWAbilitySystemComponent.h"
@@ -15,14 +16,8 @@ bool UGASCoreFunctions::ApplyEffects(UPWAbilitySystemComponent* ASC, const USpel
 	UEffectSpellParamsExtension* EffectParams = SpellParams->FindExtension<UEffectSpellParamsExtension>();
 	if (!EffectParams) return false;
 	
-	FGameplayEffectContextHandle ContextHandle = ASC->MakeEffectContext();
-	
-	for (FEffectEntry Effect : EffectParams->Effects)
-	{
-		FGameplayEffectSpecHandle SpecHandle = ASC->MakeOutgoingSpec(Effect.EffectClass, SpellParams->AbilityLevel, ContextHandle);
-		SpecHandle.Data->SetStackCount(Effect.StackCount);
-		ASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data);
-	}
+	UAbilitySystemComponent* SourceASC = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(SpellParams->SourceAvatar);
+	EffectParams->ApplyEffectsToTarget(SourceASC ? SourceASC : ASC, ASC, SpellParams->AbilityLevel);
 	return true;
 }
 

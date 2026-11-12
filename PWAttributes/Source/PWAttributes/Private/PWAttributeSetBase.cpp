@@ -58,7 +58,7 @@ void UPWAttributeSetBase::SetEffectProperties(const FGameplayEffectModCallbackDa
 	Data.EffectSpec.GetAllAssetTags(Props.EffectAssetTags);
 	Props.Source.ASC = Props.EffectContextHandle.GetOriginalInstigatorAbilitySystemComponent();
 
-	SetEffectObject(Props.Source, Props.Source.ASC->AbilityActorInfo.Get());
+	SetEffectObject(Props.Source, Props.Source.ASC ? Props.Source.ASC->AbilityActorInfo.Get() : nullptr);
 	SetEffectObject(Props.Target, Data.Target.AbilityActorInfo.Get());
 
 	Props.Target.ASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(Props.Target.AvatarActor);
@@ -75,13 +75,13 @@ void UPWAttributeSetBase::SetEffectObject(FEffectObject& Props, const FGameplayA
 			if (const APawn* Pawn = Cast<APawn>(Props.AvatarActor))
 			{
 				Props.Controller = Pawn->GetController();
-				Props.PlayerNetId = Props.Controller->PlayerState->GetUniqueId();
 			}
 		}
 		if (Props.Controller)
 		{
 			Props.Character = Cast<ACharacter>(Props.Controller->GetPawn());
-			Props.PlayerNetId = Props.Controller->PlayerState->GetUniqueId();
+			if (Props.Controller->PlayerState)
+				Props.PlayerNetId = Props.Controller->PlayerState->GetUniqueId();
 		}
 		Props.bIsValid = true;
 	}
