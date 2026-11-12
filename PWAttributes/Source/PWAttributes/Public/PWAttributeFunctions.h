@@ -8,9 +8,6 @@
 #include "PWAttributeFunctions.generated.h"
 
 struct FGameplayTag;
-/**
- * 
- */
 UCLASS()
 class PWATTRIBUTES_API UPWAttributeFunctions : public UBlueprintFunctionLibrary
 {

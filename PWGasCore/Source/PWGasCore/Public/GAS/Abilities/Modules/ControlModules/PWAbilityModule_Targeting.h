@@ -10,9 +10,6 @@ struct FGameplayAbilityTargetDataHandle;
 class UPWTargetingSource;
 class UPWTargetResolver;
 struct FPWTargetingResult;
-/**
- * 
- */
 UCLASS(Blueprintable, BlueprintType, EditInlineNew, DefaultToInstanced)
 class PWGASCORE_API UPWAbilityModule_Targeting : public UPWControlModule
 {

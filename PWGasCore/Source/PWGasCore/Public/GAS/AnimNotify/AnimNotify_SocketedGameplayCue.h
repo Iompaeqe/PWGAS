@@ -7,9 +7,6 @@
 #include "Animation/AnimNotifies/AnimNotify.h"
 #include "AnimNotify_SocketedGameplayCue.generated.h"
 
-/**
- * 
- */
 UCLASS(editinlinenew, Const, hideCategories = Object, collapseCategories, Meta = (DisplayName = "GameplayCue Socket"))
 class PWGASCORE_API UAnimNotify_SocketedGameplayCue : public UAnimNotify
 {

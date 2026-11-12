@@ -8,9 +8,6 @@
 
 class UPWDataModule;
 class UPWModularGameplayAbility;
-/**
- * 
- */
 UCLASS(Abstract, Blueprintable, EditInlineNew, DefaultToInstanced)
 class PWGASCORE_API UPWAbilityModule : public UObject
 {

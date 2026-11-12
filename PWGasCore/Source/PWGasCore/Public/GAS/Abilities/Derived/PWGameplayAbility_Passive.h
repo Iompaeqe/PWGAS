@@ -6,9 +6,6 @@
 #include "PWGameplayAbility_Channeling.h"
 #include "PWGameplayAbility_Passive.generated.h"
 
-/**
- * 
- */
 UCLASS()
 class PWGASCORE_API UPWGameplayAbility_Passive : public UPWModularGameplayAbility
 {

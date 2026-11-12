@@ -8,9 +8,6 @@
 #include "EffectContextFunctions.generated.h"
 
 struct FGameplayEffectContextHandle;
-/**
- * 
- */
 UCLASS()
 class PWGASCORE_API UEffectContextFunctions : public UBlueprintFunctionLibrary
 {

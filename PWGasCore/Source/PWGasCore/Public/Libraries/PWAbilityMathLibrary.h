@@ -6,9 +6,6 @@
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "PWAbilityMathLibrary.generated.h"
 
-/**
- * 
- */
 UCLASS()
 class PWGASCORE_API UPWAbilityMathLibrary : public UBlueprintFunctionLibrary
 {

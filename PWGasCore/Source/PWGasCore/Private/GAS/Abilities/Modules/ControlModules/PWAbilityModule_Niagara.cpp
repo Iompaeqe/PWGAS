@@ -8,6 +8,7 @@
 #include "GAS/ASC/PWAbilitySystemComponent.h"
 #include "GAS/ASC/PWASC_VfxLifecycle.h"
 #include "GAS/Data/PWNiagaraEntry.h"
+#include "PWGASCoreLogChannels.h"
 
 int32 UPWAbilityModule_Niagara::ComputeUniqueId(const int32 Index) const
 {
@@ -50,7 +51,7 @@ UNiagaraComponent* UPWAbilityModule_Niagara::InternalPlay(int32 Index, const FTr
 	if (!Entry || !Entry->NiagaraSystem)
 		return nullptr;
 	
-	//UE_LOG(LogTemp, Log, TEXT("UPWAbilityModule_Niagara::InternalPlay, Auth: %hhd, Index: %d, UniqueId: %d"), Info->IsNetAuthority(), Index, Entry->UniqueId);
+	//UE_LOG(LogPWGASCoreAbilityModule, Log, TEXT("UPWAbilityModule_Niagara::InternalPlay, Auth: %hhd, Index: %d, UniqueId: %d"), Info->IsNetAuthority(), Index, Entry->UniqueId);
 
 	if (!Entry->bAttachToActor)
 	{
@@ -99,7 +100,7 @@ UNiagaraComponent* UPWAbilityModule_Niagara::PlayOnActor(int32 Index, AActor* Ta
 void UPWAbilityModule_Niagara::InternalStopByIds(const TArray<int32>& Ids) const
 {
 	//const FGameplayAbilityActorInfo* Info = OwnerAbility->GetCurrentActorInfo();
-	//UE_LOG(LogTemp, Log, TEXT("UPWAbilityModule_Niagara::InternalStopByIds, %hhd"), Info->IsNetAuthority());
+	//UE_LOG(LogPWGASCoreAbilityModule, Log, TEXT("UPWAbilityModule_Niagara::InternalStopByIds, %hhd"), Info->IsNetAuthority());
 	
 	if (!OwnerAbility || Ids.Num() == 0)
 		return;
@@ -124,7 +125,7 @@ void UPWAbilityModule_Niagara::InternalStopByIds(const TArray<int32>& Ids) const
 void UPWAbilityModule_Niagara::Stop(int32 Index)
 {
 	//const FGameplayAbilityActorInfo* Info = OwnerAbility->GetCurrentActorInfo();
-	//UE_LOG(LogTemp, Log, TEXT("UPWAbilityModule_Niagara::Stop, %hhd"), Info->IsNetAuthority());
+	//UE_LOG(LogPWGASCoreAbilityModule, Log, TEXT("UPWAbilityModule_Niagara::Stop, %hhd"), Info->IsNetAuthority());
 	
 	int32* IdPtr = ActiveIndexToId.Find(Index);
 	if (!IdPtr) return;
@@ -141,7 +142,7 @@ void UPWAbilityModule_Niagara::Stop(int32 Index)
 void UPWAbilityModule_Niagara::StopAll()
 {
 	//const FGameplayAbilityActorInfo* Info = OwnerAbility->GetCurrentActorInfo();
-	//UE_LOG(LogTemp, Log, TEXT("UPWAbilityModule_Niagara::StopAll, %hhd"), Info->IsNetAuthority());
+	//UE_LOG(LogPWGASCoreAbilityModule, Log, TEXT("UPWAbilityModule_Niagara::StopAll, %hhd"), Info->IsNetAuthority());
 	
 	if (ActiveIndexToId.Num() == 0)
 	{

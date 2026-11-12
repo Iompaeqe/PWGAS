@@ -8,9 +8,6 @@
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FMontageWaitDelegate);
 
-/**
- * 
- */
 UCLASS()
 class PWGASCORE_API UAbilityTask_PlayMontageAddTagAndWait : public UAbilityTask
 {

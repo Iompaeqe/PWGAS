@@ -40,7 +40,7 @@ void FPWASC_AbilityLifecycle::AddAbility(const FGameplayTag& AbilityTag, const F
 	const FPWAbilityInfo AbilityData = UPWGASCoreSettings::Get()->GetAbilityByTag(AbilityTag);
 	if (!AbilityData.IsValid() || !AbilityData.AbilityClass)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("%s >> AbilityData is invalid!! Tag: %s"), *FString(__FUNCTION__), *AbilityTag.ToString());
+		UE_LOG(LogPWGASCoreAbilitySystem, Warning, TEXT("%s >> AbilityData is invalid!! Tag: %s"), *FString(__FUNCTION__), *AbilityTag.ToString());
 		return;
 	}
 
@@ -125,7 +125,7 @@ void FPWASC_AbilityLifecycle::ForEachAbility(const FForEachAbility& Delegate) co
 	FScopedAbilityListLock ActiveScopeLock(ASC);
 	for (const FGameplayAbilitySpec& AbilitySpec : ASC.GetActivatableAbilities())
 		if (!Delegate.ExecuteIfBound(AbilitySpec))
-			UE_LOG(LogTemp, Warning, TEXT("Failed to execute delegate"));
+			UE_LOG(LogPWGASCoreAbilitySystem, Warning, TEXT("Failed to execute delegate"));
 }
 
 bool FPWASC_AbilityLifecycle::ApplyActivationPolicies(const FGameplayAbilitySpecHandle& SpecHandle, const FGameplayTag& EventTag) const

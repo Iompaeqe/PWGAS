@@ -10,9 +10,6 @@ class UProjectileSpellParamsExtension;
 class UActorSpellParamsExtension;
 class UEffectSpellParamsExtension;
 class USpellParams;
-/**
- * 
- */
 UCLASS()
 class PWGASCORE_API UModuleFunctions : public UBlueprintFunctionLibrary
 {

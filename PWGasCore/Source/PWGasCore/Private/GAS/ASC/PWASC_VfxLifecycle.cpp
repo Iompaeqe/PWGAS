@@ -7,10 +7,11 @@
 #include "NiagaraFunctionLibrary.h"
 #include "GAS/ASC/PWAbilitySystemComponent.h"
 #include "GAS/Data/PWNiagaraEntry.h"
+#include "PWGASCoreLogChannels.h"
 
 UNiagaraComponent* FPWASC_VfxLifecycle::PlayNiagara_Local(const FPWNiagaraEntry& Entry)
 {
-	//UE_LOG(LogTemp, Log, TEXT("UPWAbilitySystemComponent::PlayNiagara_Local, Auth: %hhd, UniqueId: %d"), ASC.GetOwner()->HasAuthority(), Entry.UniqueId);
+	//UE_LOG(LogPWGASCoreAbilitySystem, Log, TEXT("UPWAbilitySystemComponent::PlayNiagara_Local, Auth: %hhd, UniqueId: %d"), ASC.GetOwner()->HasAuthority(), Entry.UniqueId);
 	if (!Entry.NiagaraSystem)
 		return nullptr;
 
@@ -80,13 +81,13 @@ UNiagaraComponent* FPWASC_VfxLifecycle::PlayNiagara_Local(const FPWNiagaraEntry&
 
 void FPWASC_VfxLifecycle::StopNiagara_Local(const int32 UniqueId)
 {
-	//UE_LOG(LogTemp, Log, TEXT("UPWAbilitySystemComponent::StopNiagara_Local, Auth: %hhd, UniqueId: %d"), ASC.GetOwner()->HasAuthority(), UniqueId);
+	//UE_LOG(LogPWGASCoreAbilitySystem, Log, TEXT("UPWAbilitySystemComponent::StopNiagara_Local, Auth: %hhd, UniqueId: %d"), ASC.GetOwner()->HasAuthority(), UniqueId);
 	if (UniqueId == INDEX_NONE)
 		return;
 
 	if (UNiagaraComponent** Found = ActiveNiagaraVfx.Find(UniqueId))
 	{
-		//UE_LOG(LogTemp, Log, TEXT("UPWAbilitySystemComponent::StopNiagara_Local, Auth: %hhd, UniqueId: %d, Niagara Found, cancelling"), ASC.GetOwner()->HasAuthority(), UniqueId);
+		//UE_LOG(LogPWGASCoreAbilitySystem, Log, TEXT("UPWAbilitySystemComponent::StopNiagara_Local, Auth: %hhd, UniqueId: %d, Niagara Found, cancelling"), ASC.GetOwner()->HasAuthority(), UniqueId);
 		if (*Found)
 			(*Found)->DestroyComponent();
 		ActiveNiagaraVfx.Remove(UniqueId);
@@ -97,7 +98,7 @@ void FPWASC_VfxLifecycle::StopNiagaraList_Local(const TArray<int32>& Ids)
 {
 	for (int32 Id : Ids)
 	{
-		//UE_LOG(LogTemp, Log, TEXT("UPWAbilitySystemComponent::StopNiagara_Local, Auth: %hhd, UniqueId: %d, Niagara Found, cancelling"), ASC.GetOwner()->HasAuthority(), Id);
+		//UE_LOG(LogPWGASCoreAbilitySystem, Log, TEXT("UPWAbilitySystemComponent::StopNiagara_Local, Auth: %hhd, UniqueId: %d, Niagara Found, cancelling"), ASC.GetOwner()->HasAuthority(), Id);
 		StopNiagara_Local(Id);
 	}
 }

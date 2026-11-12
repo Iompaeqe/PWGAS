@@ -8,9 +8,6 @@
 #include "UObject/Object.h"
 #include "CursorSingleTargeting.generated.h"
 
-/**
- * 
- */
 UCLASS()
 class PWGASCORE_API UCursorSingleTargeting : public UPWTargetingSource
 {

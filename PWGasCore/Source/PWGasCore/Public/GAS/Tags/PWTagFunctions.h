@@ -10,9 +10,6 @@
 
 class UGameplayAbility;
 class UAbilitySystemComponent;
-/**
- * 
- */
 UCLASS()
 class PWGASCORE_API UPWTagFunctions : public UBlueprintFunctionLibrary
 {

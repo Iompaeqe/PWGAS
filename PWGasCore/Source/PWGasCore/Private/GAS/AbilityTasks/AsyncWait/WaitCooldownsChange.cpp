@@ -6,6 +6,7 @@
 #include "AbilitySystemComponent.h"
 #include "GAS/Tags/GASCoreTags.h"
 #include "GAS/Tags/PWTagFunctions.h"
+#include "PWGASCoreLogChannels.h"
 
 UWaitCooldownsChange* UWaitCooldownsChange::WaitForCooldownsChange(UAbilitySystemComponent* AbilitySystemComponent, const FGameplayTagContainer InCooldownTags)
 {
@@ -61,7 +62,7 @@ void UWaitCooldownsChange::CooldownEffectApplied(UAbilitySystemComponent* Abilit
 		const FGameplayTag CooldownTag = UPWTagFunctions::FindTagWithSuffix(Tags, PWTags::Ability::Skill::GetCooldownSuffix());
 		if (!CooldownTag.IsValid())
 		{
-			UE_LOG(LogTemp, Warning, TEXT("No cooldown tag found in applied GE tags!"));
+			UE_LOG(LogPWGASCoreAbility, Warning, TEXT("No cooldown tag found in applied GE tags!"));
 			return;
 		}
 

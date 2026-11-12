@@ -11,6 +11,7 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "GameFramework/Pawn.h"
 #include "PWGasCore/Public/Targeting/Types/PWTargetPolicyBase.h"
+#include "PWGASCoreLogChannels.h"
 
 class UPWAbilityModule_Targeting;
 
@@ -24,7 +25,7 @@ void UPWAbilityModule_InstantEffect::ApplyEffects()
 	auto* Effect = OwnerAbility->GetEffectModule();
 	if (!Effect)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[%s] InstantEffectAction has no EffectModule!"), *GetNameSafe(this));
+		UE_LOG(LogPWGASCoreAbilityModule, Warning, TEXT("[%s] InstantEffectAction has no EffectModule!"), *GetNameSafe(this));
 		return;
 	}
 
@@ -59,7 +60,7 @@ void UPWAbilityModule_InstantEffect::ApplyEffects()
 			Effect->ApplyEffects(SourceASC, TargetASC);
 	}
 
-	UE_LOG(LogTemp, Log, TEXT("[%s] Applied instant effect to %d targets."), *GetNameSafe(this), Targets.Num());
+	UE_LOG(LogPWGASCoreAbilityModule, Log, TEXT("[%s] Applied instant effect to %d targets."), *GetNameSafe(this), Targets.Num());
 }
 
 void UPWAbilityModule_InstantEffect::RemoveEffects()

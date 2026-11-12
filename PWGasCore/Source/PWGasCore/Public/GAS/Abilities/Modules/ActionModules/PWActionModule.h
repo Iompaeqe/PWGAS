@@ -9,9 +9,6 @@
 class UPWDataModule;
 class USpellParams;
 struct FPWTargetingResult;
-/**
- * 
- */
 UCLASS(Blueprintable, BlueprintType, EditInlineNew, DefaultToInstanced)
 class PWGASCORE_API UPWActionModule : public UPWAbilityModule
 {

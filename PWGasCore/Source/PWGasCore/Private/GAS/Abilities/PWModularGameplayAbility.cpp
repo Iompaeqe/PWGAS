@@ -12,6 +12,7 @@
 #include "GAS/Abilities/Modules/DataModules/PWAbilityModule_Radius.h"
 #include "PWGasCore/Public/GAS/Abilities/Modules/PWAbilityModule.h"
 #include "Targeting/Data/PWTargetingData.h"
+#include "PWGASCoreLogChannels.h"
 
 
 void UPWModularGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
@@ -126,7 +127,7 @@ void UPWModularGameplayAbility::EnsureRequiredDataModules()
 			UPWDataModule* NewData = NewObject<UPWDataModule>(this, DataClass, NAME_None, RF_Transactional);
 			DataModules.Add(NewData);
 			//NewData->Initialize(this);
-			UE_LOG(LogTemp, Log, TEXT("[PWGASCore] Auto-added required DataModule: %s"), *DataClass->GetName());
+			UE_LOG(LogPWGASCoreAbility, Log, TEXT("[PWGASCore] Auto-added required DataModule: %s"), *DataClass->GetName());
 		}
 	}
 }

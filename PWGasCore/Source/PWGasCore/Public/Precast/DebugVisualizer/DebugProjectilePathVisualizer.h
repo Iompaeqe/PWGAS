@@ -6,9 +6,6 @@
 #include "Precast/Data/PWPrecastTypes.h"
 #include "DebugProjectilePathVisualizer.generated.h"
 
-/**
- * 
- */
 UCLASS()
 class PWGASCORE_API UDebugProjectilePathVisualizer : public UPWPrecastVisualizer
 {

@@ -7,9 +7,6 @@
 #include "PWDataModule.generated.h"
 
 class USpellParams;
-/**
- * 
- */
 UCLASS(Blueprintable, BlueprintType, EditInlineNew, DefaultToInstanced)
 class PWGASCORE_API UPWDataModule : public UPWAbilityModule
 {

@@ -7,9 +7,6 @@
 #include "GAS/Abilities/PWAbilityRegistry.h"
 #include "PWGASCoreSettings.generated.h"
 
-/**
- * 
- */
 UCLASS(config=Game, defaultconfig)
 class PWGASCORE_API UPWGASCoreSettings : public UDeveloperSettings
 {

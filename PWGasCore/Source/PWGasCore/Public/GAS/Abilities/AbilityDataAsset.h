@@ -7,9 +7,6 @@
 #include "Engine/DataAsset.h"
 #include "AbilityDataAsset.generated.h"
 
-/**
- * 
- */
 UCLASS(BlueprintType)
 class PWGASCORE_API UAbilityDataAsset : public UDataAsset
 {

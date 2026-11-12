@@ -12,6 +12,7 @@
 #include "GAS/Data/GASCoreEnums.h"
 #include "GAS/Data/PWNiagaraEntry.h"
 #include "GAS/Tags/GASCoreTags.h"
+#include "PWGASCoreLogChannels.h"
 
 UPWAbilitySystemComponent::UPWAbilitySystemComponent()
 {
@@ -162,14 +163,14 @@ void UPWAbilitySystemComponent::SendInputEvent(const FGameplayTag& InputTag, EPW
 
 void UPWAbilitySystemComponent::Multicast_PlayNiagara_Implementation(const FPWNiagaraEntry& Entry)
 {
-	//UE_LOG(LogTemp, Log, TEXT("UPWAbilitySystemComponent::Multicast_PlayNiagara_Implementation, Auth: %hhd, UniqueId: %d"), GetOwner()->HasAuthority(), Entry.UniqueId);
+	//UE_LOG(LogPWGASCoreAbilitySystem, Log, TEXT("UPWAbilitySystemComponent::Multicast_PlayNiagara_Implementation, Auth: %hhd, UniqueId: %d"), GetOwner()->HasAuthority(), Entry.UniqueId);
 	Vfx().PlayNiagara_Local(Entry);
 }
 
 void UPWAbilitySystemComponent::Multicast_StopNiagara_Implementation(const TArray<int32>& Ids)
 {
 	//for (int32 Id : Ids)
-		//UE_LOG(LogTemp, Log, TEXT("UPWAbilitySystemComponent::Multicast_StopNiagara_Implementation, Auth: %hhd, UniqueId: %d"), GetOwner()->HasAuthority(), Id);
+		//UE_LOG(LogPWGASCoreAbilitySystem, Log, TEXT("UPWAbilitySystemComponent::Multicast_StopNiagara_Implementation, Auth: %hhd, UniqueId: %d"), GetOwner()->HasAuthority(), Id);
 	Vfx().StopNiagaraList_Local(Ids);
 }
 

@@ -6,9 +6,6 @@
 #include "GAS/Abilities/PWModularGameplayAbility.h"
 #include "PWGameplayAbility_Charged.generated.h"
 
-/**
- * 
- */
 UCLASS()
 class PWGASCORE_API UPWGameplayAbility_Charged : public UPWModularGameplayAbility
 {

@@ -12,6 +12,8 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/PlayerState.h"
 
+DEFINE_LOG_CATEGORY_STATIC(LogPWAttributes, Log, All);
+
 UPWAttributeSetBase::UPWAttributeSetBase()
 {
 }
@@ -118,7 +120,7 @@ float UPWAttributeSetBase::GetAttributeValue(const FGameplayTag& AttributeTag) c
 		const UAbilitySystemComponent* ASC = GetOwningAbilitySystemComponent();
 		return ASC ? ASC->GetNumericAttribute(*Attr) : Attr->GetNumericValue(this);
 	}
-	UE_LOG(LogTemp, Warning, TEXT("[PWAttrBase] Attribute not found for tag: %s"), *AttributeTag.ToString());
+	UE_LOG(LogPWAttributes, Warning, TEXT("[PWAttrBase] Attribute not found for tag: %s"), *AttributeTag.ToString());
 	return 0.f;
 }
 
@@ -132,7 +134,7 @@ void UPWAttributeSetBase::SetAttributeValue(const FGameplayTag& AttributeTag, fl
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[PWAttrBase] Attribute not found for tag: %s"), *AttributeTag.ToString());
+		UE_LOG(LogPWAttributes, Warning, TEXT("[PWAttrBase] Attribute not found for tag: %s"), *AttributeTag.ToString());
 	}
 }
 
@@ -141,7 +143,7 @@ FGameplayAttribute UPWAttributeSetBase::GetAttribute(const FGameplayTag& Attribu
 	if (const FGameplayAttribute* Attr = GetTagMap().Find(AttributeTag))
 		return *Attr;
 
-	UE_LOG(LogTemp, Warning, TEXT("[PWAttrBase] Attribute not found for tag: %s"), *AttributeTag.ToString());
+	UE_LOG(LogPWAttributes, Warning, TEXT("[PWAttrBase] Attribute not found for tag: %s"), *AttributeTag.ToString());
 	return FGameplayAttribute();
 }
 

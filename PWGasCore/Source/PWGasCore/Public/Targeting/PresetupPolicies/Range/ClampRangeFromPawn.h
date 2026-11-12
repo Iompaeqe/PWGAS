@@ -8,9 +8,6 @@
 #include "UObject/Object.h"
 #include "ClampRangeFromPawn.generated.h"
 
-/**
- * 
- */
 UCLASS()
 class PWGASCORE_API UClampRangeFromPawn : public UPWRangePolicy
 {

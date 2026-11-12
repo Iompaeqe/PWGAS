@@ -8,6 +8,7 @@
 #include "GAS/Abilities/PWModularGameplayAbility.h"
 #include "GAS/Abilities/Modules/DataModules/PWAbilityModule_Effect.h"
 #include "GAS/Abilities/Modules/DataModules/PWAbilityModule_Range.h"
+#include "PWGASCoreLogChannels.h"
 
 
 void UPWAbilityModule_Aura::OnAbilityActivated_Implementation()
@@ -45,7 +46,7 @@ void UPWAbilityModule_Aura::OnAbilityActivated_Implementation()
 	if (bDrawDebug)
 		DrawDebugSphere(World, OwnerPawn->GetActorLocation(), Radius, 16, FColor::Green, false, 10.f);
 
-	UE_LOG(LogTemp, Log, TEXT("[AuraModule] Aura activated with radius %.1f"), Radius);
+	UE_LOG(LogPWGASCoreAbilityModule, Log, TEXT("[AuraModule] Aura activated with radius %.1f"), Radius);
 }
 
 void UPWAbilityModule_Aura::OnAbilityEnded_Implementation()
@@ -54,7 +55,7 @@ void UPWAbilityModule_Aura::OnAbilityEnded_Implementation()
 	{
 		AuraSphere->DestroyComponent();
 		AuraSphere = nullptr;
-		UE_LOG(LogTemp, Log, TEXT("[AuraModule] Aura ended, component destroyed."));
+		UE_LOG(LogPWGASCoreAbilityModule, Log, TEXT("[AuraModule] Aura ended, component destroyed."));
 	}
 }
 
@@ -94,11 +95,11 @@ void UPWAbilityModule_Aura::ApplyAuraEffect(const AActor* Target, const bool bAp
 	if (bApply)
 	{
 		EffectModule->ApplyEffects(SourceASC, TargetASC);
-		UE_LOG(LogTemp, Verbose, TEXT("[AuraModule] Applied aura effect to %s"), *Target->GetName());
+		UE_LOG(LogPWGASCoreAbilityModule, Verbose, TEXT("[AuraModule] Applied aura effect to %s"), *Target->GetName());
 	}
 	else
 	{
 		EffectModule->RemoveEffects(SourceASC, TargetASC);
-		UE_LOG(LogTemp, Verbose, TEXT("[AuraModule] Removed aura effect from %s"), *Target->GetName());
+		UE_LOG(LogPWGASCoreAbilityModule, Verbose, TEXT("[AuraModule] Removed aura effect from %s"), *Target->GetName());
 	}
 }

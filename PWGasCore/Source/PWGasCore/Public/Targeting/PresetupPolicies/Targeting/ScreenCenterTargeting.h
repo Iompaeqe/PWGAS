@@ -9,9 +9,6 @@
 #include "UObject/Object.h"
 #include "ScreenCenterTargeting.generated.h"
 
-/**
- * 
- */
 UCLASS()
 class PWGASCORE_API UScreenCenterTargeting : public UPWTargetingSource
 {

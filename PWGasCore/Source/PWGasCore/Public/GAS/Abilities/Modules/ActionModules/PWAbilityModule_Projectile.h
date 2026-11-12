@@ -27,9 +27,6 @@ public:
 	float Range = 0.f;
 };
 
-/**
- * 
- */
 UCLASS(Blueprintable, BlueprintType, EditInlineNew, DefaultToInstanced)
 class PWGASCORE_API UPWAbilityModule_Projectile : public UPWAbilityModule_Actor
 {

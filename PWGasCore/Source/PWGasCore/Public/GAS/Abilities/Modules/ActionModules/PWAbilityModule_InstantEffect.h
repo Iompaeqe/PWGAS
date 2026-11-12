@@ -7,9 +7,6 @@
 #include "PWAbilityModule_InstantEffect.generated.h"
 
 struct FGameplayAbilityTargetDataHandle;
-/**
- * 
- */
 UCLASS(Blueprintable, BlueprintType, EditInlineNew, DefaultToInstanced)
 class PWGASCORE_API UPWAbilityModule_InstantEffect : public UPWActionModule
 {

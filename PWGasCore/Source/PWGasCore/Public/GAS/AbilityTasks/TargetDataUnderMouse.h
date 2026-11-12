@@ -8,9 +8,6 @@
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMouseTargetDataDelegate, const FGameplayAbilityTargetDataHandle&, DataHandle);
 
-/**
- * 
- */
 UCLASS()
 class PWGASCORE_API UTargetDataUnderMouse : public UAbilityTask
 {

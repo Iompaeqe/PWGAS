@@ -2,12 +2,13 @@
 
 #include "GAS/Abilities/Derived/PWGameplayAbility_Instant.h"
 #include "GAS/Abilities/Modules/ActionModules/PWActionModule.h"
+#include "PWGASCoreLogChannels.h"
 
 void UPWGameplayAbility_Instant::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
 	if (GIsEditor)
 	{
-		UE_LOG(LogTemp, Verbose, TEXT("[%s] Instant Ability Activated."), *GetNameSafe(this));
+		UE_LOG(LogPWGASCoreAbility, Verbose, TEXT("[%s] Instant Ability Activated."), *GetNameSafe(this));
 	}
 	
 	if (bAutoCommit && !CommitAbility(Handle, ActorInfo, ActivationInfo))

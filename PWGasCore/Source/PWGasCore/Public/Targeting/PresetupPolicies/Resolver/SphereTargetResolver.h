@@ -8,9 +8,6 @@
 #include "UObject/Object.h"
 #include "SphereTargetResolver.generated.h"
 
-/**
- * 
- */
 UCLASS()
 class PWGASCORE_API USphereTargetResolver : public UPWTargetResolver
 {

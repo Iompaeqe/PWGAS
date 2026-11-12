@@ -7,9 +7,6 @@
 #include "PWGameplayAbility_Instant.generated.h"
 
 
-/**
- * 
- */
 UCLASS(Blueprintable, BlueprintType)
 class PWGASCORE_API UPWGameplayAbility_Instant : public UPWModularGameplayAbility
 {

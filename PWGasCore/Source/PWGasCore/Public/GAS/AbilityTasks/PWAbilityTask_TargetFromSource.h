@@ -11,9 +11,6 @@ class UPWModularGameplayAbility;
 class UPWTargetingSource;
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FPWTargetResultDelegate, const FGameplayAbilityTargetDataHandle&, DataHandle, const FPWTargetingResult&, TargetingResult);
 
-/**
- * 
- */
 UCLASS()
 class PWGASCORE_API UPWAbilityTask_TargetFromSource : public UAbilityTask
 {

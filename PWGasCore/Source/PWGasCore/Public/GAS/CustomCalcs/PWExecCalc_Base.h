@@ -6,9 +6,6 @@
 #include "GameplayEffectExecutionCalculation.h"
 #include "PWExecCalc_Base.generated.h"
 
-/**
- * 
- */
 UCLASS(BlueprintType)
 class PWGASCORE_API UExecCalc_Base : public UGameplayEffectExecutionCalculation
 {

@@ -8,9 +8,6 @@
 #include "UObject/Object.h"
 #include "SingleTargetResolver.generated.h"
 
-/**
- * 
- */
 UCLASS()
 class PWGASCORE_API USingleTargetResolver : public UPWTargetResolver
 {

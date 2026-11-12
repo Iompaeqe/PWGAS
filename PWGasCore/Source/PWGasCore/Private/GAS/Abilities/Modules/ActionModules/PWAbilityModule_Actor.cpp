@@ -7,6 +7,7 @@
 #include "GAS/Abilities/PWModularGameplayAbility.h"
 #include "GAS/Abilities/Modules/ControlModules/PWAbilityModule_Targeting.h"
 #include "GAS/AbilityTasks/PWAbilityTask_TargetFromSource.h"
+#include "PWGASCoreLogChannels.h"
 
 
 USpellParams* UPWAbilityModule_Actor::MakeSpellParams_Implementation(const FPWTargetingResult& Target)
@@ -48,7 +49,7 @@ AActor* UPWAbilityModule_Actor::SpawnActorWithTargetingResult(const FPWTargeting
 
 	if (!Spawned->GetClass()->ImplementsInterface(UPWSpellParamsInterface::StaticClass()))
 	{
-		UE_LOG(LogTemp, Error, TEXT("%s must implement IPWSpellParamsInterface (ActorModule)."), *ActorClass->GetName());
+		UE_LOG(LogPWGASCoreAbilityModule, Error, TEXT("%s must implement IPWSpellParamsInterface (ActorModule)."), *ActorClass->GetName());
 		Spawned->Destroy();
 		return nullptr;
 	}
@@ -76,7 +77,7 @@ AActor* UPWAbilityModule_Actor::SpawnActorWithTargetingResult(const FPWTargeting
 				if (Mesh->DoesSocketExist(SpawnSocket))
 					Spawned->AttachToComponent(Mesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale, SpawnSocket);
 				else
-					UE_LOG(LogTemp, Warning, TEXT("Attach socket '%s' missing on %s."), *SpawnSocket.ToString(), *Avatar->GetName());
+					UE_LOG(LogPWGASCoreAbilityModule, Warning, TEXT("Attach socket '%s' missing on %s."), *SpawnSocket.ToString(), *Avatar->GetName());
 			}
 		}
 		else

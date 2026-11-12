@@ -12,9 +12,6 @@ struct FGameplayEffectSpec;
 class UAbilitySystemComponent;
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FCooldownChangeDelegate, float, TimeRemaining, float, Cooldown);
 
-/**
- * 
- */
 UCLASS(BlueprintType, meta=(ExposedAsyncProxy = "AsyncTask"))
 class PWGASCORE_API UWaitCooldownChange : public UBlueprintAsyncActionBase
 {

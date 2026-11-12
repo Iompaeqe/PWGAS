@@ -23,9 +23,6 @@ enum class EProjectileSpreadPattern : uint8
 	Random3D UMETA(DisplayName="Random 3D (with pitch)")
 };
 
-/**
- * 
- */
 UCLASS(Blueprintable, BlueprintType, EditInlineNew, DefaultToInstanced)
 class PWGASCORE_API UPWAbilityModule_MultiProjectile : public UPWAbilityModule_Projectile
 {
