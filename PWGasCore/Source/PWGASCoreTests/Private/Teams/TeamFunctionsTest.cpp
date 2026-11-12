@@ -33,12 +33,16 @@ bool FTeamFunctionsRelationTest::RunTest(const FString& Parameters)
 	TestEqual("Self", UTeamFunctions::GetRelation(Red, Red), ERelation::Self);
 	TestEqual("Ally", UTeamFunctions::GetRelation(Red, RedAlly), ERelation::Ally);
 	TestEqual("Enemy", UTeamFunctions::GetRelation(Red, Blue), ERelation::Enemy);
-	TestEqual("Unknown", UTeamFunctions::GetRelation(Red, Test.Actor), ERelation::Unknown);
+	TestEqual("No team is neutral", UTeamFunctions::GetRelation(Red, Test.Actor), ERelation::Neutral);
+	TestEqual("A missing actor is unknown", UTeamFunctions::GetRelation(Red, nullptr), ERelation::Unknown);
 
 	const uint8 EnemyMask = static_cast<uint8>(ERelationMask::Enemy);
 	TestTrue("Enemy matches enemy mask", UTeamFunctions::MatchesMask(Red, Blue, EnemyMask));
 	TestFalse("Ally does not", UTeamFunctions::MatchesMask(Red, RedAlly, EnemyMask));
 	TestFalse("Self does not", UTeamFunctions::MatchesMask(Red, Red, EnemyMask));
+	TestFalse("Neutral does not match the enemy mask", UTeamFunctions::MatchesMask(Red, Test.Actor, EnemyMask));
+	TestTrue("Neutral matches the neutral mask", UTeamFunctions::MatchesMask(Red, Test.Actor, static_cast<uint8>(ERelationMask::Neutral)));
+	TestTrue("Neutral matches enemy plus neutral", UTeamFunctions::MatchesMask(Red, Test.Actor, static_cast<uint8>(ERelationMask::Enemy | ERelationMask::Neutral)));
 
 	return true;
 }

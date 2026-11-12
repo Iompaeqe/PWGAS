@@ -49,8 +49,7 @@
 		},
 		{
 			"Name": "PWTeams",
-			"Enabled": true,
-			"Optional": true
+			"Enabled": true
 		},
 		{
 			"Name": "PWAbility",

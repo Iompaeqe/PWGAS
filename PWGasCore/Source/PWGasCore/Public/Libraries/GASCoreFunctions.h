@@ -26,6 +26,8 @@ public:
 	float Period = 0.0f;
 	UPROPERTY(BlueprintReadWrite)
 	float Value = 0.0f;
+	UPROPERTY(BlueprintReadWrite)
+	TSubclassOf<UGameplayEffect> EffectClass = nullptr;
 };
 
 UCLASS()
@@ -35,5 +37,7 @@ class PWGASCORE_API UGASCoreFunctions : public UBlueprintFunctionLibrary
 
 public:
 	static bool ApplyEffects(UPWAbilitySystemComponent* ASC, const USpellParams* SpellParams);
-	static TArray<FEffectModifierValue> GetModifierValuesFromEffects(const USpellParams* SpellParams, const FGameplayAttribute& IncomingDamageAttr);
+	// The object that takes effects for an actor without an ability system component, or null.
+	static UObject* FindAffectable(AActor* Target);
+	static TArray<FEffectModifierValue> GetModifierValuesFromEffects(const USpellParams* SpellParams, const FGameplayAttribute& Attribute);
 };

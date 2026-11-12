@@ -6,9 +6,9 @@
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemGlobals.h"
 #include "GAS/Abilities/PWModularGameplayAbility.h"
-#if WITH_PWTEAMS
+#include "Ability/Affectable.h"
+#include "Libraries/GASCoreFunctions.h"
 #include "TeamFunctions.h"
-#endif
 
 void UEffectSpellParamsExtension::ApplyEffectsToTarget(UAbilitySystemComponent* SourceASC, UAbilitySystemComponent* TargetASC, const int32 AbilityLevel) const
 {
@@ -51,10 +51,8 @@ void UPWAbilityModule_Effect::ApplyEffects(UAbilitySystemComponent* SourceASC, U
 {
 	if (!SourceASC || !TargetASC)
 		return;
-#if WITH_PWTEAMS
 	if (!UTeamFunctions::MatchesMask(SourceASC->GetAvatarActor(), TargetASC->GetAvatarActor(), TargetMask))
 		return;
-#endif
 
 	for (const FEffectEntry& Entry : Effects)
 	{
@@ -98,4 +96,44 @@ void UPWAbilityModule_Effect::RemoveEffects(UAbilitySystemComponent* SourceASC, 
 		}
 		ActiveEffectHandles.Remove(TargetASC);
 	}
+}
+
+void UPWAbilityModule_Effect::ApplyEffectsToActor(UAbilitySystemComponent* SourceASC, AActor* Target)
+{
+	if (!SourceASC || !Target)
+		return;
+
+	if (UAbilitySystemComponent* TargetASC = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(Target))
+	{
+		ApplyEffects(SourceASC, TargetASC);
+		return;
+	}
+
+	UObject* Receiver = UGASCoreFunctions::FindAffectable(Target);
+	if (!Receiver || !OwnerAbility || !UTeamFunctions::MatchesMask(SourceASC->GetAvatarActor(), Target, TargetMask))
+		return;
+
+	USpellParams* Params = OwnerAbility->MakeSpellParams();
+	ExtendParams(Params);
+	IAffectable::Execute_ApplyEffects(Receiver, Params);
+}
+
+void UPWAbilityModule_Effect::RemoveEffectsFromActor(UAbilitySystemComponent* SourceASC, AActor* Target, const bool bInfiniteOnly)
+{
+	if (!SourceASC || !Target)
+		return;
+
+	if (UAbilitySystemComponent* TargetASC = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(Target))
+	{
+		RemoveEffects(SourceASC, TargetASC, bInfiniteOnly);
+		return;
+	}
+
+	UObject* Receiver = UGASCoreFunctions::FindAffectable(Target);
+	if (!Receiver || !OwnerAbility)
+		return;
+
+	USpellParams* Params = OwnerAbility->MakeSpellParams();
+	ExtendParams(Params);
+	IAffectable::Execute_RemoveEffects(Receiver, Params, bInfiniteOnly);
 }

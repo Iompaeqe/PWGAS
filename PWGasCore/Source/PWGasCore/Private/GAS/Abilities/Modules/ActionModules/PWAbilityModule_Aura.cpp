@@ -102,23 +102,15 @@ void UPWAbilityModule_Aura::ApplyAuraEffect(const AActor* Target, const bool bAp
 		return;
 
 	auto* EffectModule = OwnerAbility->GetEffectModule();
-	if (!EffectModule)
-		return;
-
-	UAbilitySystemComponent* TargetASC = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(Target);
 	UAbilitySystemComponent* SourceASC = OwnerAbility->GetAbilitySystemComponentFromActorInfo();
-
-	if (!TargetASC || !SourceASC)
+	if (!EffectModule || !SourceASC)
 		return;
 
+	AActor* TargetActor = const_cast<AActor*>(Target);
 	if (bApply)
-	{
-		EffectModule->ApplyEffects(SourceASC, TargetASC);
-		UE_LOG(LogPWGASCoreAbilityModule, Verbose, TEXT("[AuraModule] Applied aura effect to %s"), *Target->GetName());
-	}
+		EffectModule->ApplyEffectsToActor(SourceASC, TargetActor);
 	else
-	{
-		EffectModule->RemoveEffects(SourceASC, TargetASC);
-		UE_LOG(LogPWGASCoreAbilityModule, Verbose, TEXT("[AuraModule] Removed aura effect from %s"), *Target->GetName());
-	}
+		EffectModule->RemoveEffectsFromActor(SourceASC, TargetActor);
+
+	UE_LOG(LogPWGASCoreAbilityModule, Verbose, TEXT("[AuraModule] %s aura effect: %s"), bApply ? TEXT("Applied") : TEXT("Removed"), *Target->GetName());
 }

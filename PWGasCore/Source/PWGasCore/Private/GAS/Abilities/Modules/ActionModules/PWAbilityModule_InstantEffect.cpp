@@ -54,11 +54,9 @@ void UPWAbilityModule_InstantEffect::ApplyEffects()
 	FScopedPredictionWindow Prediction(SourceASC);
 	for (const TWeakObjectPtr<AActor>& WeakTarget : Targets)
 	{
-		const AActor* Target = WeakTarget.Get();
+		AActor* Target = WeakTarget.Get();
 		if (!Target) continue;
-		UAbilitySystemComponent* TargetASC = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(Target);
-		if (TargetASC)
-			Effect->ApplyEffects(SourceASC, TargetASC);
+		Effect->ApplyEffectsToActor(SourceASC, Target);
 	}
 
 	UE_LOG(LogPWGASCoreAbilityModule, Log, TEXT("[%s] Applied instant effect to %d targets."), *GetNameSafe(this), Targets.Num());
@@ -79,11 +77,9 @@ void UPWAbilityModule_InstantEffect::RemoveTargetEffects(const bool bInfiniteOnl
 
 	for (const TWeakObjectPtr<AActor>& WeakTarget : Targets)
 	{
-		const AActor* Target = WeakTarget.Get();
+		AActor* Target = WeakTarget.Get();
 		if (!Target) continue;
-		UAbilitySystemComponent* TargetASC = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(Target);
-		if (TargetASC)
-			Effect->RemoveEffects(SourceASC, TargetASC, bInfiniteOnly);
+		Effect->RemoveEffectsFromActor(SourceASC, Target, bInfiniteOnly);
 	}
 }
 
@@ -156,10 +152,8 @@ void UPWAbilityModule_InstantEffect::ApplyEffectsToTargets(const FPWTargetingRes
 
 	for (const TWeakObjectPtr<AActor>& WeakTarget : Targets)
 	{
-		const AActor* Target = WeakTarget.Get();
+		AActor* Target = WeakTarget.Get();
 		if (!Target) continue;
-		UAbilitySystemComponent* TargetASC = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(Target);
-		if (TargetASC)
-			Effect->ApplyEffects(SourceASC, TargetASC);
+		Effect->ApplyEffectsToActor(SourceASC, Target);
 	}
 }

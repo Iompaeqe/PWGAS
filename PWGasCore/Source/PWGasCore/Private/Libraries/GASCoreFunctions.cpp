@@ -4,6 +4,8 @@
 #include "Libraries/GASCoreFunctions.h"
 
 #include "AbilitySystemGlobals.h"
+#include "Ability/Affectable.h"
+#include "Ability/EffectReceiver.h"
 #include "Ability/SpellParams.h"
 #include "GAS/Abilities/Modules/DataModules/PWAbilityModule_Effect.h"
 #include "GAS/ASC/PWAbilitySystemComponent.h"
@@ -21,34 +23,42 @@ bool UGASCoreFunctions::ApplyEffects(UPWAbilitySystemComponent* ASC, const USpel
 	return true;
 }
 
-TArray<FEffectModifierValue> UGASCoreFunctions::GetModifierValuesFromEffects(const USpellParams* SpellParams, const FGameplayAttribute& IncomingDamageAttr)
+UObject* UGASCoreFunctions::FindAffectable(AActor* Target)
+{
+	if (!Target) return nullptr;
+
+	UObject* Receiver = Target->Implements<UEffectReceiver>() ? IEffectReceiver::Execute_GetEffectReceiver(Target) : Target;
+	return Receiver && Receiver->Implements<UAffectable>() ? Receiver : nullptr;
+}
+
+TArray<FEffectModifierValue> UGASCoreFunctions::GetModifierValuesFromEffects(const USpellParams* SpellParams, const FGameplayAttribute& Attribute)
 {
 	TArray<FEffectModifierValue> Values;
 	if (!SpellParams) return Values;
-	UEffectSpellParamsExtension* EffectParams = SpellParams->FindExtension<UEffectSpellParamsExtension>();
+
+	const UEffectSpellParamsExtension* EffectParams = SpellParams->FindExtension<UEffectSpellParamsExtension>();
 	if (!EffectParams) return Values;
-	
-	for (FEffectEntry Effect : EffectParams->Effects)
+
+	for (const FEffectEntry& Effect : EffectParams->Effects)
 	{
-		UGameplayEffect* GE = Effect.EffectClass.GetDefaultObject();
-		FEffectModifierValue Emv = FEffectModifierValue();
-		
-		if (GE->DurationPolicy != EGameplayEffectDurationType::Instant)
+		const UGameplayEffect* GE = Effect.EffectClass ? Effect.EffectClass.GetDefaultObject() : nullptr;
+		if (!GE) continue;
+
+		for (const FGameplayModifierInfo& Modifier : GE->Modifiers)
 		{
-			GE->DurationMagnitude.GetStaticMagnitudeIfPossible(SpellParams->AbilityLevel, Emv.Value);
+			if (Modifier.Attribute != Attribute)
+				continue;
+
+			FEffectModifierValue Emv;
+			Emv.EffectClass = Effect.EffectClass;
+			Emv.DurationType = GE->DurationPolicy;
 			Emv.Period = GE->Period.GetValueAtLevel(SpellParams->AbilityLevel);
+			if (GE->DurationPolicy == EGameplayEffectDurationType::HasDuration)
+				GE->DurationMagnitude.GetStaticMagnitudeIfPossible(SpellParams->AbilityLevel, Emv.Duration);
+			Modifier.ModifierMagnitude.GetStaticMagnitudeIfPossible(SpellParams->AbilityLevel, Emv.Value);
+			Values.Add(Emv);
+			break;
 		}
-		for (FGameplayModifierInfo Modifier : GE->Modifiers)
-		{
-			if (Modifier.Attribute == IncomingDamageAttr)
-			{
-				Modifier.ModifierMagnitude.GetStaticMagnitudeIfPossible(SpellParams->AbilityLevel, Emv.Value);
-				break;
-			}
-		}
-		
-		Values.Add(Emv);
 	}
-	
 	return Values;
 }

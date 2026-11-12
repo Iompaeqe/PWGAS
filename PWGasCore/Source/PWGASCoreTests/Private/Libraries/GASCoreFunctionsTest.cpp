@@ -42,4 +42,28 @@ bool FGASCoreFunctionsApplyEffectsTest::RunTest(const FString& Parameters)
 	return true;
 }
 
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FGASCoreFunctionsModifierValuesTest, "PW.Libraries.GASCoreFunctions.ModifierValues", EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FGASCoreFunctionsModifierValuesTest::RunTest(const FString& Parameters)
+{
+	USpellParams* Params = NewObject<USpellParams>();
+	Params->AbilityLevel = 1;
+	UEffectSpellParamsExtension* Effects = Params->AddExtension<UEffectSpellParamsExtension>();
+	Effects->Effects.Add({UPWTestPeriodicDamageEffect::StaticClass(), 1});
+	Effects->Effects.Add({UPWTestEffect::StaticClass(), 1});
+	Effects->Effects.Add({nullptr, 1});
+
+	const TArray<FEffectModifierValue> Values = UGASCoreFunctions::GetModifierValuesFromEffects(Params, UPWTestAttributeSet::GetHealthAttribute());
+	if (!TestEqual("Only effects that change the attribute are returned", Values.Num(), 1))
+		return false;
+
+	TestEqual("Duration type", Values[0].DurationType, EGameplayEffectDurationType::Infinite);
+	TestEqual("Period", Values[0].Period, 0.25f);
+	TestEqual("Value", Values[0].Value, -10.f);
+	TestEqual("An infinite effect has no duration", Values[0].Duration, 0.f);
+
+	TestEqual("Another attribute gives nothing", UGASCoreFunctions::GetModifierValuesFromEffects(Params, UPWTestAttributeSet::GetHealthMaxAttribute()).Num(), 0);
+	return true;
+}
+
 #endif

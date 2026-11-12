@@ -1,6 +1,5 @@
 ﻿// Copyright (c) 2025 Metehan Goksel Kurtulan (Iompaeqe)
 
-using System.IO;
 using UnrealBuildTool;
 
 public class PWGasCore : ModuleRules
@@ -34,6 +33,7 @@ public class PWGasCore : ModuleRules
 				"DeveloperSettings",
 				"GameplayTasks",
 				"PWSharedTypes",
+				"PWContracts",
 				// ... add other public dependencies that you statically link with here ...
 			}
 		);
@@ -56,16 +56,7 @@ public class PWGasCore : ModuleRules
 		);
 
 
-		string TeamsPluginPath = Path.Combine(ModuleDirectory, "../../../../PWTeams/PWTeams.uplugin");
-		if (File.Exists(TeamsPluginPath))
-		{
-			PublicDefinitions.Add("WITH_PWTEAMS=1");
-			PrivateDependencyModuleNames.Add("PWTeams");
-		}
-		else
-		{
-			PublicDefinitions.Add("WITH_PWTEAMS=0");
-		}
+		PrivateDependencyModuleNames.Add("PWTeams");
 
 		DynamicallyLoadedModuleNames.AddRange(
 			new string[]

@@ -20,7 +20,11 @@ void USphereTargetResolver::Resolve_Implementation(const AActor* Actor, const FP
 	TArray<FOverlapResult> Overlaps;
 	FCollisionShape Sphere = FCollisionShape::MakeSphere(Radius);
 
-	if (Actor->GetWorld()->OverlapMultiByObjectType(Overlaps, Target.Location, FQuat::Identity, FCollisionObjectQueryParams(ECC_Pawn), Sphere))
+	FCollisionObjectQueryParams ObjectParams;
+	for (const TEnumAsByte<ECollisionChannel> Channel : ObjectChannels)
+		ObjectParams.AddObjectTypesToQuery(Channel);
+
+	if (Actor->GetWorld()->OverlapMultiByObjectType(Overlaps, Target.Location, FQuat::Identity, ObjectParams, Sphere))
 	{
 		for (auto& R : Overlaps)
 			if (AActor* A = R.GetActor())
