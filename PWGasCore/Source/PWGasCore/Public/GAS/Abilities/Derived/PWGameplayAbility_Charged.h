@@ -33,6 +33,10 @@ protected:
 	FTimerHandle ChargeTickTimer;
 	
 public:
+	// On End commits when the charge completes, a cancelled charge is free.
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Ability|Commit")
+	EPWCommitPolicy CommitPolicy = EPWCommitPolicy::Manual;
+
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 								 const FGameplayAbilityActorInfo* ActorInfo,
 								 const FGameplayAbilityActivationInfo ActivationInfo,

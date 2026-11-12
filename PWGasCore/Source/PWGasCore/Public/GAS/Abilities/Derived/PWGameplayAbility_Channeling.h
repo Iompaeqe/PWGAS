@@ -35,6 +35,10 @@ protected:
 	FTimerHandle ChannelTickTimer;
 
 public:
+	// On End commits when the channel finishes, a cancelled channel is free.
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Ability|Commit")
+	EPWCommitPolicy CommitPolicy = EPWCommitPolicy::Manual;
+
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 	virtual void CancelAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateCancelAbility) override;
 

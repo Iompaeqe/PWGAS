@@ -31,6 +31,15 @@ enum class EPWEndReason : uint8
 	Interrupted
 };
 
+// When an ability pays its cost and starts its cooldown.
+UENUM(BlueprintType)
+enum class EPWCommitPolicy : uint8
+{
+	Manual,
+	OnStart,
+	OnEnd
+};
+
 UCLASS(Blueprintable)
 class PWGASCORE_API UPWModularGameplayAbility : public UPWGameplayAbilityBase
 {

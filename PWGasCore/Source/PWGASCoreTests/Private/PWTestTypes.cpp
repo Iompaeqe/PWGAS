@@ -83,3 +83,17 @@ UPWTestConfirmedAbility::UPWTestConfirmedAbility()
 	Effect->Effects.Add({UPWTestDurationEffect::StaticClass(), 1});
 	DataModules.Add(Effect);
 }
+
+UPWTestChargedAbility::UPWTestChargedAbility()
+{
+	CooldownGameplayEffectClass = UPWTestDurationEffect::StaticClass();
+	ChargeDuration = 1.f;
+	ChargeTickInterval = 0.25f;
+}
+
+UPWTestChannelingAbility::UPWTestChannelingAbility()
+{
+	CooldownGameplayEffectClass = UPWTestDurationEffect::StaticClass();
+	MaxChannelDuration = 1.f;
+	ChannelTickInterval = 0.25f;
+}

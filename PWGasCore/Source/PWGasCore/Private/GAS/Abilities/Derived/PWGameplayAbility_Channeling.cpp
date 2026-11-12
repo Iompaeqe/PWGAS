@@ -27,6 +27,12 @@ void UPWGameplayAbility_Channeling::StartChanneling()
 {
 	if (bIsChanneling || !GetWorld()) return;
 
+	if (CommitPolicy == EPWCommitPolicy::OnStart && !CommitAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo))
+	{
+		K2_CancelAbility();
+		return;
+	}
+
 	bIsChanneling = true;
 	CurrentChannelTime = 0.f;
 
@@ -68,6 +74,13 @@ void UPWGameplayAbility_Channeling::StopChanneling(const bool bWasCanceled)
 
 	bIsChanneling = false;
 	GetWorld()->GetTimerManager().ClearTimer(ChannelTickTimer);
+
+	if (!bWasCanceled && CommitPolicy == EPWCommitPolicy::OnEnd && !CommitAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo))
+	{
+		OnChannelCancelled();
+		K2_CancelAbility();
+		return;
+	}
 
 	if (bWasCanceled)
 		OnChannelCancelled();

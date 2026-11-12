@@ -22,6 +22,12 @@ void UPWGameplayAbility_Charged::StartCharging()
 {
 	if (bIsCharging || !GetWorld()) return;
 
+	if (CommitPolicy == EPWCommitPolicy::OnStart && !CommitAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo))
+	{
+		K2_CancelAbility();
+		return;
+	}
+
 	bIsCharging = true;
 	CurrentChargeTime = 0.f;
 
@@ -48,6 +54,13 @@ void UPWGameplayAbility_Charged::StopCharging(bool bWasCanceled)
 	bIsCharging = false;
 
 	GetWorld()->GetTimerManager().ClearTimer(ChargeTickTimer);
+
+	if (!bWasCanceled && CommitPolicy == EPWCommitPolicy::OnEnd && !CommitAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo))
+	{
+		OnChargeCanceled();
+		K2_CancelAbility();
+		return;
+	}
 
 	if (bWasCanceled)
 		OnChargeCanceled();

@@ -11,6 +11,8 @@
 #include "GAS/Abilities/Derived/PWGameplayAbility_Instant.h"
 #include "GAS/Abilities/Derived/PWGameplayAbility_Passive.h"
 #include "PWGasCore/Public/Targeting/Types/PWTargetPolicyBase.h"
+#include "GAS/Abilities/Derived/PWGameplayAbility_Channeling.h"
+#include "GAS/Abilities/Derived/PWGameplayAbility_Charged.h"
 #include "PWTestTypes.generated.h"
 
 UCLASS(NotBlueprintable, HideDropdown)
@@ -133,4 +135,22 @@ class UPWTestConfirmedAbility : public UPWGameplayAbility_Confirmed
 
 public:
 	UPWTestConfirmedAbility();
+};
+
+UCLASS(NotBlueprintable, HideDropdown)
+class UPWTestChargedAbility : public UPWGameplayAbility_Charged
+{
+	GENERATED_BODY()
+
+public:
+	UPWTestChargedAbility();
+};
+
+UCLASS(NotBlueprintable, HideDropdown)
+class UPWTestChannelingAbility : public UPWGameplayAbility_Channeling
+{
+	GENERATED_BODY()
+
+public:
+	UPWTestChannelingAbility();
 };
