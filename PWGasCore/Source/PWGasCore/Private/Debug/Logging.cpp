@@ -3,4 +3,4 @@
 
 #include "Debug/Logging.h"
 
-DEFINE_LOG_CATEGORY(LogAbility);
+DEFINE_LOG_CATEGORY(LogPWAbility);
