@@ -81,7 +81,7 @@ protected:
 	EPWActivationGroup ActivationGroup;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Cooldowns", meta=(ToolTip="Used with GE_Cooldown that handles cooldown tag and duration dynamically."))
 	FScalableFloat Cooldown;
-	// The ability is cancelled as soon as its owner gains any of these tags, for example a stun.
+	// The ability is cancelled as soon as its owner gains any of these tags, and cannot start while one is held; for example a stun.
 	UPROPERTY(EditDefaultsOnly, Category = Tags, meta=(Categories="AbilityTagCategory"))
 	FGameplayTagContainer CancellationTags;
 	
@@ -93,7 +93,8 @@ protected:
 	virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
 	//~End of UGameplayAbility interface
 	
-	TArray<FDelegateHandle> CancellationTagDelegateHandles;
+	TMap<FGameplayTag, FDelegateHandle> CancellationTagDelegateHandles;
+	void StopListeningForCancellation(UAbilitySystemComponent* ASC);
 	void OnCancellationTagChanged(FGameplayTag GameplayTag, int NewCount);
 	
 private:

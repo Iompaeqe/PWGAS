@@ -109,9 +109,10 @@ void UPWGameplayAbilityBase::ExecuteCueAtSocket(const FGameplayTag CueTag, const
 
 FGameplayTag UPWGameplayAbilityBase::GetActivationInputTag() const
 {
-	for (auto Tag : GetCurrentAbilitySpec()->GetDynamicSpecSourceTags())
-		if (Tag.MatchesTag(PWTags::Input::Root))
-			return Tag;
+	if (const FGameplayAbilitySpec* Spec = GetCurrentAbilitySpec())
+		for (const FGameplayTag& Tag : Spec->GetDynamicSpecSourceTags())
+			if (Tag.MatchesTag(PWTags::Input::Root))
+				return Tag;
 	return FGameplayTag();
 }
 
@@ -220,6 +221,14 @@ bool UPWGameplayAbilityBase::CanActivateAbility(const FGameplayAbilitySpecHandle
 		return false;
 	}
 
+	// A tag that would cancel the ability also stops it from starting.
+	if (ActorInfo->AbilitySystemComponent->HasAnyMatchingGameplayTags(CancellationTags))
+	{
+		if (OptionalRelevantTags)
+			OptionalRelevantTags->AddTag(PWTags::Ability::Activation::Failed);
+		return false;
+	}
+
 	UPWAbilitySystemComponent* ASC = Cast<UPWAbilitySystemComponent>(ActorInfo->AbilitySystemComponent.Get());
 	if (ASC && ASC->Abilities().IsActivationGroupBlocked(ActivationGroup))
 	{
@@ -271,42 +280,33 @@ void UPWGameplayAbilityBase::ApplyCooldown(const FGameplayAbilitySpecHandle Hand
 
 void UPWGameplayAbilityBase::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
-	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
-
-	if (UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo())
-	{
+	// Listen before the graph runs, so an ability that ends inside its own activation still cleans up.
+	UAbilitySystemComponent* ASC = ActorInfo ? ActorInfo->AbilitySystemComponent.Get() : nullptr;
+	StopListeningForCancellation(ASC);
+	if (ASC)
 		for (const FGameplayTag& Tag : CancellationTags)
-		{
-			auto& Event = ASC->RegisterGameplayTagEvent(Tag, EGameplayTagEventType::NewOrRemoved);
-			FDelegateHandle DelegateHandle = Event.AddUObject(this, &ThisClass::OnCancellationTagChanged);
-			CancellationTagDelegateHandles.Add(DelegateHandle);
-		}
-	}
+			CancellationTagDelegateHandles.Add(Tag, ASC->RegisterGameplayTagEvent(Tag, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &ThisClass::OnCancellationTagChanged));
+
+	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 }
 
 void UPWGameplayAbilityBase::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
-	if (UAbilitySystemComponent* ASC = ActorInfo->AbilitySystemComponent.Get())
-	{
-		for (const FGameplayTag& Tag : CancellationTags)
-		{
-			auto& Event = ASC->RegisterGameplayTagEvent(Tag, EGameplayTagEventType::NewOrRemoved);
-			for (FDelegateHandle& DelegateHandle : CancellationTagDelegateHandles)
-			{
-				Event.Remove(DelegateHandle);
-			}
-		}
-	}
-
-
-	CancellationTagDelegateHandles.Reset();
-
+	StopListeningForCancellation(ActorInfo ? ActorInfo->AbilitySystemComponent.Get() : nullptr);
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+}
+
+void UPWGameplayAbilityBase::StopListeningForCancellation(UAbilitySystemComponent* ASC)
+{
+	if (ASC)
+		for (const TPair<FGameplayTag, FDelegateHandle>& Pair : CancellationTagDelegateHandles)
+			ASC->RegisterGameplayTagEvent(Pair.Key, EGameplayTagEventType::NewOrRemoved).Remove(Pair.Value);
+	CancellationTagDelegateHandles.Reset();
 }
 
 void UPWGameplayAbilityBase::OnCancellationTagChanged(FGameplayTag GameplayTag, int NewCount)
 {
-	if (NewCount > 0 && CanBeCanceled())
+	if (NewCount > 0 && IsActive() && CanBeCanceled())
 	{
 		CancelAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, /*bReplicate*/true);
 	}
