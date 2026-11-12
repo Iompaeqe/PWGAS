@@ -75,10 +75,6 @@ UAnimNotify_SocketedGameplayCue::UAnimNotify_SocketedGameplayCue()
 {
 }
 
-void UAnimNotify_SocketedGameplayCue::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation)
-{
-}
-
 void UAnimNotify_SocketedGameplayCue::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
 {
 	Super::Notify(MeshComp, Animation, EventReference);

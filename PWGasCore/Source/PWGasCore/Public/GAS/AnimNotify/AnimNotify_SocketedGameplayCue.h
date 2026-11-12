@@ -19,9 +19,6 @@ public:
 
 	UAnimNotify_SocketedGameplayCue();
 
-	UE_DEPRECATED(5.0, "Please use the other Notify function instead")
-	virtual void Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation) override;
-
 	virtual void Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference) override;
 
 	FString GetNotifyName_Implementation() const override;

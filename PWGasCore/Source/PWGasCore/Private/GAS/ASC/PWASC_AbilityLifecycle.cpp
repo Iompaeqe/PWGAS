@@ -215,39 +215,20 @@ void FPWASC_AbilityLifecycle::CancelAbilitiesByFunc(const TShouldCancelAbilityFu
 			continue;
 		}
 
-		UPWGameplayAbilityBase* LyraAbilityCDO = Cast<UPWGameplayAbilityBase>(AbilitySpec.Ability);
-		if (!LyraAbilityCDO) continue;
+		if (!AbilitySpec.Ability || !AbilitySpec.Ability->IsA<UPWGameplayAbilityBase>())
+			continue;
 
-		if (LyraAbilityCDO->GetInstancingPolicy() != EGameplayAbilityInstancingPolicy::NonInstanced)
+		TArray<UGameplayAbility*> Instances = AbilitySpec.GetAbilityInstances();
+		for (UGameplayAbility* Instance : Instances)
 		{
-			// Cancel all the spawned instances, not the CDO.
-			TArray<UGameplayAbility*> Instances = AbilitySpec.GetAbilityInstances();
-			for (UGameplayAbility* AbilityInstance : Instances)
-			{
-				UPWGameplayAbilityBase* LyraAbilityInstance = CastChecked<UPWGameplayAbilityBase>(AbilityInstance);
+			UPWGameplayAbilityBase* Ability = CastChecked<UPWGameplayAbilityBase>(Instance);
+			if (!ShouldCancelFunc(Ability, AbilitySpec.Handle))
+				continue;
 
-				if (ShouldCancelFunc(LyraAbilityInstance, AbilitySpec.Handle))
-				{
-					if (LyraAbilityInstance->CanBeCanceled())
-					{
-						LyraAbilityInstance->CancelAbility(AbilitySpec.Handle, ASC.AbilityActorInfo.Get(), LyraAbilityInstance->GetCurrentActivationInfo(), bReplicateCancelAbility);
-					}
-					else
-					{
-						UE_LOG(LogPWGASCoreAbilitySystem, Error, TEXT("CancelAbilitiesByFunc: Can't cancel ability [%s] because CanBeCanceled is false."), *LyraAbilityInstance->GetName());
-					}
-				}
-			}
-		}
-		else
-		{
-			// Cancel the non-instanced ability CDO.
-			if (ShouldCancelFunc(LyraAbilityCDO, AbilitySpec.Handle))
-			{
-				// Non-instanced abilities can always be canceled.
-				check(LyraAbilityCDO->CanBeCanceled());
-				LyraAbilityCDO->CancelAbility(AbilitySpec.Handle, ASC.AbilityActorInfo.Get(), FGameplayAbilityActivationInfo(), bReplicateCancelAbility);
-			}
+			if (Ability->CanBeCanceled())
+				Ability->CancelAbility(AbilitySpec.Handle, ASC.AbilityActorInfo.Get(), Ability->GetCurrentActivationInfo(), bReplicateCancelAbility);
+			else
+				UE_LOG(LogPWGASCoreAbilitySystem, Error, TEXT("CancelAbilitiesByFunc: Can't cancel ability [%s] because CanBeCanceled is false."), *Ability->GetName());
 		}
 	}
 }
