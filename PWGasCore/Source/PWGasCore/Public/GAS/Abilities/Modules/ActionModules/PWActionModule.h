@@ -23,4 +23,14 @@ public:
 	virtual USpellParams* MakeSpellParams_Implementation(const FPWTargetingResult& Target);
 
 	virtual void ExtendParamsWithData(USpellParams* Params) const;
+
+	FSimpleMulticastDelegate OnActionFinished;
+	bool IsActionPending() const { return bActionPending; }
+
+protected:
+	void StartAction();
+	void FinishAction();
+
+private:
+	bool bActionPending = false;
 };

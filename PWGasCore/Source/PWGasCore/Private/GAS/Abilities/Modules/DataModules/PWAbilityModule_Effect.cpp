@@ -81,21 +81,19 @@ void UPWAbilityModule_Effect::ApplyEffects(UAbilitySystemComponent* SourceASC, U
 	}
 }
 
-void UPWAbilityModule_Effect::RemoveEffects(UAbilitySystemComponent* SourceASC, UAbilitySystemComponent* TargetASC)
+void UPWAbilityModule_Effect::RemoveEffects(UAbilitySystemComponent* SourceASC, UAbilitySystemComponent* TargetASC, const bool bInfiniteOnly)
 {
 	if (!SourceASC || !TargetASC)
 		return;
-
-	bool auth = OwnerAbility->GetOwningActorFromActorInfo()->HasAuthority();
-	if (!auth)
-	{
-		
-	}
 
 	if (TArray<FActiveGameplayEffectHandle>* Handles = ActiveEffectHandles.Find(TargetASC))
 	{
 		for (const FActiveGameplayEffectHandle& Handle : *Handles)
 		{
+			const FActiveGameplayEffect* Active = TargetASC->GetActiveGameplayEffect(Handle);
+			if (bInfiniteOnly && Active && Active->GetDuration() != FGameplayEffectConstants::INFINITE_DURATION)
+				continue;
+
 			TargetASC->RemoveActiveGameplayEffect(Handle);
 		}
 		ActiveEffectHandles.Remove(TargetASC);

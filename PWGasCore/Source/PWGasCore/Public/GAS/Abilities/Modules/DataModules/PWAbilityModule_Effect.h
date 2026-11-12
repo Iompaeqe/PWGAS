@@ -49,7 +49,7 @@ public:
 	TMap<TWeakObjectPtr<UAbilitySystemComponent>, TArray<FActiveGameplayEffectHandle>> ActiveEffectHandles;
 	
 	void ApplyEffects(UAbilitySystemComponent* SourceASC, UAbilitySystemComponent* TargetASC);
-	void RemoveEffects(UAbilitySystemComponent* SourceASC, UAbilitySystemComponent* TargetASC);
+	void RemoveEffects(UAbilitySystemComponent* SourceASC, UAbilitySystemComponent* TargetASC, bool bInfiniteOnly = false);
 
 	virtual void ExtendParams(USpellParams* Params) const override;
 };

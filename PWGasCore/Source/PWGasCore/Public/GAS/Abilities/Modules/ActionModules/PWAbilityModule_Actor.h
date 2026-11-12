@@ -48,6 +48,13 @@ public:
 	TSubclassOf<AActor> ActorClass;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(Bitmask, BitmaskEnum="/Script/PWSharedTypes.ERelationMask"))
 	int32 TargetMask = (int32)ERelationMask::All;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	bool bSpawnOnActivated = false;
+
+	/** If true, the actor spawns at the target location instead of at the ability owner. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	bool bSpawnAtTarget = false;
+
 	/** If true, the spawned actor will be attached to the ability owner. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	bool bAttachToOwner = false;
@@ -79,6 +86,7 @@ protected:
 	
 	TArray<TWeakObjectPtr<AActor>> SpawnedActors = {};
 
+	virtual void OnAbilityActivated_Implementation() override;
 	virtual void GetRequiredDataModules_Implementation(TArray<TSubclassOf<UPWDataModule>>& OutRequiredModules) override;
 
 	UPROPERTY()

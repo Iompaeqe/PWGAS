@@ -1,4 +1,5 @@
 ﻿#include "GAS/Abilities/Derived/PWGameplayAbility_Instant.h"
+#include "GAS/Abilities/Modules/ActionModules/PWActionModule.h"
 
 void UPWGameplayAbility_Instant::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
@@ -13,10 +14,23 @@ void UPWGameplayAbility_Instant::ActivateAbility(const FGameplayAbilitySpecHandl
 		return;
 	}
 
-	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
-
-	if (!bIsCancelable && !bIsActive)
+	const bool bHasGraph = bHasBlueprintActivate || bHasBlueprintActivateFromEvent;
+	if (!bHasGraph && ActionModule)
 	{
-		EndAbility(Handle, ActorInfo, ActivationInfo, false, false);
+		ActionModule->OnActionFinished.RemoveAll(this);
+		ActionModule->OnActionFinished.AddUObject(this, &ThisClass::OnActionFinished);
 	}
+
+	bActivating = true;
+	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
+	bActivating = false;
+
+	if (!bHasGraph && (!ActionModule || !ActionModule->IsActionPending()))
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
+}
+
+void UPWGameplayAbility_Instant::OnActionFinished()
+{
+	if (!bActivating && IsActive())
+		K2_EndAbility();
 }

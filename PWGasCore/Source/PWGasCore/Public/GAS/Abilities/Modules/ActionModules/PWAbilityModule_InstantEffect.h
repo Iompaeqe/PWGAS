@@ -42,6 +42,7 @@ protected:
 	void OnTargetDataReady(const FGameplayAbilityTargetDataHandle& DataHandle, const struct FPWTargetingResult& Result);
 	
 	virtual void ApplyEffectsToTargets(const FPWTargetingResult& Result);
+	void RemoveTargetEffects(bool bInfiniteOnly);
 
 	TArray<AActor*> Targets;
 };

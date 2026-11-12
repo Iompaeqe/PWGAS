@@ -21,5 +21,9 @@ public:
 	bool bAutoCommit = true;
 
 protected:
+	void OnActionFinished();
+
+	bool bActivating = false;
+
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 };

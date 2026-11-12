@@ -38,6 +38,9 @@ struct FPWTestWorld
 	UPWAbilitySystemComponent* SpawnASC() const
 	{
 		APawn* NewActor = World->SpawnActor<APawn>();
+		USceneComponent* Root = NewObject<USceneComponent>(NewActor);
+		NewActor->SetRootComponent(Root);
+		Root->RegisterComponent();
 		UPWAbilitySystemComponent* NewASC = NewObject<UPWAbilitySystemComponent>(NewActor);
 		NewASC->RegisterComponent();
 		NewASC->InitAbilityActorInfo(NewActor, NewActor);

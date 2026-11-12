@@ -106,6 +106,7 @@ void UPWAbilityModule_Actor::SpawnActor()
 
 	ActiveTargetTask->ValidData.AddDynamic(this, &UPWAbilityModule_Actor::OnTargetDataReady);
 
+	StartAction();
 	ActiveTargetTask->ReadyForActivation();
 }
 
@@ -129,7 +130,12 @@ FTransform UPWAbilityModule_Actor::BuildSpawnTransform(const FPWTargetingResult&
 		return FTransform::Identity;
 
 
-	if (SpawnSocket != NAME_None)
+	if (bSpawnAtTarget)
+	{
+		Loc = Target.Location;
+		Rot = Target.Rotation;
+	}
+	else if (SpawnSocket != NAME_None)
 	{
 		if (const APawn* Pawn = OwnerAbility->GetPawn())
 		{
@@ -166,4 +172,11 @@ void UPWAbilityModule_Actor::GetRequiredDataModules_Implementation(TArray<TSubcl
 void UPWAbilityModule_Actor::OnTargetDataReady(const FGameplayAbilityTargetDataHandle& DataHandle, const FPWTargetingResult& Result)
 {
 	SpawnActorWithTargetingResult(Result);
+	FinishAction();
+}
+
+void UPWAbilityModule_Actor::OnAbilityActivated_Implementation()
+{
+	if (bSpawnOnActivated)
+		SpawnActor();
 }

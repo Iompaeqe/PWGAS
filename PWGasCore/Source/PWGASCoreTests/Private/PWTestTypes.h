@@ -7,6 +7,7 @@
 #include "Ability/PWSpellParamsInterface.h"
 #include "GameFramework/Actor.h"
 #include "GAS/Abilities/PWModularGameplayAbility.h"
+#include "GAS/Abilities/Derived/PWGameplayAbility_Instant.h"
 #include "GAS/Abilities/Derived/PWGameplayAbility_Passive.h"
 #include "PWGasCore/Public/Targeting/Types/PWTargetPolicyBase.h"
 #include "PWTestTypes.generated.h"
@@ -77,6 +78,24 @@ class UPWTestPassiveEffectAbility : public UPWGameplayAbility_Passive
 
 public:
 	UPWTestPassiveEffectAbility();
+};
+
+UCLASS(NotBlueprintable, HideDropdown)
+class UPWTestDurationEffect : public UGameplayEffect
+{
+	GENERATED_BODY()
+
+public:
+	UPWTestDurationEffect();
+};
+
+UCLASS(NotBlueprintable, HideDropdown)
+class UPWTestInstantBuffAbility : public UPWGameplayAbility_Instant
+{
+	GENERATED_BODY()
+
+public:
+	UPWTestInstantBuffAbility();
 };
 
 UCLASS(NotBlueprintable, HideDropdown)

@@ -11,6 +11,17 @@ USpellParams* UPWActionModule::MakeSpellParams_Implementation(const FPWTargeting
 	return nullptr;
 }
 
+void UPWActionModule::StartAction()
+{
+	bActionPending = true;
+}
+
+void UPWActionModule::FinishAction()
+{
+	bActionPending = false;
+	OnActionFinished.Broadcast();
+}
+
 void UPWActionModule::ExtendParamsWithData(USpellParams* Params) const
 {
 	for (TObjectPtr Data : OwnerAbility->DataModules)

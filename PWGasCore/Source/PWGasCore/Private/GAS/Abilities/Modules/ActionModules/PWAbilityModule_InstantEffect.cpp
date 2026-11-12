@@ -38,6 +38,7 @@ void UPWAbilityModule_InstantEffect::ApplyEffects()
 		ActiveTargetTask->ValidData.AddDynamic(
 			this, &UPWAbilityModule_InstantEffect::OnTargetDataReady);
 
+		StartAction();
 		ActiveTargetTask->ReadyForActivation();
 		return;
 	}
@@ -63,6 +64,11 @@ void UPWAbilityModule_InstantEffect::ApplyEffects()
 
 void UPWAbilityModule_InstantEffect::RemoveEffects()
 {
+	RemoveTargetEffects(false);
+}
+
+void UPWAbilityModule_InstantEffect::RemoveTargetEffects(const bool bInfiniteOnly)
+{
 	auto* Effect = OwnerAbility->GetEffectModule();
 	if (!Effect) return;
 
@@ -74,7 +80,7 @@ void UPWAbilityModule_InstantEffect::RemoveEffects()
 		if (!Target) continue;
 		UAbilitySystemComponent* TargetASC = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(Target);
 		if (TargetASC)
-			Effect->RemoveEffects(SourceASC, TargetASC);
+			Effect->RemoveEffects(SourceASC, TargetASC, bInfiniteOnly);
 	}
 }
 
@@ -87,7 +93,7 @@ void UPWAbilityModule_InstantEffect::OnAbilityActivated_Implementation()
 void UPWAbilityModule_InstantEffect::OnAbilityEnded_Implementation()
 {
 	if (bApplyOnActivated)
-		RemoveEffects();
+		RemoveTargetEffects(true);
 }
 
 void UPWAbilityModule_InstantEffect::GetRequiredDataModules_Implementation(TArray<TSubclassOf<UPWDataModule>>& OutRequiredModules)
@@ -124,6 +130,7 @@ void UPWAbilityModule_InstantEffect::ApplyEffectsAtSocket(const FName SocketName
 void UPWAbilityModule_InstantEffect::OnTargetDataReady(const FGameplayAbilityTargetDataHandle& DataHandle, const struct FPWTargetingResult& Result)
 {
 	ApplyEffectsToTargets(Result);
+	FinishAction();
 }
 
 void UPWAbilityModule_InstantEffect::ApplyEffectsToTargets(const FPWTargetingResult& Result)
