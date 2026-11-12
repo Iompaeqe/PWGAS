@@ -86,6 +86,9 @@ protected:
 	
 	TArray<TWeakObjectPtr<AActor>> SpawnedActors = {};
 
+	virtual void ExecuteAction() override { SpawnActor(); }
+	virtual void GetPreviewTransforms(const FPWTargetingResult& Target, TArray<FTransform>& OutTransforms) const override;
+	virtual TSubclassOf<AActor> GetPreviewActorClass() const override { return ActorClass; }
 	virtual void OnAbilityActivated_Implementation() override;
 	virtual void GetRequiredDataModules_Implementation(TArray<TSubclassOf<UPWDataModule>>& OutRequiredModules) override;
 

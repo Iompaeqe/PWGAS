@@ -31,6 +31,6 @@ public:
 	bool IsInputUsed(const FGameplayTag& InputTag) const;
 	
 protected:
-	void HandleContradictingAbilities() const;
+	bool HandleAwaitingAbility(const FGameplayTag& InputTag, const FGameplayAbilitySpec& PressedSpec) const;
 	
 };

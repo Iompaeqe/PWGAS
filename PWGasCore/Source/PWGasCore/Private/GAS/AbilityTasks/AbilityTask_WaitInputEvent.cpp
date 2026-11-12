@@ -25,7 +25,16 @@ void UAbilityTask_WaitInputEvent::Activate()
 
 	UAbilitySystemComponent* ASC = Info->AbilitySystemComponent.Get();
 
-	ASC->GenericGameplayEventCallbacks.FindOrAdd(PWTags::Event::Input).AddUObject(this, &ThisClass::OnGameplayEventReceived);
+	EventHandle = ASC->GenericGameplayEventCallbacks.FindOrAdd(PWTags::Event::Input).AddUObject(this, &ThisClass::OnGameplayEventReceived);
+}
+
+void UAbilityTask_WaitInputEvent::OnDestroy(bool bInOwnerFinished)
+{
+	if (AbilitySystemComponent.IsValid())
+		if (FGameplayEventMulticastDelegate* Delegate = AbilitySystemComponent->GenericGameplayEventCallbacks.Find(PWTags::Event::Input))
+			Delegate->Remove(EventHandle);
+
+	Super::OnDestroy(bInOwnerFinished);
 }
 
 void UAbilityTask_WaitInputEvent::OnGameplayEventReceived(const FGameplayEventData* Payload)

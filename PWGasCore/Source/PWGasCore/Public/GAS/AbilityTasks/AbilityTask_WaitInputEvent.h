@@ -28,11 +28,13 @@ public:
 	static UAbilityTask_WaitInputEvent* WaitInputEvent(UGameplayAbility* OwningAbility, FGameplayTag InputTag, EInputEventType EventType = EInputEventType::Pressed);
 
 	virtual void Activate() override;
+	virtual void OnDestroy(bool bInOwnerFinished) override;
 
 protected:
 	void OnGameplayEventReceived(const FGameplayEventData* Payload);
 
 	UGameplayAbility* ownerability;
+	FDelegateHandle EventHandle;
 	
 	/** Tag to listen for (e.g. Input.Mouse.Left) */
 	UPROPERTY()

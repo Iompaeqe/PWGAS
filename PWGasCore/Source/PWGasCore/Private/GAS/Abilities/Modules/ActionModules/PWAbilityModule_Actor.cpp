@@ -177,6 +177,12 @@ void UPWAbilityModule_Actor::OnTargetDataReady(const FGameplayAbilityTargetDataH
 
 void UPWAbilityModule_Actor::OnAbilityActivated_Implementation()
 {
-	if (bSpawnOnActivated)
+	if (bSpawnOnActivated && !OwnerAbility->DefersAction())
 		SpawnActor();
+}
+
+void UPWAbilityModule_Actor::GetPreviewTransforms(const FPWTargetingResult& Target, TArray<FTransform>& OutTransforms) const
+{
+	if (bSpawnAtTarget)
+		OutTransforms.Add(BuildSpawnTransform(Target));
 }

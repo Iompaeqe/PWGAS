@@ -78,6 +78,8 @@ public:
 
 	void ForEachModule(TFunctionRef<void(UPWAbilityModule*)> Callback);
 
+	virtual bool DefersAction() const { return false; }
+
 	//Action Modules
 	UFUNCTION(BlueprintPure, Category="Modules")
 	UPWAbilityModule_Actor* GetActorModule() const;

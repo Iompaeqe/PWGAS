@@ -28,6 +28,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category="Module")
 	virtual void RemoveEffects();
 	
+	virtual void ExecuteAction() override { ApplyEffects(); }
 	virtual void OnAbilityActivated_Implementation() override;
 	virtual void OnAbilityEnded_Implementation() override;
 	virtual void GetRequiredDataModules_Implementation(TArray<TSubclassOf<UPWDataModule>>& OutRequiredModules) override;

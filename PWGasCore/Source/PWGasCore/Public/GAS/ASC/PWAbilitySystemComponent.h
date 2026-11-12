@@ -71,7 +71,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category="GASCore|Cooldown", meta=(DisplayName="Adjust Cooldown For Ability Tag"))
 	bool BP_AdjustCooldownForAbilityTag(const FGameplayTag& AbilityTag, float SecondsToReduce);
 
-	UFUNCTION(Server, Unreliable)
+	UFUNCTION(Server, Reliable)
 	void ServerSendInputEvent(const FGameplayTag& EventTag, const FGameplayEventData& Payload);
 	UFUNCTION(BlueprintCallable, Category="GASCore|Input")
 	void SendInputEvent(const FGameplayTag& InputTag, EInputEventType EventType);

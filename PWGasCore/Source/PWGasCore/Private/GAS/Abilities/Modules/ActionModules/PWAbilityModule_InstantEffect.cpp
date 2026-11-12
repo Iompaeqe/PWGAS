@@ -86,7 +86,7 @@ void UPWAbilityModule_InstantEffect::RemoveTargetEffects(const bool bInfiniteOnl
 
 void UPWAbilityModule_InstantEffect::OnAbilityActivated_Implementation()
 {
-	if (bApplyOnActivated)
+	if (bApplyOnActivated && !OwnerAbility->DefersAction())
 		ApplyEffects();
 }
 

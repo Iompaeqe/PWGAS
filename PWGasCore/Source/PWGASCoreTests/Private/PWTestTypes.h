@@ -7,6 +7,7 @@
 #include "Ability/PWSpellParamsInterface.h"
 #include "GameFramework/Actor.h"
 #include "GAS/Abilities/PWModularGameplayAbility.h"
+#include "GAS/Abilities/Derived/PWGameplayAbility_Confirmed.h"
 #include "GAS/Abilities/Derived/PWGameplayAbility_Instant.h"
 #include "GAS/Abilities/Derived/PWGameplayAbility_Passive.h"
 #include "PWGasCore/Public/Targeting/Types/PWTargetPolicyBase.h"
@@ -123,4 +124,13 @@ class UPWTestInstantEffectAbility : public UPWModularGameplayAbility
 
 public:
 	UPWTestInstantEffectAbility();
+};
+
+UCLASS(NotBlueprintable, HideDropdown)
+class UPWTestConfirmedAbility : public UPWGameplayAbility_Confirmed
+{
+	GENERATED_BODY()
+
+public:
+	UPWTestConfirmedAbility();
 };

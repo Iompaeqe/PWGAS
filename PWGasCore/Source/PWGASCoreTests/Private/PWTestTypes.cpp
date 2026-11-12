@@ -70,3 +70,16 @@ UPWTestInstantBuffAbility::UPWTestInstantBuffAbility()
 	Effect->Effects.Add({UPWTestDurationEffect::StaticClass(), 1});
 	DataModules.Add(Effect);
 }
+
+UPWTestConfirmedAbility::UPWTestConfirmedAbility()
+{
+	ConfirmInputs.Add(EInputEventType::Pressed, FGameplayTagContainer(PWTags::Input::GlobalCancel));
+
+	UPWAbilityModule_InstantEffect* InstantEffect = CreateDefaultSubobject<UPWAbilityModule_InstantEffect>("InstantEffect");
+	InstantEffect->bApplyOnActivated = true;
+	ActionModule = InstantEffect;
+
+	UPWAbilityModule_Effect* Effect = CreateDefaultSubobject<UPWAbilityModule_Effect>("Effect");
+	Effect->Effects.Add({UPWTestDurationEffect::StaticClass(), 1});
+	DataModules.Add(Effect);
+}

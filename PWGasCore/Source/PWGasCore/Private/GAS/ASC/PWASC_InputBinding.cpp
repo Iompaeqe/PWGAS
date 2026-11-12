@@ -4,6 +4,7 @@
 
 #include "GAS/ASC/PWAbilitySystemComponent.h"
 #include "GAS/ASC/PWASC_DataManagement.h"
+#include "GAS/Abilities/Derived/PWGameplayAbility_Confirmed.h"
 #include "GAS/Data/GASCoreEnums.h"
 #include "GAS/Tags/GASCoreTags.h"
 
@@ -19,13 +20,14 @@ void FPWASC_InputBinding::AbilityInputTagPressed(const FGameplayTag& InputTag)
 	FScopedAbilityListLock Lock(ASC);
 	if (FGameplayAbilitySpec* Spec = ASC.Data().GetSpecOfInput(InputTag))
 	{
-		HandleContradictingAbilities();
-
-		ASC.AbilitySpecInputPressed(*Spec);
-		
-		if (!Spec->IsActive() && ASC.TryActivateAbility(Spec->Handle))
+		if (!HandleAwaitingAbility(InputTag, *Spec))
 		{
-			UE_LOG(LogGameplayTags, Log, TEXT("Activating ability: %s  through input tag: %s"), *ASC.Data().GetAbilityFromSpec(*Spec).ToString(), *InputTag.ToString());
+			ASC.AbilitySpecInputPressed(*Spec);
+
+			if (!Spec->IsActive() && ASC.TryActivateAbility(Spec->Handle))
+			{
+				UE_LOG(LogGameplayTags, Log, TEXT("Activating ability: %s  through input tag: %s"), *ASC.Data().GetAbilityFromSpec(*Spec).ToString(), *InputTag.ToString());
+			}
 		}
 	}
 
@@ -92,15 +94,18 @@ bool FPWASC_InputBinding::IsInputUsed(const FGameplayTag& InputTag) const
 	return ASC.Data().GetSpecOfInput(InputTag) ? true : false;
 }
 
-void FPWASC_InputBinding::HandleContradictingAbilities() const
+bool FPWASC_InputBinding::HandleAwaitingAbility(const FGameplayTag& InputTag, const FGameplayAbilitySpec& PressedSpec) const
 {
-	FGameplayTag AbilityTag = ASC.Data().GetFirstAbilityWithTag(PWTags::Ability::State::AwaitingConfirmation);
-	if (AbilityTag.IsValid())
-	{
-		FGameplayAbilitySpec* Spec = ASC.Data().GetSpecOfAbility(AbilityTag);
-		if (Spec)
-		{
-			ASC.CancelAbilityHandle(Spec->Handle);
-		}
-	}
+	const FGameplayTag AbilityTag = ASC.Data().GetFirstAbilityWithTag(PWTags::Ability::State::AwaitingConfirmation);
+	const FGameplayAbilitySpec* Awaiting = AbilityTag.IsValid() ? ASC.Data().GetSpecOfAbility(AbilityTag) : nullptr;
+	if (!Awaiting)
+		return false;
+
+	const UPWGameplayAbility_Confirmed* Confirmed = Cast<UPWGameplayAbility_Confirmed>(Awaiting->GetPrimaryInstance());
+	if (Confirmed && Confirmed->IsConfirmInput(InputTag))
+		return true;
+
+	const bool bOwnInput = Awaiting->Handle == PressedSpec.Handle;
+	ASC.CancelAbilityHandle(Awaiting->Handle);
+	return bOwnInput;
 }
