@@ -1,4 +1,5 @@
-﻿
+﻿// Copyright (c) 2025 Metehan Goksel Kurtulan (Iompaeqe)
+
 #include "Precast\Data\PWPrecastTypes.h"
 
 void UPWPrecastVisualizer::Ensure_Implementation(class APlayerController* PC, float PreviewRadius, FName OriginSocket)

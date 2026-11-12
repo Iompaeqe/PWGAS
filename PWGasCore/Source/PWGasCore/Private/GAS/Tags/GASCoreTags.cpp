@@ -1,4 +1,6 @@
-﻿#include "GAS/Tags/GASCoreTags.h"
+﻿// Copyright (c) 2025 Metehan Goksel Kurtulan (Iompaeqe)
+
+#include "GAS/Tags/GASCoreTags.h"
 
 namespace PWTags::Input // The tag "Input" is used to distinguish ability activators. Each ability should be assigned a unique tag "Input.xxxxx" and this input tag can be used to activate the ability. 
 {						// See FPWASC_InputBinding.  Ex. Input.Primary, Input.SpecialAttack, Input.Jump, Input.MoveForward...

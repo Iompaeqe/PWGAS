@@ -1,3 +1,4 @@
+// Copyright (c) 2025 Metehan Goksel Kurtulan (Iompaeqe)
 
 #include "Targeting/Data/PWTargetingData.h"
 #include "Engine/HitResult.h"

@@ -1,4 +1,4 @@
-// copyright mkurtt96
+// Copyright (c) 2025 Metehan Goksel Kurtulan (Iompaeqe)
 
 #include "PWTestTypes.h"
 #include "Abilities/GameplayAbilityTargetTypes.h"

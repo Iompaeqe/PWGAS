@@ -1,4 +1,6 @@
-﻿#include "GAS/Abilities/Derived/PWGameplayAbility_Instant.h"
+﻿// Copyright (c) 2025 Metehan Goksel Kurtulan (Iompaeqe)
+
+#include "GAS/Abilities/Derived/PWGameplayAbility_Instant.h"
 #include "GAS/Abilities/Modules/ActionModules/PWActionModule.h"
 
 void UPWGameplayAbility_Instant::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)

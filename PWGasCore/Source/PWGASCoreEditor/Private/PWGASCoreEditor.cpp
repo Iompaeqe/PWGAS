@@ -1,4 +1,6 @@
-﻿#include "PWGASCoreEditor.h"
+﻿// Copyright (c) 2025 Metehan Goksel Kurtulan (Iompaeqe)
+
+#include "PWGASCoreEditor.h"
 
 #include "PWAbilitySetEntryCustomization.h"
 #include "PWGameplayAbility_DetailCustomization.h"

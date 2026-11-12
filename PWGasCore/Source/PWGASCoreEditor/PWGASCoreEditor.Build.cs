@@ -1,4 +1,6 @@
-﻿using UnrealBuildTool;
+﻿// Copyright (c) 2025 Metehan Goksel Kurtulan (Iompaeqe)
+
+using UnrealBuildTool;
 
 public class PWGASCoreEditor : ModuleRules
 {
