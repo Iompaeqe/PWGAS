@@ -18,8 +18,8 @@ USpellParams* UPWAbilityModule_Actor::MakeSpellParams_Implementation(const FPWTa
 	USpellParams* Params = OwnerAbility->MakeSpellParams();
 	UActorSpellParamsExtension* ActorParams = Params->AddExtension<UActorSpellParamsExtension>();
 	ActorParams->SpawnLocation = Target.Location;
-	if (const AActor* Avatar = OwnerAbility->GetAvatarActorFromActorInfo())
-		ActorParams->SpawnRotation = (Target.Location - Avatar->GetActorLocation()).Rotation();
+	// The rotation the actor really spawns with, from its socket, so anything that launches along it flies at the target.
+	ActorParams->SpawnRotation = BuildSpawnTransform(Target).Rotator();
 	ActorParams->bAttachToOwner = bAttachToOwner;
 	ActorParams->AttachSocket = SpawnSocket;
 	Params->TargetCollisionMask = TargetMask;
