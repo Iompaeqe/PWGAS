@@ -13,6 +13,8 @@ UPWGameplayAbility_Passive::UPWGameplayAbility_Passive()
 	GameplayTags.AddTag(PWTags::Ability::Activation::OnGranted);
 	GameplayTags.AddTag(PWTags::Ability::Deactivation::OnRemoved);
 	SetAssetTags(GameplayTags);
+
+	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::ServerOnly;
 }
 
 void UPWGameplayAbility_Passive::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
@@ -20,6 +22,10 @@ void UPWGameplayAbility_Passive::ActivateAbility(const FGameplayAbilitySpecHandl
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
 	bIsActivePassive = true;
+
+	UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo();
+	if (!ActionModule && GetEffectModule())
+		GetEffectModule()->ApplyEffects(ASC, ASC);
 
 	if (bEnablePassiveTick && GetWorld())
 	{
@@ -36,6 +42,10 @@ void UPWGameplayAbility_Passive::ActivateAbility(const FGameplayAbilitySpecHandl
 void UPWGameplayAbility_Passive::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
 	bIsActivePassive = false;
+
+	UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo();
+	if (!ActionModule && GetEffectModule())
+		GetEffectModule()->RemoveEffects(ASC, ASC);
 
 	if (UWorld* World = GetWorld())
 		World->GetTimerManager().ClearTimer(PassiveTickTimer);

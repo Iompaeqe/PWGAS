@@ -56,6 +56,14 @@ void UPWAbilitySystemComponent::BeginPlay()
 	Super::BeginPlay();
 }
 
+void UPWAbilitySystemComponent::InitAbilityActorInfo(AActor* InOwnerActor, AActor* InAvatarActor)
+{
+	Super::InitAbilityActorInfo(InOwnerActor, InAvatarActor);
+
+	if (InAvatarActor && AbilityLifecycle && IsOwnerActorAuthoritative())
+		AbilityLifecycle->ApplyActivationPolicies(PWTags::Ability::Activation::OnGranted);
+}
+
 void UPWAbilitySystemComponent::OnRemoveAbility(FGameplayAbilitySpec& AbilitySpec)
 {
 	Super::OnRemoveAbility(AbilitySpec);

@@ -45,3 +45,10 @@ UPWTestInstantEffectAbility::UPWTestInstantEffectAbility()
 	Effect->Effects.Add({UPWTestEffect::StaticClass(), 1});
 	DataModules.Add(Effect);
 }
+
+UPWTestPassiveEffectAbility::UPWTestPassiveEffectAbility()
+{
+	UPWAbilityModule_Effect* Effect = CreateDefaultSubobject<UPWAbilityModule_Effect>("Effect");
+	Effect->Effects.Add({UPWTestEffect::StaticClass(), 1});
+	DataModules.Add(Effect);
+}

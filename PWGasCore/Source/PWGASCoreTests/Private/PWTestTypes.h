@@ -7,6 +7,7 @@
 #include "Ability/PWSpellParamsInterface.h"
 #include "GameFramework/Actor.h"
 #include "GAS/Abilities/PWModularGameplayAbility.h"
+#include "GAS/Abilities/Derived/PWGameplayAbility_Passive.h"
 #include "PWGasCore/Public/Targeting/Types/PWTargetPolicyBase.h"
 #include "PWTestTypes.generated.h"
 
@@ -67,6 +68,15 @@ public:
 	TObjectPtr<USpellParams> SpellParams;
 
 	virtual void SetSpellParams_Implementation(USpellParams* Params) override { SpellParams = Params; }
+};
+
+UCLASS(NotBlueprintable, HideDropdown)
+class UPWTestPassiveEffectAbility : public UPWGameplayAbility_Passive
+{
+	GENERATED_BODY()
+
+public:
+	UPWTestPassiveEffectAbility();
 };
 
 UCLASS(NotBlueprintable, HideDropdown)
