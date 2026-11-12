@@ -31,7 +31,7 @@ void FPWASC_InputBinding::AbilityInputTagPressed(const FGameplayTag& InputTag)
 		}
 	}
 
-	ASC.SendInputEvent(InputTag, EInputEventType::Pressed);
+	ASC.SendInputEvent(InputTag, EPWInputEventType::Pressed);
 }
 
 void FPWASC_InputBinding::AbilityInputTagReleased(const FGameplayTag& InputTag) const
@@ -44,7 +44,7 @@ void FPWASC_InputBinding::AbilityInputTagReleased(const FGameplayTag& InputTag) 
 		ASC.AbilitySpecInputReleased(*Spec);
 	}
 
-	ASC.SendInputEvent(InputTag, EInputEventType::Released);
+	ASC.SendInputEvent(InputTag, EPWInputEventType::Released);
 }
 
 void FPWASC_InputBinding::EquipAbility(const FGameplayTag& AbilityTag, const FGameplayTag& InputTag) const

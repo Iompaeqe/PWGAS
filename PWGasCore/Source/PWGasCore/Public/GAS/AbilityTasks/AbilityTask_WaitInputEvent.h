@@ -25,7 +25,7 @@ public:
 
 	/** Waits for an input event with given tag and type (Pressed or Released). */
 	UFUNCTION(BlueprintCallable, Category="Ability|Tasks", meta=(GameplayTagFilter = "Input", DisplayName="Wait Input Event", HidePin="OwningAbility", DefaultToSelf="OwningAbility", BlueprintInternalUseOnly="true"))
-	static UAbilityTask_WaitInputEvent* WaitInputEvent(UGameplayAbility* OwningAbility, FGameplayTag InputTag, EInputEventType EventType = EInputEventType::Pressed);
+	static UAbilityTask_WaitInputEvent* WaitInputEvent(UGameplayAbility* OwningAbility, FGameplayTag InputTag, EPWInputEventType EventType = EPWInputEventType::Pressed);
 
 	virtual void Activate() override;
 	virtual void OnDestroy(bool bInOwnerFinished) override;
@@ -42,5 +42,5 @@ protected:
 
 	/** Whether we’re waiting for Pressed or Released */
 	UPROPERTY()
-	EInputEventType WatchedEventType = EInputEventType::Pressed;
+	EPWInputEventType WatchedEventType = EPWInputEventType::Pressed;
 };

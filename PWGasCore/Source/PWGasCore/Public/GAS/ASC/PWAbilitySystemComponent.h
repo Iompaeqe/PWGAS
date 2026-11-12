@@ -16,7 +16,7 @@ struct FPWNiagaraEntry;
 class UPWAbilitySet;
 struct FPWASCVfxParams;
 class UNiagaraComponent;
-enum class EInputEventType : uint8;
+enum class EPWInputEventType : uint8;
 DECLARE_MULTICAST_DELEGATE_TwoParams(FAnyGameplayTagChangedDelegate, FGameplayTag& /*Tag*/, int /*Count*/);
 
 UCLASS(ClassGroup=(GASCore), meta=(BlueprintSpawnableComponent))
@@ -72,10 +72,10 @@ public:
 	bool BP_AdjustCooldownForAbilityTag(const FGameplayTag& AbilityTag, float SecondsToReduce);
 
 	UFUNCTION(Server, Reliable)
-	void ServerSendInputEvent(const FGameplayTag& InputTag, EInputEventType EventType);
-	void DispatchInputEvent(const FGameplayTag& InputTag, EInputEventType EventType);
+	void ServerSendInputEvent(const FGameplayTag& InputTag, EPWInputEventType EventType);
+	void DispatchInputEvent(const FGameplayTag& InputTag, EPWInputEventType EventType);
 	UFUNCTION(BlueprintCallable, Category="GASCore|Input")
-	void SendInputEvent(const FGameplayTag& InputTag, EInputEventType EventType);
+	void SendInputEvent(const FGameplayTag& InputTag, EPWInputEventType EventType);
 	
 	UFUNCTION(NetMulticast, Reliable, Category="GASCore|NiagaraVfx")
 	void Multicast_PlayNiagara(const FPWNiagaraEntry& Entry);

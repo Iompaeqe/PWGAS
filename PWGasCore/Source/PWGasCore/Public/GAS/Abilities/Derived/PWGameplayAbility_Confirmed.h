@@ -20,7 +20,7 @@ protected:
 	bool bConfirmed = false;
 
 	UPROPERTY(EditDefaultsOnly, meta=(GameplayTagFilter = "Input"))
-	TMap<EInputEventType, FGameplayTagContainer> ConfirmInputs;
+	TMap<EPWInputEventType, FGameplayTagContainer> ConfirmInputs;
 
 public:
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
@@ -39,7 +39,7 @@ public:
 
 private:
 	bool HasGraph() const;
-	void WaitForConfirm(const FGameplayTag& InputTag, EInputEventType EventType);
+	void WaitForConfirm(const FGameplayTag& InputTag, EPWInputEventType EventType);
 	void OnActionFinished();
 
 	bool bSkipOwnPress = false;

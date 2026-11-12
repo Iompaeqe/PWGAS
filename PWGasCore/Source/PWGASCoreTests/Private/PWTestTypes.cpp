@@ -75,7 +75,7 @@ UPWTestInstantBuffAbility::UPWTestInstantBuffAbility()
 
 UPWTestConfirmedAbility::UPWTestConfirmedAbility()
 {
-	ConfirmInputs.Add(EInputEventType::Pressed, FGameplayTagContainer(PWTags::Input::GlobalCancel));
+	ConfirmInputs.Add(EPWInputEventType::Pressed, FGameplayTagContainer(PWTags::Input::GlobalCancel));
 
 	UPWAbilityModule_InstantEffect* InstantEffect = CreateDefaultSubobject<UPWAbilityModule_InstantEffect>("InstantEffect");
 	InstantEffect->bApplyOnActivated = true;

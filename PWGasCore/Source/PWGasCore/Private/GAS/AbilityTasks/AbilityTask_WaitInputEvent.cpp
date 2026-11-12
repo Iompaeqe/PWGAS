@@ -7,7 +7,7 @@
 #include "GAS/Tags/GASCoreTags.h"
 
 UAbilityTask_WaitInputEvent* UAbilityTask_WaitInputEvent::WaitInputEvent(
-	UGameplayAbility* OwningAbility, FGameplayTag InputTag, EInputEventType EventType)
+	UGameplayAbility* OwningAbility, FGameplayTag InputTag, EPWInputEventType EventType)
 {
 	UAbilityTask_WaitInputEvent* Task = NewAbilityTask<UAbilityTask_WaitInputEvent>(OwningAbility);
 	Task->WatchedInputTag = InputTag;
@@ -47,7 +47,7 @@ void UAbilityTask_WaitInputEvent::OnGameplayEventReceived(const FGameplayEventDa
 		return;
 
 	const bool bPressed = Payload->EventMagnitude > 0.5f;
-	const EInputEventType ReceivedType = bPressed ? EInputEventType::Pressed : EInputEventType::Released;
+	const EPWInputEventType ReceivedType = bPressed ? EPWInputEventType::Pressed : EPWInputEventType::Released;
 
 	if (ReceivedType != WatchedEventType)
 		return;

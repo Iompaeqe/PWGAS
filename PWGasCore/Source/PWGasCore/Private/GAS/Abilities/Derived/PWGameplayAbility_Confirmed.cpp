@@ -15,14 +15,14 @@ void UPWGameplayAbility_Confirmed::ActivateAbility(const FGameplayAbilitySpecHan
 	bConfirmed = false;
 
 	const FGameplayAbilitySpec* Spec = GetCurrentAbilitySpec();
-	const FGameplayTagContainer* PressedInputs = ConfirmInputs.Find(EInputEventType::Pressed);
+	const FGameplayTagContainer* PressedInputs = ConfirmInputs.Find(EPWInputEventType::Pressed);
 	bSkipOwnPress = Spec && PressedInputs && PressedInputs->HasTagExact(FPWASC_DataManagement::GetInputFromSpec(*Spec));
 
 	if (!HasGraph())
 		if (UPWAbilityModule_Precast* Precast = GetPrecastModule())
 			Precast->StartPrecast();
 
-	for (const TPair<EInputEventType, FGameplayTagContainer>& ConfirmInput : ConfirmInputs)
+	for (const TPair<EPWInputEventType, FGameplayTagContainer>& ConfirmInput : ConfirmInputs)
 		for (const FGameplayTag& InputTag : ConfirmInput.Value)
 			WaitForConfirm(InputTag, ConfirmInput.Key);
 }
@@ -35,7 +35,7 @@ void UPWGameplayAbility_Confirmed::EndAbility(const FGameplayAbilitySpecHandle H
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 
-void UPWGameplayAbility_Confirmed::WaitForConfirm(const FGameplayTag& InputTag, const EInputEventType EventType)
+void UPWGameplayAbility_Confirmed::WaitForConfirm(const FGameplayTag& InputTag, const EPWInputEventType EventType)
 {
 	if (!InputTag.IsValid())
 		return;
@@ -64,7 +64,7 @@ void UPWGameplayAbility_Confirmed::SetAwaitingConfirmation(bool bCond)
 
 bool UPWGameplayAbility_Confirmed::IsConfirmInput(const FGameplayTag& InputTag) const
 {
-	for (const TPair<EInputEventType, FGameplayTagContainer>& ConfirmInput : ConfirmInputs)
+	for (const TPair<EPWInputEventType, FGameplayTagContainer>& ConfirmInput : ConfirmInputs)
 		if (ConfirmInput.Value.HasTagExact(InputTag))
 			return true;
 
@@ -85,7 +85,7 @@ void UPWGameplayAbility_Confirmed::HandleConfirmInput(const FGameplayTag& InputT
 	if (bSkipOwnPress && Spec && InputTag == FPWASC_DataManagement::GetInputFromSpec(*Spec))
 	{
 		bSkipOwnPress = false;
-		WaitForConfirm(InputTag, EInputEventType::Pressed);
+		WaitForConfirm(InputTag, EPWInputEventType::Pressed);
 		return;
 	}
 

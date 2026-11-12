@@ -135,22 +135,22 @@ bool UPWAbilitySystemComponent::BP_AdjustCooldownForAbilityTag(const FGameplayTa
 	return CooldownHandler->AdjustCooldownForAbilityTag(AbilityTag, SecondsToReduce);
 }
 
-void UPWAbilitySystemComponent::ServerSendInputEvent_Implementation(const FGameplayTag& InputTag, const EInputEventType EventType)
+void UPWAbilitySystemComponent::ServerSendInputEvent_Implementation(const FGameplayTag& InputTag, const EPWInputEventType EventType)
 {
 	if (InputTag.MatchesTag(PWTags::Input::Root))
 		DispatchInputEvent(InputTag, EventType);
 }
 
-void UPWAbilitySystemComponent::DispatchInputEvent(const FGameplayTag& InputTag, const EInputEventType EventType)
+void UPWAbilitySystemComponent::DispatchInputEvent(const FGameplayTag& InputTag, const EPWInputEventType EventType)
 {
 	FGameplayEventData Payload;
 	Payload.EventTag = PWTags::Event::Input;
-	Payload.EventMagnitude = (EventType == EInputEventType::Pressed) ? 1.f : 0.f;
+	Payload.EventMagnitude = (EventType == EPWInputEventType::Pressed) ? 1.f : 0.f;
 	Payload.InstigatorTags.AddTag(InputTag);
 	HandleGameplayEvent(PWTags::Event::Input, &Payload);
 }
 
-void UPWAbilitySystemComponent::SendInputEvent(const FGameplayTag& InputTag, EInputEventType EventType)
+void UPWAbilitySystemComponent::SendInputEvent(const FGameplayTag& InputTag, EPWInputEventType EventType)
 {
 	if (!InputTag.IsValid()) return;
 
