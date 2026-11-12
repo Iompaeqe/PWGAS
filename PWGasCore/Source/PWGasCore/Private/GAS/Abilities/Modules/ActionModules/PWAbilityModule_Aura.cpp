@@ -43,6 +43,14 @@ void UPWAbilityModule_Aura::OnAbilityActivated_Implementation()
 	AuraSphere->OnComponentBeginOverlap.AddDynamic(this, &UPWAbilityModule_Aura::HandleBeginOverlap);
 	AuraSphere->OnComponentEndOverlap.AddDynamic(this, &UPWAbilityModule_Aura::HandleEndOverlap);
 
+	// Actors already inside got their overlap before the handlers were bound.
+	OverlappingActors.Reset();
+	TArray<AActor*> AlreadyInside;
+	AuraSphere->UpdateOverlaps();
+	AuraSphere->GetOverlappingActors(AlreadyInside);
+	for (AActor* Actor : AlreadyInside)
+		EnterAura(Actor);
+
 	if (bDrawDebug)
 		DrawDebugSphere(World, OwnerPawn->GetActorLocation(), Radius, 16, FColor::Green, false, 10.f);
 
@@ -67,14 +75,25 @@ void UPWAbilityModule_Aura::GetRequiredDataModules_Implementation(TArray<TSubcla
 
 void UPWAbilityModule_Aura::HandleBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	ApplyAuraEffect(OtherActor, true);
-	OverlappingActors.AddUnique(OtherActor);
+	EnterAura(OtherActor);
 }
 
 void UPWAbilityModule_Aura::HandleEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
+	if (!OverlappingActors.Contains(OtherActor) || (AuraSphere && AuraSphere->IsOverlappingActor(OtherActor)))
+		return;
+
 	ApplyAuraEffect(OtherActor, false);
 	OverlappingActors.Remove(OtherActor);
+}
+
+void UPWAbilityModule_Aura::EnterAura(AActor* Actor)
+{
+	if (!Actor || Actor == GetPawn() || OverlappingActors.Contains(Actor))
+		return;
+
+	OverlappingActors.Add(Actor);
+	ApplyAuraEffect(Actor, true);
 }
 
 void UPWAbilityModule_Aura::ApplyAuraEffect(const AActor* Target, const bool bApply) const

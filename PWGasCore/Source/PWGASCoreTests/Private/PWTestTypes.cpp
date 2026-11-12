@@ -107,3 +107,25 @@ UPWTestAttributeSet::UPWTestAttributeSet()
 	AttributeTagRoot = PWTags::Ability::Root;
 	AddClamped(GetHealthAttribute(), GetHealthMaxAttribute());
 }
+
+UPWTestPeriodicDamageEffect::UPWTestPeriodicDamageEffect()
+{
+	DurationPolicy = EGameplayEffectDurationType::Infinite;
+	Period = 0.25f;
+
+	FGameplayModifierInfo Damage;
+	Damage.Attribute = UPWTestAttributeSet::GetHealthAttribute();
+	Damage.ModifierOp = EGameplayModOp::AddBase;
+	Damage.ModifierMagnitude = FScalableFloat(-10.f);
+	Modifiers.Add(Damage);
+}
+
+UPWTestAuraAbility::UPWTestAuraAbility()
+{
+	ActionModule = CreateDefaultSubobject<UPWAbilityModule_Aura>("Aura");
+	DataModules.Add(CreateDefaultSubobject<UPWAbilityModule_Range>("Range"));
+
+	UPWAbilityModule_Effect* Effect = CreateDefaultSubobject<UPWAbilityModule_Effect>("Effect");
+	Effect->Effects.Add({UPWTestPeriodicDamageEffect::StaticClass(), 1});
+	DataModules.Add(Effect);
+}

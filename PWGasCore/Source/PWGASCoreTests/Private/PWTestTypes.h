@@ -168,3 +168,21 @@ public:
 	UPROPERTY(ReplicatedUsing = OnRep_HealthMax) FGameplayAttributeData HealthMax; UFUNCTION() void OnRep_HealthMax(const FGameplayAttributeData& OldValue) const { GAMEPLAYATTRIBUTE_REPNOTIFY(ThisClass, HealthMax, OldValue); } ATTRIBUTE_ACCESSORS(ThisClass, HealthMax);
 	UPROPERTY() FGameplayAttributeData Cooldown; ATTRIBUTE_ACCESSORS(ThisClass, Cooldown);
 };
+
+UCLASS(NotBlueprintable, HideDropdown)
+class UPWTestPeriodicDamageEffect : public UGameplayEffect
+{
+	GENERATED_BODY()
+
+public:
+	UPWTestPeriodicDamageEffect();
+};
+
+UCLASS(NotBlueprintable, HideDropdown)
+class UPWTestAuraAbility : public UPWModularGameplayAbility
+{
+	GENERATED_BODY()
+
+public:
+	UPWTestAuraAbility();
+};

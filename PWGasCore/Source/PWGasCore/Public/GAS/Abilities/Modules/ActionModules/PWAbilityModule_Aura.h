@@ -38,6 +38,9 @@ protected:
 	void HandleEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 						  UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
+	// An actor counts once, however many of its components overlap.
+	void EnterAura(AActor* Actor);
+
 	// Applies or removes gameplay effects to overlapping actors
 	void ApplyAuraEffect(const AActor* Target, bool bApply) const;
 };
