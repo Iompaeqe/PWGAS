@@ -19,6 +19,9 @@ void UPWModularGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHandle
 	ForEachModule([this](UPWAbilityModule* Mod)
 	{
 		Mod->Initialize(this);
+	});
+	ForEachModule([](UPWAbilityModule* Mod)
+	{
 		Mod->OnAbilityActivated();
 	});
 	

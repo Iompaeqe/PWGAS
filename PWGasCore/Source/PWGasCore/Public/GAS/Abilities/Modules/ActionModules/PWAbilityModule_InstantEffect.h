@@ -16,6 +16,9 @@ class PWGASCORE_API UPWAbilityModule_InstantEffect : public UPWActionModule
 	GENERATED_BODY()
 
 public:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Module")
+	bool bApplyOnActivated = false;
+
 	UFUNCTION(BlueprintCallable, Category="Module")
 	virtual void ApplyEffects();
 	UFUNCTION(BlueprintCallable, Category="Module")
@@ -25,6 +28,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category="Module")
 	virtual void RemoveEffects();
 	
+	virtual void OnAbilityActivated_Implementation() override;
+	virtual void OnAbilityEnded_Implementation() override;
 	virtual void GetRequiredDataModules_Implementation(TArray<TSubclassOf<UPWDataModule>>& OutRequiredModules) override;
 	
 	

@@ -78,6 +78,18 @@ void UPWAbilityModule_InstantEffect::RemoveEffects()
 	}
 }
 
+void UPWAbilityModule_InstantEffect::OnAbilityActivated_Implementation()
+{
+	if (bApplyOnActivated)
+		ApplyEffects();
+}
+
+void UPWAbilityModule_InstantEffect::OnAbilityEnded_Implementation()
+{
+	if (bApplyOnActivated)
+		RemoveEffects();
+}
+
 void UPWAbilityModule_InstantEffect::GetRequiredDataModules_Implementation(TArray<TSubclassOf<UPWDataModule>>& OutRequiredModules)
 {
 	OutRequiredModules.Add(UPWAbilityModule_Effect::StaticClass());
