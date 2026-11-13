@@ -1,16 +1,16 @@
 // Copyright (c) 2025 Metehan Goksel Kurtulan (Iompaeqe)
 
 #include "PWTestWorld.h"
-#include "BaseProjectile.h"
+#include "PWProjectile.h"
 #include "Ability/SpellParams.h"
 #include "Misc/AutomationTest.h"
 
 #if WITH_DEV_AUTOMATION_TESTS
 
-static ABaseProjectile* SpawnProjectile(const FPWTestWorld& Test, const FGuid& CastId, const FVector& Location)
+static APWProjectile* SpawnProjectile(const FPWTestWorld& Test, const FGuid& CastId, const FVector& Location)
 {
 	const FTransform Transform(Location);
-	ABaseProjectile* Projectile = Test.World->SpawnActorDeferred<ABaseProjectile>(ABaseProjectile::StaticClass(), Transform, Test.Actor, Cast<APawn>(Test.Actor), ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
+	APWProjectile* Projectile = Test.World->SpawnActorDeferred<APWProjectile>(APWProjectile::StaticClass(), Transform, Test.Actor, Cast<APawn>(Test.Actor), ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
 
 	USpellParams* Params = NewObject<USpellParams>(Projectile);
 	Params->SourceAvatar = Test.Actor;
@@ -31,7 +31,7 @@ struct FOverlapParams
 	FHitResult SweepResult;
 };
 
-static void Overlap(ABaseProjectile* Projectile, AActor* OtherActor)
+static void Overlap(APWProjectile* Projectile, AActor* OtherActor)
 {
 	FOverlapParams Params;
 	Params.OtherActor = OtherActor;
@@ -45,9 +45,9 @@ bool FBaseProjectileSameCastTest::RunTest(const FString& Parameters)
 	FPWTestWorld Test;
 	const FGuid CastId = FGuid::NewGuid();
 
-	ABaseProjectile* First = SpawnProjectile(Test, CastId, FVector(0, 0, 500));
-	ABaseProjectile* Second = SpawnProjectile(Test, CastId, FVector(0, 300, 500));
-	ABaseProjectile* Other = SpawnProjectile(Test, FGuid::NewGuid(), FVector(0, 600, 500));
+	APWProjectile* First = SpawnProjectile(Test, CastId, FVector(0, 0, 500));
+	APWProjectile* Second = SpawnProjectile(Test, CastId, FVector(0, 300, 500));
+	APWProjectile* Other = SpawnProjectile(Test, FGuid::NewGuid(), FVector(0, 600, 500));
 
 	Overlap(First, Second);
 	Overlap(Second, First);
