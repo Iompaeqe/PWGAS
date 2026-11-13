@@ -17,6 +17,7 @@
 #include "Core/PWTeamsSubsystem.h"
 #include "Agents/PWTeamAgent.h"
 #include "Agents/PWTeamAgentComponent.h"
+#include "Relationships/PWTeamRelationshipProvider.h"
 #include "PWTestTypes.generated.h"
 
 UCLASS(NotBlueprintable, HideDropdown)
@@ -283,4 +284,26 @@ public:
 	TObjectPtr<UPWTeamAgentComponent> Agent;
 
 	virtual UPWTeamAgentComponent* GetTeamAgent_Implementation() const override { return Agent; }
+};
+
+// A game's own layer above factions: factions in the same bloc are friendly.
+UCLASS(NotBlueprintable, HideDropdown)
+class UPWTestBlocProvider : public UPWTeamRelationshipProvider
+{
+	GENERATED_BODY()
+
+public:
+	TMap<FName, FName> BlocOfFaction;
+	FGameplayTag SameBlocTag;
+
+	virtual void ResolveRelationship_Implementation(const FPWTeamIdentity& Source, const FPWTeamIdentity& Target, FPWTeamRelationship& Relationship) const override
+	{
+		const FName* SourceBloc = BlocOfFaction.Find(Source.Faction);
+		const FName* TargetBloc = BlocOfFaction.Find(Target.Faction);
+		if (!SourceBloc || !TargetBloc || *SourceBloc != *TargetBloc)
+			return;
+
+		Relationship.Attitude = EPWTeamAttitude::Friendly;
+		Relationship.Tags.AddTag(SameBlocTag);
+	}
 };
