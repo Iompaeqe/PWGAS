@@ -3,7 +3,6 @@
 #include "PWTestWorld.h"
 #include "PWTestTypes.h"
 #include "Core/PWTeamsSubsystem.h"
-#include "Core/PWTeamsSettings.h"
 #include "Core/PWTeamSetup.h"
 #include "Misc/AutomationTest.h"
 
@@ -105,27 +104,44 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FTeamsSetupTest, "PW.Teams.Registry.Setup", EAu
 
 bool FTeamsSetupTest::RunTest(const FString& Parameters)
 {
-	UPWTeamSetup* Setup = NewObject<UPWTeamSetup>();
-	Setup->AddToRoot();
-	Setup->Factions.Add({"Radiant", false});
-	Setup->Factions.Add({"Wild", true});
-	{
-		const FPWTestWorld Test(Setup);
-		const UPWTeamsSubsystem* Teams = UPWTeamsSubsystem::Get(Test.World);
+	const FPWTestWorld Test;
+	UPWTeamsSubsystem* Teams = UPWTeamsSubsystem::Get(Test.World);
+	TestEqual("A world starts with no factions of its own", Teams->GetFactions().Num(), 0);
+	TestNull("And no setup", Teams->GetActiveSetup());
 
-		TestEqual("The setup's names fill dropdowns", UPWTeamsSettings::GetFactionNames().Num(), 2);
+	UPWTeamSetup* Arena = NewObject<UPWTeamSetup>();
+	Arena->Factions.Add({"Radiant", false});
+	Arena->Factions.Add({"Wild", true});
+	Arena->DefaultAttitude = EPWTeamAttitude::Neutral;
+	Arena->RelationshipProviders.Add(UPWTestBlocProvider::StaticClass());
 
-		FPWTeamFaction Faction;
-		TestTrue("The server creates the setup's factions when play begins", Teams->GetFaction("Radiant", Faction));
-		TestTrue("With their neutral flags", Teams->GetFaction("Wild", Faction) && Faction.bNeutral);
-		TestEqual("And only those", Teams->GetFactions().Num(), 2);
-	}
-	{
-		const FPWTestWorld Test;
-		TestEqual("Without a setup there are no factions to begin with", UPWTeamsSubsystem::Get(Test.World)->GetFactions().Num(), 0);
-	}
+	Teams->ApplyTeamSetup(Arena);
+	FPWTeamFaction Faction;
+	TestTrue("Applying a setup creates its factions", Teams->GetFaction("Radiant", Faction));
+	TestTrue("With their neutral flags", Teams->GetFaction("Wild", Faction) && Faction.bNeutral);
+	TestEqual("And only those", Teams->GetFactions().Num(), 2);
+	TestEqual("It sets how factions regard each other", Teams->DefaultAttitude, EPWTeamAttitude::Neutral);
+	TestEqual("The world knows which setup it runs", Teams->GetActiveSetup(), Arena);
 
-	Setup->RemoveFromRoot();
+	const FPWTeamParticipantHandle Player = Teams->RegisterParticipant("Player", EPWTeamParticipantType::Player, "Radiant");
+
+	// A different game in the same world.
+	UPWTeamSetup* Duel = NewObject<UPWTeamSetup>();
+	Duel->Factions.Add({"Left", false});
+	Duel->Factions.Add({"Right", false});
+
+	Teams->ApplyTeamSetup(Duel);
+	TestFalse("A new setup replaces the old factions", Teams->GetFaction("Radiant", Faction));
+	TestTrue("With its own", Teams->GetFaction("Left", Faction) && Teams->GetFaction("Right", Faction));
+	TestEqual("And nothing left over", Teams->GetFactions().Num(), 2);
+	TestTrue("A participant of an old faction waits to be assigned again", Teams->GetParticipantFaction(Player).IsNone());
+	TestEqual("The participant itself stays", Teams->GetParticipants().Num(), 1);
+	TestEqual("The old rules go with the old setup", Teams->DefaultAttitude, EPWTeamAttitude::Hostile);
+
+	Teams->ApplyTeamSetup(nullptr);
+	TestEqual("Applying nothing clears the rules", Teams->GetFactions().Num(), 0);
+	TestNull("And the setup", Teams->GetActiveSetup());
+
 	return true;
 }
 

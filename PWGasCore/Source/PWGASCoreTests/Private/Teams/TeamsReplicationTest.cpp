@@ -5,6 +5,7 @@
 #include "Core/PWTeamsSubsystem.h"
 #include "Agents/PWTeamAgentComponent.h"
 #include "Replication/PWTeamRegistry.h"
+#include "Core/PWTeamSetup.h"
 #include "Misc/AutomationTest.h"
 
 #if WITH_DEV_AUTOMATION_TESTS
@@ -82,6 +83,20 @@ bool FTeamsReplicatedStateTest::RunTest(const FString& Parameters)
 	TestEqual("A removed participant goes", Listener->Unregistered, 1);
 	TestEqual("A destroyed faction goes", Listener->FactionsDestroyed, 1);
 	TestFalse("And cannot be found", ClientTeams->GetParticipant(Blue, Data));
+
+	// The server switches to a different game.
+	UPWTeamSetup* Setup = NewObject<UPWTeamSetup>();
+	Setup->Factions.Add({"North", false});
+	Setup->RelationshipProviders.Add(UPWTestFriendlyProvider::StaticClass());
+	ServerTeams->ApplyTeamSetup(Setup);
+	ClientTeams->ApplyReplicatedState(*Registry);
+	TestEqual("The client learns which setup the server runs", ClientTeams->GetActiveSetup(), Setup);
+	FPWTeamFaction North;
+	TestTrue("And gets its factions", ClientTeams->GetFaction("North", North));
+	FPWTeamIdentity One, Two;
+	One.Faction = "North";
+	Two.Faction = "Elsewhere";
+	TestEqual("And runs its rules", ClientTeams->GetRelationship(One, Two).Attitude, EPWTeamAttitude::Friendly);
 
 	return true;
 }

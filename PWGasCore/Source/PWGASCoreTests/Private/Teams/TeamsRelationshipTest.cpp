@@ -3,6 +3,7 @@
 #include "PWTestWorld.h"
 #include "PWTestTypes.h"
 #include "Core/PWTeamsSubsystem.h"
+#include "Core/PWTeamSetup.h"
 #include "Core/PWTeamsTags.h"
 #include "Agents/PWTeamAgentComponent.h"
 #include "Misc/AutomationTest.h"
@@ -220,6 +221,15 @@ bool FTeamsProviderTest::RunTest(const FString& Parameters)
 
 	F.Teams->RemoveRelationshipProvider(Blocs);
 	TestTrue("Removing the rules restores the default", Teams::IsEnemy(F.Hero, Green));
+
+	// The same kind of rule, this time as part of a team setup.
+	UPWTeamSetup* Setup = NewObject<UPWTeamSetup>();
+	Setup->RelationshipProviders.Add(UPWTestFriendlyProvider::StaticClass());
+	F.Teams->ApplyTeamSetup(Setup);
+	const FPWTeamParticipantHandle A = F.Teams->RegisterParticipant("A", EPWTeamParticipantType::Player, "North");
+	const FPWTeamParticipantHandle B = F.Teams->RegisterParticipant("B", EPWTeamParticipantType::Player, "South");
+	TestTrue("A setup's own rules apply as soon as it does", Teams::IsAlly(F.Spawn(A), F.Spawn(B)));
+	F.Teams->ApplyTeamSetup(nullptr);
 
 	return true;
 }

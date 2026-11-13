@@ -307,3 +307,17 @@ public:
 		Relationship.Tags.AddTag(SameBlocTag);
 	}
 };
+
+// A rule with nothing to configure: every two factions are friends.
+UCLASS(NotBlueprintable, HideDropdown)
+class UPWTestFriendlyProvider : public UPWTeamRelationshipProvider
+{
+	GENERATED_BODY()
+
+public:
+	virtual void ResolveRelationship_Implementation(const FPWTeamIdentity& Source, const FPWTeamIdentity& Target, FPWTeamRelationship& Relationship) const override
+	{
+		if (!Source.Faction.IsNone() && !Target.Faction.IsNone())
+			Relationship.Attitude = EPWTeamAttitude::Friendly;
+	}
+};

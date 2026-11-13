@@ -9,9 +9,6 @@
 #include "TimerManager.h"
 #include "GameFramework/Pawn.h"
 #include "GAS/ASC/PWAbilitySystemComponent.h"
-#include "Core/PWTeamsSettings.h"
-#include "Core/PWTeamSetup.h"
-#include "Relationships/PWTeamRelationshipProvider.h"
 
 struct FPWTestWorld
 {
@@ -19,18 +16,8 @@ struct FPWTestWorld
 	AActor* Actor = nullptr;
 	UPWAbilitySystemComponent* ASC = nullptr;
 
-	// Tests run inside whatever project hosts the plugin, so the project's own team setup and rules are set aside for the life of the world.
-	TSoftObjectPtr<UPWTeamSetup> SavedTeamSetup;
-	TArray<TSoftClassPtr<UPWTeamRelationshipProvider>> SavedProviders;
-
-	explicit FPWTestWorld(UPWTeamSetup* TeamSetup = nullptr)
+	FPWTestWorld()
 	{
-		UPWTeamsSettings* TeamsSettings = GetMutableDefault<UPWTeamsSettings>();
-		SavedTeamSetup = TeamsSettings->TeamSetup;
-		SavedProviders = TeamsSettings->RelationshipProviders;
-		TeamsSettings->TeamSetup = TeamSetup;
-		TeamsSettings->RelationshipProviders.Reset();
-
 		World = UWorld::CreateWorld(EWorldType::Game, false);
 		FWorldContext& WorldContext = GEngine->CreateNewWorldContext(EWorldType::Game);
 		WorldContext.SetCurrentWorld(World);
@@ -46,10 +33,6 @@ struct FPWTestWorld
 		World->EndPlay(EEndPlayReason::Quit);
 		GEngine->DestroyWorldContext(World);
 		World->DestroyWorld(false);
-
-		UPWTeamsSettings* TeamsSettings = GetMutableDefault<UPWTeamsSettings>();
-		TeamsSettings->TeamSetup = SavedTeamSetup;
-		TeamsSettings->RelationshipProviders = SavedProviders;
 	}
 
 	UPWAbilitySystemComponent* SpawnASC() const
