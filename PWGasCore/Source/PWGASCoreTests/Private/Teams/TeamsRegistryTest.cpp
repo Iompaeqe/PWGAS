@@ -105,27 +105,26 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FTeamsSetupTest, "PW.Teams.Registry.Setup", EAu
 
 bool FTeamsSetupTest::RunTest(const FString& Parameters)
 {
-	UPWTeamsSettings* Settings = GetMutableDefault<UPWTeamsSettings>();
-	const TSoftObjectPtr<UPWTeamSetup> Previous = Settings->TeamSetup;
-
 	UPWTeamSetup* Setup = NewObject<UPWTeamSetup>();
 	Setup->AddToRoot();
 	Setup->Factions.Add({"Radiant", false});
 	Setup->Factions.Add({"Wild", true});
-	Settings->TeamSetup = Setup;
-
-	TestEqual("The setup's names fill dropdowns", UPWTeamsSettings::GetFactionNames().Num(), 2);
 	{
-		const FPWTestWorld Test;
+		const FPWTestWorld Test(Setup);
 		const UPWTeamsSubsystem* Teams = UPWTeamsSubsystem::Get(Test.World);
+
+		TestEqual("The setup's names fill dropdowns", UPWTeamsSettings::GetFactionNames().Num(), 2);
 
 		FPWTeamFaction Faction;
 		TestTrue("The server creates the setup's factions when play begins", Teams->GetFaction("Radiant", Faction));
 		TestTrue("With their neutral flags", Teams->GetFaction("Wild", Faction) && Faction.bNeutral);
 		TestEqual("And only those", Teams->GetFactions().Num(), 2);
 	}
+	{
+		const FPWTestWorld Test;
+		TestEqual("Without a setup there are no factions to begin with", UPWTeamsSubsystem::Get(Test.World)->GetFactions().Num(), 0);
+	}
 
-	Settings->TeamSetup = Previous;
 	Setup->RemoveFromRoot();
 	return true;
 }
