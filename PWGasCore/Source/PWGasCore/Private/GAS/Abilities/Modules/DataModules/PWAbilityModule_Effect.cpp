@@ -123,7 +123,7 @@ void UPWAbilityModule_Effect::ApplyEffectsToActor(UAbilitySystemComponent* Sourc
 		return;
 	}
 
-	UObject* Receiver = UGASCoreFunctions::FindAffectable(Target);
+	UObject* Receiver = IAffectable::Find(Target);
 	if (!Receiver || !OwnerAbility || !UTeamFunctions::MatchesMask(SourceASC->GetAvatarActor(), Target, GetCombinedMask()))
 		return;
 
@@ -143,7 +143,7 @@ void UPWAbilityModule_Effect::RemoveEffectsFromActor(UAbilitySystemComponent* So
 		return;
 	}
 
-	UObject* Receiver = UGASCoreFunctions::FindAffectable(Target);
+	UObject* Receiver = IAffectable::Find(Target);
 	if (!Receiver || !OwnerAbility)
 		return;
 

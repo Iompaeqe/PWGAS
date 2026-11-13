@@ -18,6 +18,7 @@
 #include "Engine/EngineTypes.h"
 #include "Libraries/GASCoreFunctions.h"
 #include "Ability/SpellCollision.h"
+#include "Ability/Affectable.h"
 #include "TeamFunctions.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/GameplayStaticsTypes.h"
@@ -272,7 +273,7 @@ void UPWPrecastControllerComponent::GatherTargets(const TArray<FPWTargetingResul
 		{
 			if (!IsValid(Actor) || OutTargets.Contains(Actor))
 				continue;
-			if (!UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(Actor) && !UGASCoreFunctions::FindAffectable(Actor))
+			if (!UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(Actor) && !IAffectable::Find(Actor))
 				continue;
 			if (Effect && !UTeamFunctions::MatchesMask(Pawn, Actor, Effect->GetCombinedMask()))
 				continue;
@@ -296,7 +297,7 @@ FPWPrecastPath UPWPrecastControllerComponent::SimulatePath(const FVector& Start,
 	const float GravityZ = FMath::IsNearlyZero(ProjCfg.GravityZOverride) ? World->GetGravityZ() * ActorGravityScale : ProjCfg.GravityZOverride;
 	const float Step = 1.f / FMath::Max(ProjCfg.SimFrequency, 1.f);
 
-	const FCollisionShape Shape = FCollisionShape::MakeSphere(ActorRadius > 0.f ? ActorRadius : ProjCfg.ProjectileRadius);
+	const FCollisionShape Shape = FCollisionShape::MakeSphere(FMath::Max(ActorRadius, 1.f));
 	const FCollisionObjectQueryParams Objects(FCollisionObjectQueryParams::InitType::AllObjects);
 	const FCollisionQueryParams Query(SCENE_QUERY_STAT(PWPrecastPath), false, Pawn);
 
@@ -311,9 +312,9 @@ FPWPrecastPath UPWPrecastControllerComponent::SimulatePath(const FVector& Start,
 			return false;
 		if (ActorSphere.IsValid() && ActorSphere->GetCollisionResponseToChannel(Component->GetCollisionObjectType()) == ECR_Ignore)
 			return false;
-		if (Component->GetCollisionResponseToChannel(ECC_Pawn) != ECR_Block && Component->GetCollisionResponseToChannel(ProjectileChannel) != ECR_Block)
+		if (Component->GetCollisionResponseToChannel(ProjectileChannel) == ECR_Ignore)
 			return false;
-		if (!UGASCoreFunctions::FindAffectable(Actor))
+		if (!IAffectable::Find(Actor))
 			return true;
 		return !ActorModule || !Pawn || UTeamFunctions::MatchesMask(Pawn, Actor, ActorModule->TargetMask);
 	};

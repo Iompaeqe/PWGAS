@@ -24,14 +24,6 @@ bool UGASCoreFunctions::ApplyEffects(UPWAbilitySystemComponent* ASC, const USpel
 	return true;
 }
 
-UObject* UGASCoreFunctions::FindAffectable(AActor* Target)
-{
-	if (!Target) return nullptr;
-
-	UObject* Receiver = Target->Implements<UEffectReceiver>() ? IEffectReceiver::Execute_GetEffectReceiver(Target) : Target;
-	return Receiver && Receiver->Implements<UAffectable>() ? Receiver : nullptr;
-}
-
 TArray<FEffectModifierValue> UGASCoreFunctions::GetModifierValuesFromEffects(const USpellParams* SpellParams, const FGameplayAttribute& Attribute, const AActor* Target)
 {
 	TArray<FEffectModifierValue> Values;
