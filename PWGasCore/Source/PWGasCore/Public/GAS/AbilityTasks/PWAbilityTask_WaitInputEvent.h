@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "Abilities/Tasks/AbilityTask.h"
 #include "GAS/Data/GASCoreEnums.h"
-#include "AbilityTask_WaitInputEvent.generated.h"
+#include "PWAbilityTask_WaitInputEvent.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FPWInputEventDelegate, const FGameplayTag&, InputTag);
 
@@ -14,7 +14,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FPWInputEventDelegate, const FGamepl
  * The event is sent from the AbilitySystemComponent via SendInputEvent.
  */
 UCLASS()
-class PWGASCORE_API UAbilityTask_WaitInputEvent : public UAbilityTask
+class PWGASCORE_API UPWAbilityTask_WaitInputEvent : public UAbilityTask
 {
 	GENERATED_BODY()
 
@@ -25,7 +25,7 @@ public:
 
 	/** Waits for an input event with given tag and type (Pressed or Released). */
 	UFUNCTION(BlueprintCallable, Category="Ability|Tasks", meta=(GameplayTagFilter = "Input", DisplayName="Wait Input Event", HidePin="OwningAbility", DefaultToSelf="OwningAbility", BlueprintInternalUseOnly="true"))
-	static UAbilityTask_WaitInputEvent* WaitInputEvent(UGameplayAbility* OwningAbility, FGameplayTag InputTag, EPWInputEventType EventType = EPWInputEventType::Pressed);
+	static UPWAbilityTask_WaitInputEvent* WaitInputEvent(UGameplayAbility* OwningAbility, FGameplayTag InputTag, EPWInputEventType EventType = EPWInputEventType::Pressed);
 
 	virtual void Activate() override;
 	virtual void OnDestroy(bool bInOwnerFinished) override;

@@ -2,7 +2,7 @@
 
 #include "PWTestWorld.h"
 #include "PWTestTypes.h"
-#include "GAS/Abilities/AbilityDataAsset.h"
+#include "GAS/Abilities/PWAbilityDataAsset.h"
 #include "GAS/Abilities/PWAbilityRegistry.h"
 #include "GAS/Abilities/PWAbilitySet.h"
 #include "Settings/PWGASCoreSettings.h"
@@ -67,7 +67,7 @@ bool FAbilityLifecycleLevelsTest::RunTest(const FString& Parameters)
 {
 	const FGameplayTag Tag = PWTags::Ability::Skill::Root;
 
-	UAbilityDataAsset* Data = NewObject<UAbilityDataAsset>();
+	UPWAbilityDataAsset* Data = NewObject<UPWAbilityDataAsset>();
 	Data->Ability.Tag = Tag;
 	Data->Ability.AbilityClass = UPWTestLeveledAbility::StaticClass();
 	Data->Ability.MaxLevel = 3;

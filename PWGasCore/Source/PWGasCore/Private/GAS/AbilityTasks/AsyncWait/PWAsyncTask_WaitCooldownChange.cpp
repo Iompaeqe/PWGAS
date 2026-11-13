@@ -1,13 +1,13 @@
 // Copyright (c) 2025 Metehan Goksel Kurtulan (Iompaeqe)
 
 
-#include "GAS/AbilityTasks/AsyncWait/WaitCooldownChange.h"
+#include "GAS/AbilityTasks/AsyncWait/PWAsyncTask_WaitCooldownChange.h"
 
 #include "AbilitySystemComponent.h"
 
-UWaitCooldownChange* UWaitCooldownChange::WaitForCooldownChange(UAbilitySystemComponent* AbilitySystemComponent, const FGameplayTag& InCooldownTag)
+UPWAsyncTask_WaitCooldownChange* UPWAsyncTask_WaitCooldownChange::WaitForCooldownChange(UAbilitySystemComponent* AbilitySystemComponent, const FGameplayTag& InCooldownTag)
 {
-	UWaitCooldownChange* Task = NewObject<UWaitCooldownChange>();
+	UPWAsyncTask_WaitCooldownChange* Task = NewObject<UPWAsyncTask_WaitCooldownChange>();
 	Task->ASC = AbilitySystemComponent;
 	Task->CooldownTag = InCooldownTag;
 
@@ -24,7 +24,7 @@ UWaitCooldownChange* UWaitCooldownChange::WaitForCooldownChange(UAbilitySystemCo
 	return Task;
 }
 
-void UWaitCooldownChange::EndTask() 
+void UPWAsyncTask_WaitCooldownChange::EndTask() 
 {
 	if (!IsValid(ASC)) return;
 		
@@ -34,7 +34,7 @@ void UWaitCooldownChange::EndTask()
 	MarkAsGarbage();
 }
 
-void UWaitCooldownChange::CooldownTagChanged(FGameplayTag GameplayTag, int NewCount) const
+void UPWAsyncTask_WaitCooldownChange::CooldownTagChanged(FGameplayTag GameplayTag, int NewCount) const
 {
 	if (NewCount == 0)
 	{
@@ -42,7 +42,7 @@ void UWaitCooldownChange::CooldownTagChanged(FGameplayTag GameplayTag, int NewCo
 	}
 }
 
-void UWaitCooldownChange::CooldownEffectApplied(UAbilitySystemComponent* AbilitySystemComponent, const FGameplayEffectSpec& Spec, FActiveGameplayEffectHandle Handle) const
+void UPWAsyncTask_WaitCooldownChange::CooldownEffectApplied(UAbilitySystemComponent* AbilitySystemComponent, const FGameplayEffectSpec& Spec, FActiveGameplayEffectHandle Handle) const
 {
 	FGameplayTagContainer AssetTags;
 	Spec.GetAllAssetTags(AssetTags);

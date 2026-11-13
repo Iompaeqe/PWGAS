@@ -4,7 +4,7 @@
 #include "GAS/Abilities/PWAbilityRegistry.h"
 
 #include "GameplayAbilitySpec.h"
-#include "GAS/Abilities/AbilityDataAsset.h"
+#include "GAS/Abilities/PWAbilityDataAsset.h"
 #include "GAS/Abilities/PWAbilityInfo.h"
 #include "GAS/ASC/PWAbilitySystemComponent.h"
 #include "Misc/DataValidation.h"
@@ -23,7 +23,7 @@ FPWAbilityInfo UPWAbilityRegistry::GetAbilityByTag(const FGameplayTag& AbilityTa
 {
 	for (const auto SoftAbilityDA : Abilities)
 	{
-		UAbilityDataAsset* AbilityDA = SoftAbilityDA.LoadSynchronous();
+		UPWAbilityDataAsset* AbilityDA = SoftAbilityDA.LoadSynchronous();
 		if (AbilityDA && AbilityDA->Ability.Tag.MatchesTagExact(AbilityTag))
 		{
 			return AbilityDA->Ability;
@@ -36,9 +36,9 @@ FPWAbilityInfo UPWAbilityRegistry::GetAbilityByTag(const FGameplayTag& AbilityTa
 EDataValidationResult UPWAbilityRegistry::IsDataValid(FDataValidationContext& Context) const
 {
 	TMap<FGameplayTag, FString> SeenTags;
-	for (const TSoftObjectPtr<UAbilityDataAsset>& SoftAbilityDA : Abilities)
+	for (const TSoftObjectPtr<UPWAbilityDataAsset>& SoftAbilityDA : Abilities)
 	{
-		const UAbilityDataAsset* AbilityDA = SoftAbilityDA.LoadSynchronous();
+		const UPWAbilityDataAsset* AbilityDA = SoftAbilityDA.LoadSynchronous();
 		if (!AbilityDA)
 		{
 			Context.AddError(FText::FromString(TEXT("Registry has an empty entry.")));

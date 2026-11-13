@@ -1,12 +1,12 @@
 ﻿// Copyright (c) 2025 Metehan Goksel Kurtulan (Iompaeqe)
 
 
-#include "GAS/Abilities/AbilityDataAsset.h"
+#include "GAS/Abilities/PWAbilityDataAsset.h"
 #include "GAS/Abilities/PWGameplayAbilityBase.h"
 #include "Misc/DataValidation.h"
 
 #if WITH_EDITOR
-EDataValidationResult UAbilityDataAsset::IsDataValid(FDataValidationContext& Context) const
+EDataValidationResult UPWAbilityDataAsset::IsDataValid(FDataValidationContext& Context) const
 {
 	if (!Ability.Tag.IsValid())
 		Context.AddError(FText::FromString(TEXT("Ability tag is not set.")));

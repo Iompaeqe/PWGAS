@@ -8,7 +8,7 @@
 #include "PWAbilityRegistry.generated.h"
 
 class UPWAbilitySystemComponent;
-class UAbilityDataAsset;
+class UPWAbilityDataAsset;
 struct FPWAbilityInfo;
 
 UCLASS()
@@ -19,7 +19,7 @@ class PWGASCORE_API UPWAbilityRegistry : public UPrimaryDataAsset
 public:
 	// Every ability the game can grant by tag; set this registry in Project Settings.
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	TArray<TSoftObjectPtr<UAbilityDataAsset>> Abilities;
+	TArray<TSoftObjectPtr<UPWAbilityDataAsset>> Abilities;
 	UFUNCTION(BlueprintCallable)
 	FPWAbilityInfo GetAbilityByTag(const FGameplayTag& AbilityTag);
 

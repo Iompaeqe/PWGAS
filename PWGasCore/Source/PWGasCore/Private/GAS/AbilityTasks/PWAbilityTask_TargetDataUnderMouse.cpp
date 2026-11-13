@@ -1,21 +1,21 @@
 // Copyright (c) 2025 Metehan Goksel Kurtulan (Iompaeqe)
 
 
-#include "GAS/AbilityTasks/TargetDataUnderMouse.h"
+#include "GAS/AbilityTasks/PWAbilityTask_TargetDataUnderMouse.h"
 
 #include "AbilitySystemComponent.h"
 
-class UTargetDataUnderMouse;
+class UPWAbilityTask_TargetDataUnderMouse;
 
-UTargetDataUnderMouse* UTargetDataUnderMouse::CreateTargetDataUnderMouse(UGameplayAbility* OwningAbility, ECollisionChannel TraceChannel)
+UPWAbilityTask_TargetDataUnderMouse* UPWAbilityTask_TargetDataUnderMouse::CreateTargetDataUnderMouse(UGameplayAbility* OwningAbility, ECollisionChannel TraceChannel)
 {
-	UTargetDataUnderMouse* MyObj = NewAbilityTask<UTargetDataUnderMouse>(OwningAbility);
+	UPWAbilityTask_TargetDataUnderMouse* MyObj = NewAbilityTask<UPWAbilityTask_TargetDataUnderMouse>(OwningAbility);
 	MyObj->TraceChannel = TraceChannel;
 	return MyObj;
 }
 
 
-void UTargetDataUnderMouse::Activate()
+void UPWAbilityTask_TargetDataUnderMouse::Activate()
 {
 	const bool bIsLocal = Ability->GetCurrentActorInfo()->IsLocallyControlled();
 	if (bIsLocal)
@@ -34,7 +34,7 @@ void UTargetDataUnderMouse::Activate()
 	}
 }
 
-void UTargetDataUnderMouse::SendMouseCursorData()
+void UPWAbilityTask_TargetDataUnderMouse::SendMouseCursorData()
 {
 	FScopedPredictionWindow ScopedPrediction(AbilitySystemComponent.Get());
 	
@@ -76,7 +76,7 @@ void UTargetDataUnderMouse::SendMouseCursorData()
 	
 }
 
-void UTargetDataUnderMouse::OnTargetDataReplicatedCallback(const FGameplayAbilityTargetDataHandle& DataHandle, FGameplayTag ActivationTag)
+void UPWAbilityTask_TargetDataUnderMouse::OnTargetDataReplicatedCallback(const FGameplayAbilityTargetDataHandle& DataHandle, FGameplayTag ActivationTag)
 {
 	AbilitySystemComponent.Get()->ConsumeClientReplicatedTargetData(GetAbilitySpecHandle(),GetActivationPredictionKey());
 	

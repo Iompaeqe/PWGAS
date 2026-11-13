@@ -1,7 +1,7 @@
 // Copyright (c) 2025 Metehan Goksel Kurtulan (Iompaeqe)
 
 #include "PWTestTypes.h"
-#include "GAS/Abilities/AbilityDataAsset.h"
+#include "GAS/Abilities/PWAbilityDataAsset.h"
 #include "GAS/Abilities/PWAbilityRegistry.h"
 #include "GAS/Abilities/PWAbilitySet.h"
 #include "GAS/Tags/GASCoreTags.h"
@@ -10,9 +10,9 @@
 
 #if WITH_DEV_AUTOMATION_TESTS
 
-static UAbilityDataAsset* MakeAbilityData(const FGameplayTag& Tag, const TSubclassOf<UGameplayAbility> AbilityClass)
+static UPWAbilityDataAsset* MakeAbilityData(const FGameplayTag& Tag, const TSubclassOf<UGameplayAbility> AbilityClass)
 {
-	UAbilityDataAsset* Data = NewObject<UAbilityDataAsset>();
+	UPWAbilityDataAsset* Data = NewObject<UPWAbilityDataAsset>();
 	Data->Ability.Tag = Tag;
 	Data->Ability.AbilityClass = AbilityClass;
 	return Data;
@@ -35,7 +35,7 @@ bool FAbilityRegistryValidationTest::RunTest(const FString& Parameters)
 	const FGameplayTag OriginalTag = AbilityDefault->AbilityTag;
 	AbilityDefault->AbilityTag = Tag;
 
-	UAbilityDataAsset* Good = MakeAbilityData(Tag, UPWTestModularAbility::StaticClass());
+	UPWAbilityDataAsset* Good = MakeAbilityData(Tag, UPWTestModularAbility::StaticClass());
 	TestTrue("Matching tag and class", IsValidData(Good));
 	TestFalse("Tag of another ability", IsValidData(MakeAbilityData(OtherTag, UPWTestModularAbility::StaticClass())));
 	TestFalse("Missing class", IsValidData(MakeAbilityData(Tag, nullptr)));

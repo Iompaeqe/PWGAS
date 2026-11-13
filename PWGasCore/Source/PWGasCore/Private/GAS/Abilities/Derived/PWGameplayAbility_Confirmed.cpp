@@ -4,7 +4,7 @@
 
 #include "Abilities/Tasks/AbilityTask.h"
 #include "GAS/Abilities/Modules/ActionModules/PWActionModule.h"
-#include "GAS/AbilityTasks/AbilityTask_WaitInputEvent.h"
+#include "GAS/AbilityTasks/PWAbilityTask_WaitInputEvent.h"
 #include "GAS/ASC/PWASC_DataManagement.h"
 #include "GAS/Tags/GASCoreTags.h"
 
@@ -40,7 +40,7 @@ void UPWGameplayAbility_Confirmed::WaitForConfirm(const FGameplayTag& InputTag, 
 	if (!InputTag.IsValid())
 		return;
 
-	UAbilityTask_WaitInputEvent* WaitTask = UAbilityTask_WaitInputEvent::WaitInputEvent(this, InputTag, EventType);
+	UPWAbilityTask_WaitInputEvent* WaitTask = UPWAbilityTask_WaitInputEvent::WaitInputEvent(this, InputTag, EventType);
 	if (!WaitTask)
 		return;
 

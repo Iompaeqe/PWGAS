@@ -1,22 +1,22 @@
 ﻿// Copyright (c) 2025 Metehan Goksel Kurtulan (Iompaeqe)
 
 
-#include "GAS/AbilityTasks/AbilityTask_WaitInputEvent.h"
+#include "GAS/AbilityTasks/PWAbilityTask_WaitInputEvent.h"
 
 #include "AbilitySystemComponent.h"
 #include "GAS/Tags/GASCoreTags.h"
 
-UAbilityTask_WaitInputEvent* UAbilityTask_WaitInputEvent::WaitInputEvent(
+UPWAbilityTask_WaitInputEvent* UPWAbilityTask_WaitInputEvent::WaitInputEvent(
 	UGameplayAbility* OwningAbility, FGameplayTag InputTag, EPWInputEventType EventType)
 {
-	UAbilityTask_WaitInputEvent* Task = NewAbilityTask<UAbilityTask_WaitInputEvent>(OwningAbility);
+	UPWAbilityTask_WaitInputEvent* Task = NewAbilityTask<UPWAbilityTask_WaitInputEvent>(OwningAbility);
 	Task->WatchedInputTag = InputTag;
 	Task->WatchedEventType = EventType;
 	Task->ownerability = OwningAbility;
 	return Task;
 }
 
-void UAbilityTask_WaitInputEvent::Activate()
+void UPWAbilityTask_WaitInputEvent::Activate()
 {
 	if (!Ability) return;
 
@@ -28,7 +28,7 @@ void UAbilityTask_WaitInputEvent::Activate()
 	EventHandle = ASC->GenericGameplayEventCallbacks.FindOrAdd(PWTags::Event::Input).AddUObject(this, &ThisClass::OnGameplayEventReceived);
 }
 
-void UAbilityTask_WaitInputEvent::OnDestroy(bool bInOwnerFinished)
+void UPWAbilityTask_WaitInputEvent::OnDestroy(bool bInOwnerFinished)
 {
 	if (AbilitySystemComponent.IsValid())
 		if (FGameplayEventMulticastDelegate* Delegate = AbilitySystemComponent->GenericGameplayEventCallbacks.Find(PWTags::Event::Input))
@@ -37,7 +37,7 @@ void UAbilityTask_WaitInputEvent::OnDestroy(bool bInOwnerFinished)
 	Super::OnDestroy(bInOwnerFinished);
 }
 
-void UAbilityTask_WaitInputEvent::OnGameplayEventReceived(const FGameplayEventData* Payload)
+void UPWAbilityTask_WaitInputEvent::OnGameplayEventReceived(const FGameplayEventData* Payload)
 {
 	if (!Payload)
 		return;

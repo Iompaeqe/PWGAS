@@ -1,7 +1,7 @@
 ﻿// Copyright (c) 2025 Metehan Goksel Kurtulan (Iompaeqe)
 
 
-#include "GAS/AnimNotify/AnimNotify_SocketedGameplayCue.h"
+#include "GAS/AnimNotify/PWAnimNotify_SocketedGameplayCue.h"
 
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemGlobals.h"
@@ -71,18 +71,18 @@ static void ProcessGameplayCue(GameplayCueFunc Func, USkeletalMeshComponent* Mes
 //////////////////////////////////////////////////////////////////////////
 // UAnimNotify_GameplayCue
 //////////////////////////////////////////////////////////////////////////
-UAnimNotify_SocketedGameplayCue::UAnimNotify_SocketedGameplayCue()
+UPWAnimNotify_SocketedGameplayCue::UPWAnimNotify_SocketedGameplayCue()
 {
 }
 
-void UAnimNotify_SocketedGameplayCue::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
+void UPWAnimNotify_SocketedGameplayCue::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
 {
 	Super::Notify(MeshComp, Animation, EventReference);
 
 	ProcessGameplayCue(&UGameplayCueManager::ExecuteGameplayCue_NonReplicated, MeshComp, GameplayCue.GameplayCueTag, SocketName, OffsetLocation, OffsetRotation, Animation);
 }
 
-FString UAnimNotify_SocketedGameplayCue::GetNotifyName_Implementation() const
+FString UPWAnimNotify_SocketedGameplayCue::GetNotifyName_Implementation() const
 {
 	FString DisplayName = TEXT("GameplayCue");
 
@@ -96,7 +96,7 @@ FString UAnimNotify_SocketedGameplayCue::GetNotifyName_Implementation() const
 }
 
 #if WITH_EDITOR
-bool UAnimNotify_SocketedGameplayCue::CanBePlaced(UAnimSequenceBase* Animation) const
+bool UPWAnimNotify_SocketedGameplayCue::CanBePlaced(UAnimSequenceBase* Animation) const
 {
 	return (Animation && Animation->IsA(UAnimMontage::StaticClass()));
 }

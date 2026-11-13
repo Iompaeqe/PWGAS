@@ -7,7 +7,7 @@
 #include "PWExecCalc_Base.generated.h"
 
 UCLASS(BlueprintType)
-class PWGASCORE_API UExecCalc_Base : public UGameplayEffectExecutionCalculation
+class PWGASCORE_API UPWExecCalc_Base : public UGameplayEffectExecutionCalculation
 {
 	GENERATED_BODY()
 

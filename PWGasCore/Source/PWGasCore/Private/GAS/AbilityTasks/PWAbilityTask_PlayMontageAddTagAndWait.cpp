@@ -1,6 +1,6 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
-#include "GAS/AbilityTasks/AbilityTask_PlayMontageAddTagAndWait.h"
+#include "GAS/AbilityTasks/PWAbilityTask_PlayMontageAddTagAndWait.h"
 
 #include "Animation/AnimMontage.h"
 #include "GameFramework/Character.h"
@@ -9,16 +9,16 @@
 #include "AbilitySystemGlobals.h"
 #include "GAS/Tags/GASCoreTags.h"
 
-#include UE_INLINE_GENERATED_CPP_BY_NAME(AbilityTask_PlayMontageAddTagAndWait)
+#include UE_INLINE_GENERATED_CPP_BY_NAME(PWAbilityTask_PlayMontageAddTagAndWait)
 
-UAbilityTask_PlayMontageAddTagAndWait::UAbilityTask_PlayMontageAddTagAndWait(const FObjectInitializer& ObjectInitializer)
+UPWAbilityTask_PlayMontageAddTagAndWait::UPWAbilityTask_PlayMontageAddTagAndWait(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer), AnimRootMotionTranslationScale(0), StartTimeSeconds(0)
 {
 	Rate = 1.f;
 	bStopWhenAbilityEnds = true;
 }
 
-void UAbilityTask_PlayMontageAddTagAndWait::OnMontageBlendingOut(UAnimMontage* Montage, const bool bInterrupted) const
+void UPWAbilityTask_PlayMontageAddTagAndWait::OnMontageBlendingOut(UAnimMontage* Montage, const bool bInterrupted) const
 {
 	if (Ability && Ability->GetCurrentMontage() == MontageToPlay)
 	{
@@ -59,7 +59,7 @@ void UAbilityTask_PlayMontageAddTagAndWait::OnMontageBlendingOut(UAnimMontage* M
 	}
 }
 
-void UAbilityTask_PlayMontageAddTagAndWait::OnMontageInterrupted()
+void UPWAbilityTask_PlayMontageAddTagAndWait::OnMontageInterrupted()
 {
 	if (StopPlayingMontage())
 	{
@@ -72,7 +72,7 @@ void UAbilityTask_PlayMontageAddTagAndWait::OnMontageInterrupted()
 	}
 }
 
-void UAbilityTask_PlayMontageAddTagAndWait::OnMontageEnded(UAnimMontage* Montage, const bool bInterrupted)
+void UPWAbilityTask_PlayMontageAddTagAndWait::OnMontageEnded(UAnimMontage* Montage, const bool bInterrupted)
 {
 	if (!bInterrupted)
 	{
@@ -86,12 +86,12 @@ void UAbilityTask_PlayMontageAddTagAndWait::OnMontageEnded(UAnimMontage* Montage
 	EndTask();
 }
 
-UAbilityTask_PlayMontageAddTagAndWait* UAbilityTask_PlayMontageAddTagAndWait::CreatePlayMontageAddTagAndWaitProxy(UGameplayAbility* OwningAbility, FGameplayTagContainer TagsToAdd,
+UPWAbilityTask_PlayMontageAddTagAndWait* UPWAbilityTask_PlayMontageAddTagAndWait::CreatePlayMontageAddTagAndWaitProxy(UGameplayAbility* OwningAbility, FGameplayTagContainer TagsToAdd,
                                                                                                                   FName TaskInstanceName, UAnimMontage* MontageToPlay, float Rate, FName StartSection, bool bStopWhenAbilityEnds, float AnimRootMotionTranslationScale, float StartTimeSeconds)
 {
 	UAbilitySystemGlobals::NonShipping_ApplyGlobalAbilityScaler_Rate(Rate);
 
-	UAbilityTask_PlayMontageAddTagAndWait* MyObj = NewAbilityTask<UAbilityTask_PlayMontageAddTagAndWait>(OwningAbility, TaskInstanceName);
+	UPWAbilityTask_PlayMontageAddTagAndWait* MyObj = NewAbilityTask<UPWAbilityTask_PlayMontageAddTagAndWait>(OwningAbility, TaskInstanceName);
 	MyObj->MontageToPlay = MontageToPlay;
 	MyObj->TagsToAdd = TagsToAdd;
 	MyObj->Rate = Rate;
@@ -103,7 +103,7 @@ UAbilityTask_PlayMontageAddTagAndWait* UAbilityTask_PlayMontageAddTagAndWait::Cr
 	return MyObj;
 }
 
-void UAbilityTask_PlayMontageAddTagAndWait::Activate()
+void UPWAbilityTask_PlayMontageAddTagAndWait::Activate()
 {
 	if (Ability == nullptr)
 	{
@@ -126,12 +126,12 @@ void UAbilityTask_PlayMontageAddTagAndWait::Activate()
 					return;
 				}
 
-				InterruptedHandle = Ability->OnGameplayAbilityCancelled.AddUObject(this, &UAbilityTask_PlayMontageAddTagAndWait::OnMontageInterrupted);
+				InterruptedHandle = Ability->OnGameplayAbilityCancelled.AddUObject(this, &UPWAbilityTask_PlayMontageAddTagAndWait::OnMontageInterrupted);
 
-				BlendingOutDelegate.BindUObject(this, &UAbilityTask_PlayMontageAddTagAndWait::OnMontageBlendingOut);
+				BlendingOutDelegate.BindUObject(this, &UPWAbilityTask_PlayMontageAddTagAndWait::OnMontageBlendingOut);
 				AnimInstance->Montage_SetBlendingOutDelegate(BlendingOutDelegate, MontageToPlay);
 
-				MontageEndedDelegate.BindUObject(this, &UAbilityTask_PlayMontageAddTagAndWait::OnMontageEnded);
+				MontageEndedDelegate.BindUObject(this, &UPWAbilityTask_PlayMontageAddTagAndWait::OnMontageEnded);
 				AnimInstance->Montage_SetEndDelegate(MontageEndedDelegate, MontageToPlay);
 
 				ACharacter* Character = Cast<ACharacter>(GetAvatarActor());
@@ -169,7 +169,7 @@ void UAbilityTask_PlayMontageAddTagAndWait::Activate()
 	SetWaitingOnAvatar();
 }
 
-void UAbilityTask_PlayMontageAddTagAndWait::ExternalCancel()
+void UPWAbilityTask_PlayMontageAddTagAndWait::ExternalCancel()
 {
 	if (ShouldBroadcastAbilityTaskDelegates())
 	{
@@ -179,7 +179,7 @@ void UAbilityTask_PlayMontageAddTagAndWait::ExternalCancel()
 	Super::ExternalCancel();
 }
 
-void UAbilityTask_PlayMontageAddTagAndWait::OnDestroy(const bool AbilityEnded)
+void UPWAbilityTask_PlayMontageAddTagAndWait::OnDestroy(const bool AbilityEnded)
 {
 	// Note: Clearing montage end delegate isn't necessary since its not a multicast and will be cleared when the next montage plays.
 	// (If we are destroyed, it will detect this and not do anything)
@@ -196,7 +196,7 @@ void UAbilityTask_PlayMontageAddTagAndWait::OnDestroy(const bool AbilityEnded)
 	Super::OnDestroy(AbilityEnded);
 }
 
-bool UAbilityTask_PlayMontageAddTagAndWait::StopPlayingMontage() const
+bool UPWAbilityTask_PlayMontageAddTagAndWait::StopPlayingMontage() const
 {
 	if (Ability == nullptr)
 	{
@@ -239,7 +239,7 @@ bool UAbilityTask_PlayMontageAddTagAndWait::StopPlayingMontage() const
 	return false;
 }
 
-FString UAbilityTask_PlayMontageAddTagAndWait::GetDebugString() const
+FString UPWAbilityTask_PlayMontageAddTagAndWait::GetDebugString() const
 {
 	UAnimMontage* PlayingMontage = nullptr;
 	if (Ability)
@@ -256,7 +256,7 @@ FString UAbilityTask_PlayMontageAddTagAndWait::GetDebugString() const
 	return FString::Printf(TEXT("PlayMontageAndWait. MontageToPlay: %s  (Currently Playing): %s"), *GetNameSafe(MontageToPlay), *GetNameSafe(PlayingMontage));
 }
 
-void UAbilityTask_PlayMontageAddTagAndWait::StopMontage()
+void UPWAbilityTask_PlayMontageAddTagAndWait::StopMontage()
 {
 	if (ShouldBroadcastAbilityTaskDelegates())
 	{

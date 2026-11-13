@@ -5,16 +5,16 @@
 #include "CoreMinimal.h"
 #include "GameplayCueInterface.h"
 #include "Animation/AnimNotifies/AnimNotify.h"
-#include "AnimNotify_SocketedGameplayCue.generated.h"
+#include "PWAnimNotify_SocketedGameplayCue.generated.h"
 
 UCLASS(editinlinenew, Const, hideCategories = Object, collapseCategories, Meta = (DisplayName = "GameplayCue Socket"))
-class PWGASCORE_API UAnimNotify_SocketedGameplayCue : public UAnimNotify
+class PWGASCORE_API UPWAnimNotify_SocketedGameplayCue : public UAnimNotify
 {
 	GENERATED_BODY()
 
 public:
 
-	UAnimNotify_SocketedGameplayCue();
+	UPWAnimNotify_SocketedGameplayCue();
 
 	virtual void Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference) override;
 

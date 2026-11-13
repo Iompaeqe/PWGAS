@@ -4,12 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "Abilities/Tasks/AbilityTask.h"
-#include "AbilityTask_PlayMontageAddTagAndWait.generated.h"
+#include "PWAbilityTask_PlayMontageAddTagAndWait.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FMontageWaitDelegate);
 
 UCLASS()
-class PWGASCORE_API UAbilityTask_PlayMontageAddTagAndWait : public UAbilityTask
+class PWGASCORE_API UPWAbilityTask_PlayMontageAddTagAndWait : public UAbilityTask
 {
 	GENERATED_UCLASS_BODY()
 
@@ -50,7 +50,7 @@ class PWGASCORE_API UAbilityTask_PlayMontageAddTagAndWait : public UAbilityTask
 	 */
 	UFUNCTION(BlueprintCallable, Category="Ability|Tasks", meta = (DisplayName="PlayMontageAddTagAndWait",
 		HidePin = "OwningAbility", DefaultToSelf = "OwningAbility", BlueprintInternalUseOnly = "TRUE"))
-	static UAbilityTask_PlayMontageAddTagAndWait* CreatePlayMontageAddTagAndWaitProxy(UGameplayAbility* OwningAbility, FGameplayTagContainer TagsToAdd,
+	static UPWAbilityTask_PlayMontageAddTagAndWait* CreatePlayMontageAddTagAndWaitProxy(UGameplayAbility* OwningAbility, FGameplayTagContainer TagsToAdd,
 		FName TaskInstanceName, UAnimMontage* MontageToPlay, float Rate = 1.f, FName StartSection = NAME_None, bool bStopWhenAbilityEnds = true, float AnimRootMotionTranslationScale = 1.f, float StartTimeSeconds = 0.f);
 
 	virtual void Activate() override;

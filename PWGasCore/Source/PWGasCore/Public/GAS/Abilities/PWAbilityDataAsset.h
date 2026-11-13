@@ -5,10 +5,10 @@
 #include "CoreMinimal.h"
 #include "PWAbilityInfo.h"
 #include "Engine/DataAsset.h"
-#include "AbilityDataAsset.generated.h"
+#include "PWAbilityDataAsset.generated.h"
 
 UCLASS(BlueprintType)
-class PWGASCORE_API UAbilityDataAsset : public UDataAsset
+class PWGASCORE_API UPWAbilityDataAsset : public UDataAsset
 {
 	GENERATED_BODY()
 

@@ -10,7 +10,7 @@
 #include "GameplayTagsEditorModule.h"
 #include "GameplayTagsManager.h"
 #include "AssetRegistry/AssetRegistryModule.h"
-#include "GAS/Abilities/AbilityDataAsset.h"
+#include "GAS/Abilities/PWAbilityDataAsset.h"
 #include "Misc/PackageName.h"
 #include "GAS/Abilities/PWGameplayAbilityBase.h"
 #include "GAS/Abilities/PWModularGameplayAbility.h"
@@ -57,13 +57,13 @@ void FPWGameplayAbility_DetailCustomization::FindOrCreateAbilityData(const UPWGa
 	UClass* AbilityClass = GA->GetClass();
 	if (!AbilityClass->ClassGeneratedBy) return;
 
-	UAbilityDataAsset* AbilityData = nullptr;
+	UPWAbilityDataAsset* AbilityData = nullptr;
 
 	TArray<FAssetData> Assets;
-	FAssetRegistryModule::GetRegistry().GetAssetsByClass(UAbilityDataAsset::StaticClass()->GetClassPathName(), Assets, true);
+	FAssetRegistryModule::GetRegistry().GetAssetsByClass(UPWAbilityDataAsset::StaticClass()->GetClassPathName(), Assets, true);
 	for (const FAssetData& Asset : Assets)
 	{
-		UAbilityDataAsset* Existing = Cast<UAbilityDataAsset>(Asset.GetAsset());
+		UPWAbilityDataAsset* Existing = Cast<UPWAbilityDataAsset>(Asset.GetAsset());
 		if (Existing && Existing->Ability.AbilityClass == AbilityClass)
 		{
 			AbilityData = Existing;
@@ -79,9 +79,9 @@ void FPWGameplayAbility_DetailCustomization::FindOrCreateAbilityData(const UPWGa
 		AssetName = TEXT("DA_") + AssetName;
 
 		const FString Folder = FPackageName::GetLongPackagePath(AbilityClass->GetPackage()->GetName());
-		AbilityData = LoadObject<UAbilityDataAsset>(nullptr, *(Folder / AssetName + TEXT(".") + AssetName), nullptr, LOAD_NoWarn | LOAD_Quiet);
+		AbilityData = LoadObject<UPWAbilityDataAsset>(nullptr, *(Folder / AssetName + TEXT(".") + AssetName), nullptr, LOAD_NoWarn | LOAD_Quiet);
 		if (!AbilityData)
-			AbilityData = Cast<UAbilityDataAsset>(FAssetToolsModule::GetModule().Get().CreateAsset(AssetName, Folder, UAbilityDataAsset::StaticClass(), nullptr));
+			AbilityData = Cast<UPWAbilityDataAsset>(FAssetToolsModule::GetModule().Get().CreateAsset(AssetName, Folder, UPWAbilityDataAsset::StaticClass(), nullptr));
 	}
 
 	if (!AbilityData) return;

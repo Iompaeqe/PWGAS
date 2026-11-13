@@ -4,12 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "Abilities/Tasks/AbilityTask.h"
-#include "TargetDataUnderMouse.generated.h"
+#include "PWAbilityTask_TargetDataUnderMouse.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMouseTargetDataDelegate, const FGameplayAbilityTargetDataHandle&, DataHandle);
 
 UCLASS()
-class PWGASCORE_API UTargetDataUnderMouse : public UAbilityTask
+class PWGASCORE_API UPWAbilityTask_TargetDataUnderMouse : public UAbilityTask
 {
 	GENERATED_BODY()
 
@@ -21,7 +21,7 @@ public:
 	ECollisionChannel TraceChannel;
 
 	UFUNCTION(BlueprintCallable, Category="Ability|Task", meta = (DiplayName = "TargetDataUnderMouse", HidePin = "OwningAbility", DefaultToSelf = "OwningAbility", BlueprintInternalUseOnly = true))
-	static UTargetDataUnderMouse* CreateTargetDataUnderMouse(UGameplayAbility* OwningAbility, ECollisionChannel TraceChannel = ECC_Visibility);
+	static UPWAbilityTask_TargetDataUnderMouse* CreateTargetDataUnderMouse(UGameplayAbility* OwningAbility, ECollisionChannel TraceChannel = ECC_Visibility);
 
 	
 

@@ -6,25 +6,25 @@
 #include "ActiveGameplayEffectHandle.h"
 #include "GameplayTagContainer.h"
 #include "Kismet/BlueprintAsyncActionBase.h"
-#include "WaitCooldownsChange.generated.h"
+#include "PWAsyncTask_WaitCooldownChange.generated.h"
 
 struct FGameplayEffectSpec;
 class UAbilitySystemComponent;
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FCooldownsChangeDelegate, FGameplayTag, GameplayTag, float, TimeRemaining, float, Cooldown);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FCooldownChangeDelegate, float, TimeRemaining, float, Cooldown);
 
 UCLASS(BlueprintType, meta=(ExposedAsyncProxy = "AsyncTask"))
-class PWGASCORE_API UWaitCooldownsChange : public UBlueprintAsyncActionBase
+class PWGASCORE_API UPWAsyncTask_WaitCooldownChange : public UBlueprintAsyncActionBase
 {
 	GENERATED_BODY()
 
 public:
 	UPROPERTY(BlueprintAssignable)
-	FCooldownsChangeDelegate CooldownStarted;
+	FCooldownChangeDelegate CooldownStarted;
 	UPROPERTY(BlueprintAssignable)
-	FCooldownsChangeDelegate CooldownEnded;
+	FCooldownChangeDelegate CooldownEnded;
 
 	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = true))
-	static UWaitCooldownsChange* WaitForCooldownsChange(UAbilitySystemComponent* AbilitySystemComponent, const FGameplayTagContainer InCooldownTags);
+	static UPWAsyncTask_WaitCooldownChange* WaitForCooldownChange(UAbilitySystemComponent* AbilitySystemComponent, const FGameplayTag& InCooldownTag);
 
 	UFUNCTION(BlueprintCallable)
 	void EndTask();
@@ -33,7 +33,7 @@ protected:
 	UPROPERTY()
 	TObjectPtr<UAbilitySystemComponent> ASC;
 
-	FGameplayTagContainer CooldownTags;
+	FGameplayTag CooldownTag;
 
 	void CooldownTagChanged(FGameplayTag GameplayTag, int NewCount) const;
 	void CooldownEffectApplied(UAbilitySystemComponent* AbilitySystemComponent, const FGameplayEffectSpec& Spec, FActiveGameplayEffectHandle Handle) const;
