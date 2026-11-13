@@ -15,6 +15,8 @@
 #include "GAS/Abilities/Derived/PWGameplayAbility_Charged.h"
 #include "PWAttributeSetBase.h"
 #include "Core/PWTeamsSubsystem.h"
+#include "Agents/PWTeamAgent.h"
+#include "Agents/PWTeamAgentComponent.h"
 #include "PWTestTypes.generated.h"
 
 UCLASS(NotBlueprintable, HideDropdown)
@@ -255,4 +257,30 @@ public:
 		LastOldFaction = OldFaction;
 		LastNewFaction = NewFaction;
 	}
+
+	int32 AgentOwnerChanges = 0;
+	int32 AgentFactionChanges = 0;
+	FName LastAgentFaction;
+
+	UFUNCTION()
+	void OnAgentOwnerChanged(UPWTeamAgentComponent* Agent, FPWTeamParticipantHandle OldOwner, FPWTeamParticipantHandle NewOwner) { ++AgentOwnerChanges; }
+	UFUNCTION()
+	void OnAgentFactionChanged(UPWTeamAgentComponent* Agent, FName OldFaction, FName NewFaction)
+	{
+		++AgentFactionChanges;
+		LastAgentFaction = NewFaction;
+	}
+};
+
+// Stands in for a character whose identity lives on another actor, such as its player state.
+UCLASS(NotBlueprintable, HideDropdown)
+class APWTestAgentProxy : public AActor, public IPWTeamAgent
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY()
+	TObjectPtr<UPWTeamAgentComponent> Agent;
+
+	virtual UPWTeamAgentComponent* GetTeamAgent_Implementation() const override { return Agent; }
 };
