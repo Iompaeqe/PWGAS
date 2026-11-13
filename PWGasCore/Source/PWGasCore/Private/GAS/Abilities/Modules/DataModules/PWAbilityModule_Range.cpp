@@ -56,5 +56,14 @@ void UPWAbilityModule_Range::ExtendParams(USpellParams* Params) const
 	if (!Params)
 		return;
 
-	Params->More->AddFloat("Range", GetRangeValue());
+	Params->More->AddFloat(PWParamKeys::Range.ToString(), GetRangeValue());
+}
+
+bool UPWAbilityModule_Range::GetValue(const FName Key, float& Out) const
+{
+	if (Key != PWParamKeys::Range)
+		return false;
+
+	Out = GetRangeValue();
+	return true;
 }

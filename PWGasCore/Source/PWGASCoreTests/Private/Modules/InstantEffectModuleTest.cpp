@@ -82,6 +82,30 @@ bool FInstantEffectAtLocationTest::RunTest(const FString& Parameters)
 	TestEqual("The caster was the resolve point", Resolver->LastLocation, Test.Actor->GetActorLocation());
 	Module->RemoveEffects();
 
+	UPWAbilityModule_Radius* RadiusModule = NewObject<UPWAbilityModule_Radius>(Ability);
+	RadiusModule->Radius = 300.f;
+	RadiusModule->Initialize(Ability);
+	Ability->DataModules.Add(RadiusModule);
+
+	FPWTargetingResult AtCaster = ResolverModule->ResolveAroundCaster();
+	TestEqual("Inside the ability a policy reads the value from its data module", Resolver->LastRadius, 300.f);
+	TestEqual("A key no module owns reads as zero", Resolver->GetFloat("Nothing"), 0.f);
+
+	USpellParams* Params = Ability->MakeSpellParams();
+	RadiusModule->ExtendParams(Params);
+	ResolverModule->ExtendParams(Params);
+	RadiusModule->Radius = 900.f;
+
+	const IPWSpellTargetProvider* Provider = Cast<IPWSpellTargetProvider>(Params->TargetResolver);
+	TArray<AActor*> ImpactTargets;
+	AActor* SpellActor = TargetASC->GetOwner();
+	if (TestNotNull("The resolver travels in the spell params", Provider))
+		Provider->GetImpactTargets(SpellActor, Params, FHitResult(), ImpactTargets);
+	TestEqual("A spawned actor gets the resolver's targets", ImpactTargets.Num(), 1);
+	TestEqual("It resolved where the spawned actor is", Resolver->LastLocation, SpellActor->GetActorLocation());
+	TestEqual("On a spawned actor the value comes from the spell params", Resolver->LastRadius, 300.f);
+	Ability->DataModules.Remove(RadiusModule);
+
 	UPWAbilityModule_Targeting* Targeting = NewObject<UPWAbilityModule_Targeting>(Ability);
 	Targeting->Initialize(Ability);
 	Ability->ControlModules.Add(Targeting);

@@ -14,14 +14,10 @@ class PWGASCORE_API USphereTargetResolver : public UPWTargetResolver
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(BlueprintReadWrite, Category="Targeting")
-	float Radius = 400.f;
-
 	// Object types the sphere looks for; everything but Pawn is there for damageable props.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Targeting")
 	TArray<TEnumAsByte<ECollisionChannel>> ObjectChannels = {ECC_Pawn, ECC_WorldDynamic, ECC_PhysicsBody, ECC_Destructible};
 
-	virtual void Initialize_Implementation(UPWModularGameplayAbility* InOwner) override;
 	
 	virtual void Resolve_Implementation(const AActor* Actor, const FPWTargetingResult& Target, TArray<AActor*>& OutActors) const override;
 

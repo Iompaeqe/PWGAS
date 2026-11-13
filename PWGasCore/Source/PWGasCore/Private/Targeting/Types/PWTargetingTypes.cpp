@@ -8,6 +8,10 @@
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/Actor.h"
 #include "Targeting/Data/PWTargetingData.h"
+#include "Ability/SpellParams.h"
+#include "MultiDataArray.h"
+#include "GAS/Abilities/PWModularGameplayAbility.h"
+#include "GAS/Abilities/Modules/DataModules/PWDataModule.h"
 
 void UPWTargetPolicyBase::Initialize_Implementation(UPWModularGameplayAbility* InOwner)
 {
@@ -68,3 +72,38 @@ void UPWTargetResolver::Resolve_Implementation(const AActor* Actor, const FPWTar
 {
 }
 
+float UPWTargetPolicyBase::GetFloat(const FName Key) const
+{
+	if (ActiveParams)
+		return ActiveParams->More ? ActiveParams->More->GetFloat(Key.ToString()) : 0.f;
+
+	float Value = 0.f;
+	if (OwnerAbility)
+		for (const UPWDataModule* Module : OwnerAbility->DataModules)
+			if (Module && Module->GetValue(Key, Value))
+				break;
+	return Value;
+}
+
+void UPWTargetResolver::GetImpactTargets(const AActor* SpellActor, const USpellParams* Params, const FHitResult& Hit, TArray<AActor*>& OutTargets) const
+{
+	if (!SpellActor)
+		return;
+
+	TGuardValue<const USpellParams*> Guard(ActiveParams, Params);
+
+	FPWTargetingResult Target;
+	Target.Location = SpellActor->GetActorLocation();
+	Target.Rotation = SpellActor->GetActorRotation();
+	Target.Hit = Hit;
+	Target.bHasHit = Hit.GetActor() != nullptr;
+
+	// The caster may be gone by the time the spell lands.
+	const AActor* Caster = Params && Params->SourceAvatar ? Params->SourceAvatar.Get() : SpellActor;
+
+	TArray<AActor*> Found;
+	Resolve(Caster, Target, Found);
+	for (AActor* Actor : Found)
+		if (IsValid(Actor))
+			OutTargets.AddUnique(Actor);
+}

@@ -28,4 +28,7 @@ void UPWActionModule::ExtendParamsWithData(USpellParams* Params) const
 	{
 		Data.Get()->ExtendParams(Params);
 	}
+	for (const UPWControlModule* Control : OwnerAbility->ControlModules)
+		if (Control)
+			Control->ExtendParams(Params);
 }

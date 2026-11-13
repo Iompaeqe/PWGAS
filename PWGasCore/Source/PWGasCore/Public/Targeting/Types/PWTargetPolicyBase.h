@@ -4,9 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
+#include "Ability/PWSpellTargetProvider.h"
 #include "PWTargetPolicyBase.generated.h"
 
 class UPWDataModule;
+class USpellParams;
 class UPWModularGameplayAbility;
 struct FPWTargetingResult;
 
@@ -54,6 +56,16 @@ class PWGASCORE_API UPWTargetPolicyBase : public UObject
 public:
 	UPROPERTY(BlueprintReadOnly)
 	TObjectPtr<UPWModularGameplayAbility> OwnerAbility = nullptr;
+
+	// Reads a value a data module provides, such as PWParamKeys::Radius. Inside the ability it asks the module; on a spawned actor it reads the spell params.
+	UFUNCTION(BlueprintPure, Category = "Targeting")
+	float GetFloat(FName Key) const;
+
+protected:
+	// Set while a spawned actor is asking for targets.
+	mutable const USpellParams* ActiveParams = nullptr;
+
+public:
 	
 	/**
 	 * Initialize any custom variables here.
@@ -109,11 +121,13 @@ public:
  * Resolves targeting into concrete actors.
  */
 UCLASS(Abstract, Blueprintable, EditInlineNew, DefaultToInstanced)
-class PWGASCORE_API UPWTargetResolver : public UPWTargetPolicyBase
+class PWGASCORE_API UPWTargetResolver : public UPWTargetPolicyBase, public IPWSpellTargetProvider
 {
 	GENERATED_BODY()
 
 public:
+	virtual void GetImpactTargets(const AActor* SpellActor, const USpellParams* Params, const FHitResult& Hit, TArray<AActor*>& OutTargets) const override;
+
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Targeting")
 	void Resolve(const AActor* Actor, const FPWTargetingResult& Target, TArray<AActor*>& OutActors) const;
 	virtual void Resolve_Implementation(const AActor* Actor, const FPWTargetingResult& Target, TArray<AActor*>& OutActors) const;

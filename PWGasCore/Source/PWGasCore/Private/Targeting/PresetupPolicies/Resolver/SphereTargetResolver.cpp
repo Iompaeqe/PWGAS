@@ -4,18 +4,14 @@
 #include "Targeting/PresetupPolicies/Resolver/SphereTargetResolver.h"
 
 #include "Engine/OverlapResult.h"
+#include "Ability/SpellParams.h"
 #include "GAS/Abilities/PWModularGameplayAbility.h"
 #include "GAS/Abilities/Modules/DataModules/PWAbilityModule_Radius.h"
 
-void USphereTargetResolver::Initialize_Implementation(UPWModularGameplayAbility* InOwner)
-{
-	Super::Initialize_Implementation(InOwner);
-	Radius = OwnerAbility->GetRadiusModule()->GetRadiusValue();
-}
-
 void USphereTargetResolver::Resolve_Implementation(const AActor* Actor, const FPWTargetingResult& Target, TArray<AActor*>& OutActors) const
 {
-	if (!Actor || !Actor->GetWorld()) return;
+	const float Radius = GetFloat(PWParamKeys::Radius);
+	if (!Actor || !Actor->GetWorld() || Radius <= 0.f) return;
 
 	TArray<FOverlapResult> Overlaps;
 	FCollisionShape Sphere = FCollisionShape::MakeSphere(Radius);

@@ -112,10 +112,12 @@ public:
 	TArray<TObjectPtr<AActor>> Actors;
 
 	mutable FVector LastLocation = FVector::ZeroVector;
+	mutable float LastRadius = 0.f;
 
 	virtual void Resolve_Implementation(const AActor* Actor, const FPWTargetingResult& Target, TArray<AActor*>& OutActors) const override
 	{
 		LastLocation = Target.Location;
+		LastRadius = GetFloat(PWParamKeys::Radius);
 		OutActors.Append(Actors);
 	}
 };

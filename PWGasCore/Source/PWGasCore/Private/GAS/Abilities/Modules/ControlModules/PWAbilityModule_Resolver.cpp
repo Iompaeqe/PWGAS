@@ -5,6 +5,7 @@
 #include "GAS/Abilities/PWModularGameplayAbility.h"
 #include "PWGasCore/Public/Targeting/Types/PWTargetPolicyBase.h"
 #include "Targeting/Data/PWTargetingData.h"
+#include "Ability/SpellParams.h"
 
 void UPWAbilityModule_Resolver::ResolveTargets(FPWTargetingResult& InOut) const
 {
@@ -39,4 +40,10 @@ void UPWAbilityModule_Resolver::GetRequiredDataModules_Implementation(TArray<TSu
 {
 	if (Resolver)
 		Resolver->GetRequiredDataModules(OutRequiredModules);
+}
+
+void UPWAbilityModule_Resolver::ExtendParams(USpellParams* Params) const
+{
+	if (Params)
+		Params->TargetResolver = Resolver;
 }

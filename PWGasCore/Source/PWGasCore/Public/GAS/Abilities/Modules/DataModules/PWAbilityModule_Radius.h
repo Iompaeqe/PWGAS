@@ -21,5 +21,6 @@ public:
 	float GetRadiusValue() const;
 
 	virtual void ExtendParams(USpellParams* Params) const override;
+	virtual bool GetValue(FName Key, float& Out) const override;
 	virtual void Initialize(UPWModularGameplayAbility* InOwner) override;
 };
