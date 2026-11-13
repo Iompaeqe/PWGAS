@@ -4,8 +4,8 @@
 #include "PWTestTypes.h"
 #include "AIController.h"
 #include "GAS/Abilities/Modules/ActionModules/PWAbilityModule_Projectile.h"
-#include "Targeting/PresetupPolicies/Targeting/ScreenCenterTargeting.h"
-#include "Targeting/PresetupPolicies/Targeting/SelfTargeting.h"
+#include "Targeting/PresetupPolicies/Targeting/PWTargeting_ScreenCenter.h"
+#include "Targeting/PresetupPolicies/Targeting/PWTargeting_Self.h"
 #include "Misc/AutomationTest.h"
 
 #if WITH_DEV_AUTOMATION_TESTS
@@ -25,7 +25,7 @@ bool FAITargetingTest::RunTest(const FString& Parameters)
 
 	UPWTestModularAbility* Ability = Test.ActivateAbility<UPWTestModularAbility>();
 	UPWAbilityModule_Targeting* Targeting = NewObject<UPWAbilityModule_Targeting>(Ability);
-	Targeting->TargetingSource = NewObject<UScreenCenterTargeting>(Targeting);
+	Targeting->TargetingSource = NewObject<UPWTargeting_ScreenCenter>(Targeting);
 	Targeting->Initialize(Ability);
 	Ability->ControlModules.Add(Targeting);
 
@@ -38,11 +38,11 @@ bool FAITargetingTest::RunTest(const FString& Parameters)
 	TestEqual("It aims at the focus actor", Result.Location, Enemy->GetActorLocation());
 	TestTrue("The focus actor is the hit actor", Result.Hit.GetActor() == Enemy);
 
-	Targeting->TargetingSource = NewObject<USelfTargeting>(Targeting);
+	Targeting->TargetingSource = NewObject<UPWTargeting_Self>(Targeting);
 	TestTrue("Self targeting computes", Targeting->ComputeTarget(Result));
 	TestEqual("Self targeting stays on the caster", Result.Location, Pawn->GetActorLocation());
 
-	Targeting->TargetingSource = NewObject<UScreenCenterTargeting>(Targeting);
+	Targeting->TargetingSource = NewObject<UPWTargeting_ScreenCenter>(Targeting);
 	UPWAbilityModule_Projectile* Projectile = NewObject<UPWAbilityModule_Projectile>(Ability);
 	Projectile->Initialize(Ability);
 	Projectile->ActorClass = APWTestSpellActor::StaticClass();

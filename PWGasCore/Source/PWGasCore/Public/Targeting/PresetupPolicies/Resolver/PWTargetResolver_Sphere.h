@@ -6,10 +6,10 @@
 #include "Targeting/Data/PWTargetingData.h"
 #include "PWGasCore/Public/Targeting/Types/PWTargetPolicyBase.h"
 #include "UObject/Object.h"
-#include "SphereTargetResolver.generated.h"
+#include "PWTargetResolver_Sphere.generated.h"
 
 UCLASS()
-class PWGASCORE_API USphereTargetResolver : public UPWTargetResolver
+class PWGASCORE_API UPWTargetResolver_Sphere : public UPWTargetResolver
 {
 	GENERATED_BODY()
 

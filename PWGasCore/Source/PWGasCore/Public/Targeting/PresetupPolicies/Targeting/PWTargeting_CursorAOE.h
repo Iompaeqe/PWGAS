@@ -6,10 +6,10 @@
 #include "Targeting/Data/PWTargetingData.h"
 #include "PWGasCore/Public/Targeting/Types/PWTargetPolicyBase.h"
 #include "UObject/Object.h"
-#include "CursorAOETargeting.generated.h"
+#include "PWTargeting_CursorAOE.generated.h"
 
 UCLASS()
-class PWGASCORE_API UCursorAOETargeting : public UPWTargetingSource
+class PWGASCORE_API UPWTargeting_CursorAOE : public UPWTargetingSource
 {
 	GENERATED_BODY()
 public:

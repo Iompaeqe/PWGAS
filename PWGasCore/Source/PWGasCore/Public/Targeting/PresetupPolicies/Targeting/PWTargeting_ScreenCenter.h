@@ -7,10 +7,10 @@
 #include "Targeting/Data/PWTargetingData.h"
 #include "PWGasCore/Public/Targeting/Types/PWTargetPolicyBase.h"
 #include "UObject/Object.h"
-#include "ScreenCenterTargeting.generated.h"
+#include "PWTargeting_ScreenCenter.generated.h"
 
 UCLASS()
-class PWGASCORE_API UScreenCenterTargeting : public UPWTargetingSource
+class PWGASCORE_API UPWTargeting_ScreenCenter : public UPWTargetingSource
 {
 	GENERATED_BODY()
 

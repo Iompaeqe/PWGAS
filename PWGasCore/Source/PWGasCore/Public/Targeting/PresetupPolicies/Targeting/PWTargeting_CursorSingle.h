@@ -6,10 +6,10 @@
 #include "Targeting/Data/PWTargetingData.h"
 #include "Targeting/Types/PWTargetPolicyBase.h"
 #include "UObject/Object.h"
-#include "CursorSingleTargeting.generated.h"
+#include "PWTargeting_CursorSingle.generated.h"
 
 UCLASS()
-class PWGASCORE_API UCursorSingleTargeting : public UPWTargetingSource
+class PWGASCORE_API UPWTargeting_CursorSingle : public UPWTargetingSource
 {
 	GENERATED_BODY()
 public:

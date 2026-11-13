@@ -4,7 +4,7 @@
 #include "PWTestTypes.h"
 #include "Abilities/GameplayAbilityTargetTypes.h"
 #include "Targeting/Data/PWTargetingData.h"
-#include "Targeting/PresetupPolicies/Targeting/SelfTargeting.h"
+#include "Targeting/PresetupPolicies/Targeting/PWTargeting_Self.h"
 #include "Misc/AutomationTest.h"
 
 #if WITH_DEV_AUTOMATION_TESTS
@@ -125,7 +125,7 @@ bool FInstantEffectAtLocationTest::RunTest(const FString& Parameters)
 	Module->ApplyEffectsAtLocation(FVector(100, 0, 0));
 	TestEqual("A target resolved twice is hit once", TargetASC->GetGameplayEffectCount(UPWTestEffect::StaticClass(), nullptr), 3);
 
-	USelfTargeting* Source = NewObject<USelfTargeting>(Targeting);
+	UPWTargeting_Self* Source = NewObject<UPWTargeting_Self>(Targeting);
 	Source->Offset = FVector(50, 0, 0);
 	Targeting->TargetingSource = Source;
 

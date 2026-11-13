@@ -7,10 +7,10 @@
 #include "GameFramework/PlayerController.h"
 #include "Targeting/Data/PWTargetingData.h"
 #include "PWGasCore/Public/Targeting/Types/PWTargetPolicyBase.h"
-#include "SelfTargeting.generated.h"
+#include "PWTargeting_Self.generated.h"
 
 UCLASS()
-class PWGASCORE_API USelfTargeting : public UPWTargetingSource
+class PWGASCORE_API UPWTargeting_Self : public UPWTargetingSource
 {
 	GENERATED_BODY()
 

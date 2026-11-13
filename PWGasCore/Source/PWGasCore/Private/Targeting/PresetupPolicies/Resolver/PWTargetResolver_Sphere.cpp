@@ -1,14 +1,14 @@
 ﻿// Copyright (c) 2025 Metehan Goksel Kurtulan (Iompaeqe)
 
 
-#include "Targeting/PresetupPolicies/Resolver/SphereTargetResolver.h"
+#include "Targeting/PresetupPolicies/Resolver/PWTargetResolver_Sphere.h"
 
 #include "Engine/OverlapResult.h"
 #include "Ability/SpellParams.h"
 #include "GAS/Abilities/PWModularGameplayAbility.h"
 #include "GAS/Abilities/Modules/DataModules/PWAbilityModule_Radius.h"
 
-void USphereTargetResolver::Resolve_Implementation(const AActor* Actor, const FPWTargetingResult& Target, TArray<AActor*>& OutActors) const
+void UPWTargetResolver_Sphere::Resolve_Implementation(const AActor* Actor, const FPWTargetingResult& Target, TArray<AActor*>& OutActors) const
 {
 	const float Radius = GetFloat(PWParamKeys::Radius);
 	if (!Actor || !Actor->GetWorld() || Radius <= 0.f) return;
@@ -28,7 +28,7 @@ void USphereTargetResolver::Resolve_Implementation(const AActor* Actor, const FP
 	}
 }
 
-void USphereTargetResolver::GetRequiredDataModules_Implementation(TArray<TSubclassOf<UPWDataModule>>& OutRequiredModules)
+void UPWTargetResolver_Sphere::GetRequiredDataModules_Implementation(TArray<TSubclassOf<UPWDataModule>>& OutRequiredModules)
 {
 	Super::GetRequiredDataModules_Implementation(OutRequiredModules);
 

@@ -6,10 +6,10 @@
 #include "Targeting/Data/PWTargetingData.h"
 #include "PWGasCore/Public/Targeting/Types/PWTargetPolicyBase.h"
 #include "UObject/Object.h"
-#include "ClampRangeFromPawn.generated.h"
+#include "PWRangePolicy_ClampFromPawn.generated.h"
 
 UCLASS()
-class PWGASCORE_API UClampRangeFromPawn : public UPWRangePolicy
+class PWGASCORE_API UPWRangePolicy_ClampFromPawn : public UPWRangePolicy
 {
 	GENERATED_BODY()
 
