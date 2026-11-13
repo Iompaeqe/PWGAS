@@ -25,6 +25,9 @@ void UPWAbilityModule_Precast::StartPrecast()
 		FName OriginSocket = NAME_None;
 		FPWProjectileSimConfig ProjectileConfig;
 		ProjectileConfig.InitialSpeed = 0.f;
+		// Area and range come from their modules; an ability without them has neither.
+		float PreviewRadius = 0.f;
+		float PreviewRange = 0.f;
 
 		if (const UPWAbilityModule_Targeting* TargetingModule = OwnerAbility->GetTargetingModule())
 		{

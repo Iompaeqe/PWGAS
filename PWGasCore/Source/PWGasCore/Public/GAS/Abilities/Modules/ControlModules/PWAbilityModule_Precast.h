@@ -21,13 +21,6 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TObjectPtr<UPWPrecastVisualizer> Visualizer;
 
-	// Radius shown while aiming when the ability has no radius module.
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	float PreviewRadius = 150.f;
-	// Range used while aiming when the ability has no range module.
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	float PreviewRange = 9999.f;
-
 	// Which of the ability's Animation Tags is the montage that releases the projectile; -1 previews from where the hand is now.
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Release Pose", meta=(ClampMin="-1"))
 	int32 ReleaseAnimationIndex = INDEX_NONE;

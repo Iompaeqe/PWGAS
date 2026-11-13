@@ -31,8 +31,6 @@ struct FPWProjectileSimConfig
 	UPROPERTY(EditAnywhere, BlueprintReadWrite) float InitialSpeed = 1200.f;
 	// Gravity used for the preview path; 0 uses world gravity times the projectile actor's gravity scale.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite) float GravityZOverride = 0.f;
-	// Collision radius of the preview trace when the projectile actor has no sphere to read it from.
-	UPROPERTY(EditAnywhere, BlueprintReadWrite) float ProjectileRadius = 8.f;
 	// Seconds of flight the precast preview simulates.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite) float MaxSimTime = 2.f;
 	// Simulation steps per second for the preview; higher is smoother and costs more.

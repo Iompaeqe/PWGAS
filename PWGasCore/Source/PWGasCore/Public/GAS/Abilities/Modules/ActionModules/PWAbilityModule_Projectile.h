@@ -22,10 +22,6 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	float GravityZOverride = 0.f;
 
-	// Collision radius of the projectile.
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	float ProjectileRadius = 8.f;
-
 	// Distance the projectile is meant to travel; 0 leaves it to the actor.
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	float Range = 0.f;
@@ -37,7 +33,7 @@ class PWGASCORE_API UPWAbilityModule_Projectile : public UPWAbilityModule_Actor
 	GENERATED_BODY()
 
 public:
-	// Speed, gravity and size of the projectile, also used to draw its precast path.
+	// Speed and gravity of the projectile, also used to draw its precast path.
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	FPWProjectileSimConfig ProjectileConfig;
 	
