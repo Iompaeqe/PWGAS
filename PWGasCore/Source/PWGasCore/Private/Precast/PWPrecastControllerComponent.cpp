@@ -19,7 +19,7 @@
 #include "Libraries/PWGasFunctions.h"
 #include "Ability/PWSpellCollision.h"
 #include "Ability/PWAffectable.h"
-#include "TeamFunctions.h"
+#include "PWTeamFunctions.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/GameplayStaticsTypes.h"
 #include "Precast/Visualizers/PWPrecastVisualizer.h"
@@ -275,7 +275,7 @@ void UPWPrecastControllerComponent::GatherTargets(const TArray<FPWTargetingResul
 				continue;
 			if (!UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(Actor) && !IPWAffectable::Find(Actor))
 				continue;
-			if (Effect && !UTeamFunctions::MatchesMask(Pawn, Actor, Effect->GetCombinedMask()))
+			if (Effect && !UPWTeamFunctions::MatchesMask(Pawn, Actor, Effect->GetCombinedMask()))
 				continue;
 			OutTargets.Add(Actor);
 		}
@@ -316,7 +316,7 @@ FPWPrecastPath UPWPrecastControllerComponent::SimulatePath(const FVector& Start,
 			return false;
 		if (!IPWAffectable::Find(Actor))
 			return true;
-		return !ActorModule || !Pawn || UTeamFunctions::MatchesMask(Pawn, Actor, ActorModule->TargetMask);
+		return !ActorModule || !Pawn || UPWTeamFunctions::MatchesMask(Pawn, Actor, ActorModule->TargetMask);
 	};
 
 	FVector Position = Start;

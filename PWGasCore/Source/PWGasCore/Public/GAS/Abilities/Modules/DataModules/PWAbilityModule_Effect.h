@@ -31,8 +31,8 @@ struct FPWEffectGroup
 	GENERATED_BODY()
 
 	// Relations that receive these effects; anyone outside the mask is skipped.
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(Bitmask, BitmaskEnum="/Script/PWSharedTypes.ERelationMask"))
-	int32 TargetMask = (int32)ERelationMask::All;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(Bitmask, BitmaskEnum="/Script/PWSharedTypes.EPWRelationMask"))
+	int32 TargetMask = (int32)EPWRelationMask::All;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<FPWEffectEntry> Effects;
@@ -62,7 +62,7 @@ public:
 	TArray<FPWEffectGroup> EffectGroups;
 
 	UPROPERTY()
-	int32 TargetMask_DEPRECATED = (int32)ERelationMask::All;
+	int32 TargetMask_DEPRECATED = (int32)EPWRelationMask::All;
 	UPROPERTY()
 	TArray<FPWEffectEntry> Effects_DEPRECATED;
 

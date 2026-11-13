@@ -2,8 +2,8 @@
 
 #include "PWTestWorld.h"
 #include "PWTestTypes.h"
-#include "TeamComponent.h"
-#include "TeamFunctions.h"
+#include "PWTeamComponent.h"
+#include "PWTeamFunctions.h"
 #include "Ability/PWSpellParams.h"
 #include "Misc/AutomationTest.h"
 
@@ -12,7 +12,7 @@
 static UPWAbilitySystemComponent* SpawnTeamMember(const FPWTestWorld& Test, const int32 TeamId)
 {
 	UPWAbilitySystemComponent* ASC = Test.SpawnASC();
-	UTeamComponent* Team = NewObject<UTeamComponent>(ASC->GetOwner());
+	UPWTeamComponent* Team = NewObject<UPWTeamComponent>(ASC->GetOwner());
 	Team->RegisterComponent();
 	Team->TeamId = TeamId;
 	return ASC;
@@ -27,22 +27,22 @@ bool FTeamFunctionsRelationTest::RunTest(const FString& Parameters)
 	const AActor* RedAlly = SpawnTeamMember(Test, 1)->GetOwner();
 	const AActor* Blue = SpawnTeamMember(Test, 2)->GetOwner();
 
-	TestEqual("Team id", UTeamFunctions::GetTeamId(Red), 1);
-	TestEqual("No team", UTeamFunctions::GetTeamId(Test.Actor), 0);
+	TestEqual("Team id", UPWTeamFunctions::GetTeamId(Red), 1);
+	TestEqual("No team", UPWTeamFunctions::GetTeamId(Test.Actor), 0);
 
-	TestEqual("Self", UTeamFunctions::GetRelation(Red, Red), ERelation::Self);
-	TestEqual("Ally", UTeamFunctions::GetRelation(Red, RedAlly), ERelation::Ally);
-	TestEqual("Enemy", UTeamFunctions::GetRelation(Red, Blue), ERelation::Enemy);
-	TestEqual("No team is neutral", UTeamFunctions::GetRelation(Red, Test.Actor), ERelation::Neutral);
-	TestEqual("A missing actor is unknown", UTeamFunctions::GetRelation(Red, nullptr), ERelation::Unknown);
+	TestEqual("Self", UPWTeamFunctions::GetRelation(Red, Red), EPWRelation::Self);
+	TestEqual("Ally", UPWTeamFunctions::GetRelation(Red, RedAlly), EPWRelation::Ally);
+	TestEqual("Enemy", UPWTeamFunctions::GetRelation(Red, Blue), EPWRelation::Enemy);
+	TestEqual("No team is neutral", UPWTeamFunctions::GetRelation(Red, Test.Actor), EPWRelation::Neutral);
+	TestEqual("A missing actor is unknown", UPWTeamFunctions::GetRelation(Red, nullptr), EPWRelation::Unknown);
 
-	const uint8 EnemyMask = static_cast<uint8>(ERelationMask::Enemy);
-	TestTrue("Enemy matches enemy mask", UTeamFunctions::MatchesMask(Red, Blue, EnemyMask));
-	TestFalse("Ally does not", UTeamFunctions::MatchesMask(Red, RedAlly, EnemyMask));
-	TestFalse("Self does not", UTeamFunctions::MatchesMask(Red, Red, EnemyMask));
-	TestFalse("Neutral does not match the enemy mask", UTeamFunctions::MatchesMask(Red, Test.Actor, EnemyMask));
-	TestTrue("Neutral matches the neutral mask", UTeamFunctions::MatchesMask(Red, Test.Actor, static_cast<uint8>(ERelationMask::Neutral)));
-	TestTrue("Neutral matches enemy plus neutral", UTeamFunctions::MatchesMask(Red, Test.Actor, static_cast<uint8>(ERelationMask::Enemy | ERelationMask::Neutral)));
+	const uint8 EnemyMask = static_cast<uint8>(EPWRelationMask::Enemy);
+	TestTrue("Enemy matches enemy mask", UPWTeamFunctions::MatchesMask(Red, Blue, EnemyMask));
+	TestFalse("Ally does not", UPWTeamFunctions::MatchesMask(Red, RedAlly, EnemyMask));
+	TestFalse("Self does not", UPWTeamFunctions::MatchesMask(Red, Red, EnemyMask));
+	TestFalse("Neutral does not match the enemy mask", UPWTeamFunctions::MatchesMask(Red, Test.Actor, EnemyMask));
+	TestTrue("Neutral matches the neutral mask", UPWTeamFunctions::MatchesMask(Red, Test.Actor, static_cast<uint8>(EPWRelationMask::Neutral)));
+	TestTrue("Neutral matches enemy plus neutral", UPWTeamFunctions::MatchesMask(Red, Test.Actor, static_cast<uint8>(EPWRelationMask::Enemy | EPWRelationMask::Neutral)));
 
 	return true;
 }
@@ -63,9 +63,9 @@ bool FEffectModuleTargetMaskTest::RunTest(const FString& Parameters)
 	if (!TestNotNull("Effect module", Effect))
 		return false;
 
-	Effect->EffectGroups[0].TargetMask = static_cast<int32>(ERelationMask::Enemy);
+	Effect->EffectGroups[0].TargetMask = static_cast<int32>(EPWRelationMask::Enemy);
 	FPWEffectGroup& AllyGroup = Effect->EffectGroups.AddDefaulted_GetRef();
-	AllyGroup.TargetMask = static_cast<int32>(ERelationMask::Ally);
+	AllyGroup.TargetMask = static_cast<int32>(EPWRelationMask::Ally);
 	AllyGroup.Effects.Add({UPWTestDurationEffect::StaticClass(), 1});
 
 	Effect->ApplyEffects(Caster, Caster);
@@ -77,7 +77,7 @@ bool FEffectModuleTargetMaskTest::RunTest(const FString& Parameters)
 	TestEqual("Enemy hit", Enemy->GetGameplayEffectCount(UPWTestEffect::StaticClass(), nullptr), 1);
 	TestEqual("Ally takes the ally group", Ally->GetGameplayEffectCount(UPWTestDurationEffect::StaticClass(), nullptr), 1);
 	TestEqual("Enemy skipped by the ally group", Enemy->GetGameplayEffectCount(UPWTestDurationEffect::StaticClass(), nullptr), 0);
-	TestEqual("Combined mask", Effect->GetCombinedMask(), static_cast<int32>(ERelationMask::Enemy | ERelationMask::Ally));
+	TestEqual("Combined mask", Effect->GetCombinedMask(), static_cast<int32>(EPWRelationMask::Enemy | EPWRelationMask::Ally));
 
 	return true;
 }

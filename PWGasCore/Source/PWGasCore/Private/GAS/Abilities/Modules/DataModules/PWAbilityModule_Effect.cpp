@@ -8,7 +8,7 @@
 #include "GAS/Abilities/PWModularGameplayAbility.h"
 #include "Ability/PWAffectable.h"
 #include "Libraries/PWGasFunctions.h"
-#include "TeamFunctions.h"
+#include "PWTeamFunctions.h"
 
 namespace
 {
@@ -38,7 +38,7 @@ void UPWEffectSpellParams::ApplyEffectsToTarget(UAbilitySystemComponent* SourceA
 
 	for (const FPWEffectGroup& Group : Groups)
 	{
-		if (!UTeamFunctions::MatchesMask(SourceASC->GetAvatarActor(), TargetASC->GetAvatarActor(), Group.TargetMask))
+		if (!UPWTeamFunctions::MatchesMask(SourceASC->GetAvatarActor(), TargetASC->GetAvatarActor(), Group.TargetMask))
 			continue;
 		for (const FPWEffectEntry& Entry : Group.Effects)
 			ApplyEntry(SourceASC, TargetASC, Entry, AbilityLevel);
@@ -84,7 +84,7 @@ void UPWAbilityModule_Effect::ApplyEffects(UAbilitySystemComponent* SourceASC, U
 
 	for (const FPWEffectGroup& Group : EffectGroups)
 	{
-		if (!UTeamFunctions::MatchesMask(SourceASC->GetAvatarActor(), TargetASC->GetAvatarActor(), Group.TargetMask))
+		if (!UPWTeamFunctions::MatchesMask(SourceASC->GetAvatarActor(), TargetASC->GetAvatarActor(), Group.TargetMask))
 			continue;
 
 		for (const FPWEffectEntry& Entry : Group.Effects)
@@ -124,7 +124,7 @@ void UPWAbilityModule_Effect::ApplyEffectsToActor(UAbilitySystemComponent* Sourc
 	}
 
 	UObject* Receiver = IPWAffectable::Find(Target);
-	if (!Receiver || !OwnerAbility || !UTeamFunctions::MatchesMask(SourceASC->GetAvatarActor(), Target, GetCombinedMask()))
+	if (!Receiver || !OwnerAbility || !UPWTeamFunctions::MatchesMask(SourceASC->GetAvatarActor(), Target, GetCombinedMask()))
 		return;
 
 	UPWSpellParams* Params = OwnerAbility->MakeSpellParams();

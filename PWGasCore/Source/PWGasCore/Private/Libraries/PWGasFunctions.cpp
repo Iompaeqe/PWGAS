@@ -9,7 +9,7 @@
 #include "Ability/PWSpellParams.h"
 #include "GAS/Abilities/Modules/DataModules/PWAbilityModule_Effect.h"
 #include "GAS/ASC/PWAbilitySystemComponent.h"
-#include "TeamFunctions.h"
+#include "PWTeamFunctions.h"
 
 bool UPWGasFunctions::ApplyEffects(UPWAbilitySystemComponent* ASC, const UPWSpellParams* SpellParams)
 {
@@ -34,7 +34,7 @@ TArray<FPWEffectModifierValue> UPWGasFunctions::GetModifierValuesFromEffects(con
 
 	for (const FPWEffectGroup& Group : EffectParams->Groups)
 	{
-		if (Target && !UTeamFunctions::MatchesMask(SpellParams->SourceAvatar, Target, Group.TargetMask))
+		if (Target && !UPWTeamFunctions::MatchesMask(SpellParams->SourceAvatar, Target, Group.TargetMask))
 			continue;
 
 		for (const FPWEffectEntry& Effect : Group.Effects)
