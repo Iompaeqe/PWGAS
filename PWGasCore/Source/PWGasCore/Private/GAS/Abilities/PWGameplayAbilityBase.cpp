@@ -3,6 +3,7 @@
 
 #include "GAS/Abilities/PWGameplayAbilityBase.h"
 
+#include "Core/PWTeamsSubsystem.h"
 #include "AbilitySystemGlobals.h"
 #include "AbilitySystemLog.h"
 #include "GameplayCueManager.h"
@@ -173,6 +174,7 @@ UPWSpellParams* UPWGameplayAbilityBase::MakeSpellParams()
 {
 	UPWSpellParams* Params = NewObject<UPWSpellParams>(this);
 	Params->SourceAvatar = GetAvatarActorFromActorInfo();
+	Params->SourceParticipant = UPWTeamsSubsystem::GetAgentOwner(Params->SourceAvatar);
 	Params->AbilityLevel = GetAbilityLevel();
 
 	if (const APlayerState* PS = GetPawn() ? GetPawn()->GetPlayerState() : nullptr)

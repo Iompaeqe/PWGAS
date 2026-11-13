@@ -9,7 +9,8 @@
 #include "Ability/PWSpellParams.h"
 #include "GAS/Abilities/Modules/DataModules/PWAbilityModule_Effect.h"
 #include "GAS/ASC/PWAbilitySystemComponent.h"
-#include "PWTeamFunctions.h"
+#include "Core/PWTeamsSubsystem.h"
+#include "Core/PWTeamsTags.h"
 
 bool UPWGasFunctions::ApplyEffects(UPWAbilitySystemComponent* ASC, const UPWSpellParams* SpellParams)
 {
@@ -32,9 +33,13 @@ TArray<FPWEffectModifierValue> UPWGasFunctions::GetModifierValuesFromEffects(con
 	const UPWEffectSpellParams* EffectParams = SpellParams->FindExtension<UPWEffectSpellParams>();
 	if (!EffectParams) return Values;
 
+	const UPWTeamsSubsystem* Teams = UPWTeamsSubsystem::Get(Target);
+	const FPWTeamIdentity SourceIdentity = SpellParams->GetSourceIdentity();
+	const FPWTeamIdentity TargetIdentity = UPWTeamsSubsystem::GetIdentity(Target);
+
 	for (const FPWEffectGroup& Group : EffectParams->Groups)
 	{
-		if (Target && !UPWTeamFunctions::MatchesMask(SpellParams->SourceAvatar, Target, Group.TargetMask))
+		if (Teams && !Teams->MatchesFilter(SourceIdentity, TargetIdentity, Group.TargetFilter))
 			continue;
 
 		for (const FPWEffectEntry& Effect : Group.Effects)
@@ -60,4 +65,25 @@ TArray<FPWEffectModifierValue> UPWGasFunctions::GetModifierValuesFromEffects(con
 		}
 	}
 	return Values;
+}
+
+FPWTeamTargetFilter UPWGasFunctions::FilterFromLegacyMask(const int32 Mask)
+{
+	FPWTeamTargetFilter Filter;
+	if ((Mask & 15) == 15)
+		return Filter;
+
+	if (Mask & 1) Filter.AnyOf.AddTag(PWTeamTags::Relation_Self);
+	if (Mask & 2) Filter.AnyOf.AddTag(PWTeamTags::Relation_Ally);
+	if (Mask & 4) Filter.AnyOf.AddTag(PWTeamTags::Relation_Enemy);
+	if (Mask & 8)
+	{
+		Filter.AnyOf.AddTag(PWTeamTags::Relation_Neutral);
+		Filter.AnyOf.AddTag(PWTeamTags::Relation_Unaffiliated);
+	}
+
+	// A mask with nothing ticked reached nobody; an empty filter would reach everybody.
+	if (Filter.AnyOf.IsEmpty())
+		Filter.NoneOf.AddTag(PWTeamTags::Relation);
+	return Filter;
 }

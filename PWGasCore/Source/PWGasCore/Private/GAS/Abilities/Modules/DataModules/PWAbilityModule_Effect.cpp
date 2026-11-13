@@ -8,7 +8,8 @@
 #include "GAS/Abilities/PWModularGameplayAbility.h"
 #include "Ability/PWAffectable.h"
 #include "Libraries/PWGasFunctions.h"
-#include "PWTeamFunctions.h"
+#include "Core/PWTeamsSubsystem.h"
+#include "Libraries/PWGasFunctions.h"
 
 namespace
 {
@@ -36,9 +37,15 @@ void UPWEffectSpellParams::ApplyEffectsToTarget(UAbilitySystemComponent* SourceA
 	if (!SourceASC || !TargetASC)
 		return;
 
+	// The params know the caster even when it is gone and SourceASC is only a stand-in.
+	const UPWSpellParams* Params = GetTypedOuter<UPWSpellParams>();
+	const UPWTeamsSubsystem* Teams = UPWTeamsSubsystem::Get(TargetASC);
+	const FPWTeamIdentity Source = Params ? Params->GetSourceIdentity() : UPWTeamsSubsystem::GetIdentity(SourceASC->GetAvatarActor());
+	const FPWTeamIdentity Target = UPWTeamsSubsystem::GetIdentity(TargetASC->GetAvatarActor());
+
 	for (const FPWEffectGroup& Group : Groups)
 	{
-		if (!UPWTeamFunctions::MatchesMask(SourceASC->GetAvatarActor(), TargetASC->GetAvatarActor(), Group.TargetMask))
+		if (Teams && !Teams->MatchesFilter(Source, Target, Group.TargetFilter))
 			continue;
 		for (const FPWEffectEntry& Entry : Group.Effects)
 			ApplyEntry(SourceASC, TargetASC, Entry, AbilityLevel);
@@ -50,21 +57,31 @@ void UPWAbilityModule_Effect::PostLoad()
 	Super::PostLoad();
 
 	// Abilities saved before effect groups kept a single mask and list.
-	if (Effects_DEPRECATED.IsEmpty())
-		return;
+	if (!Effects_DEPRECATED.IsEmpty())
+	{
+		FPWEffectGroup& Group = EffectGroups.AddDefaulted_GetRef();
+		Group.TargetMask_DEPRECATED = TargetMask_DEPRECATED;
+		Group.Effects = MoveTemp(Effects_DEPRECATED);
+		Effects_DEPRECATED.Reset();
+	}
 
-	FPWEffectGroup& Group = EffectGroups.AddDefaulted_GetRef();
-	Group.TargetMask = TargetMask_DEPRECATED;
-	Group.Effects = MoveTemp(Effects_DEPRECATED);
-	Effects_DEPRECATED.Reset();
+	// Abilities saved before tag filters kept a number per group.
+	for (FPWEffectGroup& Group : EffectGroups)
+	{
+		if (Group.TargetMask_DEPRECATED == 15)
+			continue;
+		if (Group.TargetFilter.IsEmpty())
+			Group.TargetFilter = UPWGasFunctions::FilterFromLegacyMask(Group.TargetMask_DEPRECATED);
+		Group.TargetMask_DEPRECATED = 15;
+	}
 }
 
-int32 UPWAbilityModule_Effect::GetCombinedMask() const
+bool UPWAbilityModule_Effect::AppliesTo(const AActor* Source, const AActor* Target) const
 {
-	int32 Mask = 0;
 	for (const FPWEffectGroup& Group : EffectGroups)
-		Mask |= Group.TargetMask;
-	return Mask;
+		if (UPWTeamsSubsystem::ActorMatchesFilter(Source, Target, Group.TargetFilter))
+			return true;
+	return false;
 }
 
 void UPWAbilityModule_Effect::ExtendParams(UPWSpellParams* Params) const
@@ -74,7 +91,6 @@ void UPWAbilityModule_Effect::ExtendParams(UPWSpellParams* Params) const
 
 	UPWEffectSpellParams* Extension = Params->AddExtension<UPWEffectSpellParams>();
 	Extension->Groups = EffectGroups;
-	Params->TargetEffectMask = GetCombinedMask();
 }
 
 void UPWAbilityModule_Effect::ApplyEffects(UAbilitySystemComponent* SourceASC, UAbilitySystemComponent* TargetASC)
@@ -84,7 +100,7 @@ void UPWAbilityModule_Effect::ApplyEffects(UAbilitySystemComponent* SourceASC, U
 
 	for (const FPWEffectGroup& Group : EffectGroups)
 	{
-		if (!UPWTeamFunctions::MatchesMask(SourceASC->GetAvatarActor(), TargetASC->GetAvatarActor(), Group.TargetMask))
+		if (!UPWTeamsSubsystem::ActorMatchesFilter(SourceASC->GetAvatarActor(), TargetASC->GetAvatarActor(), Group.TargetFilter))
 			continue;
 
 		for (const FPWEffectEntry& Entry : Group.Effects)
@@ -124,7 +140,7 @@ void UPWAbilityModule_Effect::ApplyEffectsToActor(UAbilitySystemComponent* Sourc
 	}
 
 	UObject* Receiver = IPWAffectable::Find(Target);
-	if (!Receiver || !OwnerAbility || !UPWTeamFunctions::MatchesMask(SourceASC->GetAvatarActor(), Target, GetCombinedMask()))
+	if (!Receiver || !OwnerAbility || !AppliesTo(SourceASC->GetAvatarActor(), Target))
 		return;
 
 	UPWSpellParams* Params = OwnerAbility->MakeSpellParams();

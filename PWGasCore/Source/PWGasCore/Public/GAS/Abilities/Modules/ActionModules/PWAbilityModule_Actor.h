@@ -25,10 +25,6 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	FRotator SpawnRotation = FRotator::ZeroRotator;
 
-	// Relations the spawned actor may collide with, copied from the module.
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	int32 TargetMask = (int32)EPWRelationMask::All;
-
 	// Lifetime in seconds for the spawned actor to use; 0 leaves it to the actor.
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	float Duration = 0.f;
@@ -52,9 +48,14 @@ public:
 	/** Actor class to spawn. Must implement PWSpellParamsInterface. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(MustImplement="PWSpellParamsInterface"))
 	TSubclassOf<AActor> ActorClass;
-	// Targets the spawned actor collides with; those outside the mask are passed through. Walls and other scenery always stop it.
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(Bitmask, BitmaskEnum="/Script/PWSharedTypes.EPWRelationMask"))
-	int32 TargetMask = (int32)EPWRelationMask::All;
+	// Which targets the spawned actor collides with, by the tags that describe them; the rest are passed through. Empty collides with every target. Walls and other scenery always stop it.
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FPWTeamTargetFilter TargetFilter;
+
+	UPROPERTY()
+	int32 TargetMask_DEPRECATED = 15;
+
+	virtual void PostLoad() override;
 	// Spawns as soon as the ability activates, so no graph is needed.
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	bool bSpawnOnActivated = false;

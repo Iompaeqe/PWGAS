@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "Targeting/PWTeamTargetFilter.h"
 #include "CoreMinimal.h"
 #include "GameplayEffect.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
@@ -37,6 +38,9 @@ class PWGASCORE_API UPWGasFunctions : public UBlueprintFunctionLibrary
 
 public:
 	static bool ApplyEffects(UPWAbilitySystemComponent* ASC, const UPWSpellParams* SpellParams);
-	// With a target, only the effect groups whose mask includes it are read.
+	// Abilities saved before tag filters stored a number: Self 1, Ally 2, Enemy 4, Neutral 8. Things with no team used to count as Neutral, so that flag becomes Neutral plus Unaffiliated.
+	static FPWTeamTargetFilter FilterFromLegacyMask(int32 Mask);
+
+	// With a target, only the effect groups whose filter accepts it are read.
 	static TArray<FPWEffectModifierValue> GetModifierValuesFromEffects(const UPWSpellParams* SpellParams, const FGameplayAttribute& Attribute, const AActor* Target = nullptr);
 };

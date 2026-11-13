@@ -8,7 +8,22 @@
 #include "GAS/Abilities/Modules/ControlModules/PWAbilityModule_Targeting.h"
 #include "GAS/AbilityTasks/PWAbilityTask_TargetFromSource.h"
 #include "PWGASCoreLogChannels.h"
+#include "Core/PWTeamsSubsystem.h"
+#include "Agents/PWTeamAgentComponent.h"
+#include "Libraries/PWGasFunctions.h"
 
+
+void UPWAbilityModule_Actor::PostLoad()
+{
+	Super::PostLoad();
+
+	// Abilities saved before tag filters kept a number.
+	if (TargetMask_DEPRECATED == 15)
+		return;
+	if (TargetFilter.IsEmpty())
+		TargetFilter = UPWGasFunctions::FilterFromLegacyMask(TargetMask_DEPRECATED);
+	TargetMask_DEPRECATED = 15;
+}
 
 UPWSpellParams* UPWAbilityModule_Actor::MakeSpellParams_Implementation(const FPWTargetingResult& Target)
 {
@@ -22,7 +37,7 @@ UPWSpellParams* UPWAbilityModule_Actor::MakeSpellParams_Implementation(const FPW
 	ActorParams->SpawnRotation = BuildSpawnTransform(Target).Rotator();
 	ActorParams->bAttachToOwner = bAttachToOwner;
 	ActorParams->AttachSocket = SpawnSocket;
-	Params->TargetCollisionMask = TargetMask;
+	Params->CollisionFilter = TargetFilter;
 
 	ExtendParamsWithData(Params);
 
@@ -54,6 +69,10 @@ AActor* UPWAbilityModule_Actor::SpawnActorWithTargetingResult(const FPWTargeting
 		Spawned->Destroy();
 		return nullptr;
 	}
+
+	// A summon, totem or turret with a team agent is attributed to the caster's participant, whoever ends up controlling it.
+	if (UPWTeamAgentComponent* Agent = Spawned->FindComponentByClass<UPWTeamAgentComponent>(); Agent && !Agent->GetOwnerParticipant().IsValid())
+		Agent->SetOwnerParticipant(UPWTeamsSubsystem::GetAgentOwner(Avatar));
 
 	if (bDebugSpawnPosition)
 	{

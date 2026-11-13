@@ -1,5 +1,6 @@
 // Copyright (c) 2025 Metehan Goksel Kurtulan (Iompaeqe)
 
+#include "Core/PWTeamsTags.h"
 #include "PWTestWorld.h"
 #include "PWTestTypes.h"
 #include "Ability/PWSpellParams.h"
@@ -104,11 +105,11 @@ bool FDamageableFromModuleTest::RunTest(const FString& Parameters)
 	APWDamageableActor* Actor = SpawnDamageable(Test, 100.f);
 	UPWDamageableComponent* Damageable = Actor->GetDamageable();
 
-	Effect->EffectGroups[0].TargetMask = static_cast<int32>(EPWRelationMask::Enemy);
+	Effect->EffectGroups[0].TargetFilter.AnyOf.AddTag(PWTeamTags::Relation_Enemy);
 	Effect->ApplyEffectsToActor(Test.ASC, Actor);
-	TestEqual("A neutral actor is skipped by an enemy only group", Damageable->GetHealth(), 100.f);
+	TestEqual("A world object is skipped by an enemy only group", Damageable->GetHealth(), 100.f);
 
-	Effect->EffectGroups[0].TargetMask = static_cast<int32>(EPWRelationMask::All);
+	Effect->EffectGroups[0].TargetFilter = FPWTeamTargetFilter();
 	Effect->ApplyEffectsToActor(Test.ASC, Actor);
 	TestEqual("An actor without an ability system takes the effect", Damageable->GetHealth(), 75.f);
 

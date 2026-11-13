@@ -30,9 +30,12 @@ struct FPWEffectGroup
 {
 	GENERATED_BODY()
 
-	// Relations that receive these effects; anyone outside the mask is skipped.
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(Bitmask, BitmaskEnum="/Script/PWSharedTypes.EPWRelationMask"))
-	int32 TargetMask = (int32)EPWRelationMask::All;
+	// Who receives these effects, by the tags that describe a target. An empty filter reaches everyone.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FPWTeamTargetFilter TargetFilter;
+
+	UPROPERTY()
+	int32 TargetMask_DEPRECATED = 15;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<FPWEffectEntry> Effects;
@@ -62,7 +65,7 @@ public:
 	TArray<FPWEffectGroup> EffectGroups;
 
 	UPROPERTY()
-	int32 TargetMask_DEPRECATED = (int32)EPWRelationMask::All;
+	int32 TargetMask_DEPRECATED = 15;
 	UPROPERTY()
 	TArray<FPWEffectEntry> Effects_DEPRECATED;
 
@@ -75,8 +78,8 @@ public:
 	void ApplyEffectsToActor(UAbilitySystemComponent* SourceASC, AActor* Target);
 	void RemoveEffectsFromActor(UAbilitySystemComponent* SourceASC, AActor* Target, bool bInfiniteOnly = false);
 
-	// Every relation at least one group applies to.
-	int32 GetCombinedMask() const;
+	// Whether at least one group's filter accepts the target.
+	bool AppliesTo(const AActor* Source, const AActor* Target) const;
 
 	virtual void ExtendParams(UPWSpellParams* Params) const override;
 	virtual void PostLoad() override;
