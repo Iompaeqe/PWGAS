@@ -84,13 +84,10 @@ bool UPWAbilityModule_Targeting::ComputeTarget(FPWTargetingResult& Out)
 
 	if (TargetingSource)
 	{
+		// A player aims with its camera or cursor, any other caster through its pawn and AI controller.
 		APlayerController* PC = OwnerAbility->GetPC();
-		if (!PC)
-		{
-			pwlogability(Error, "ComputeTarget failed: PlayerController is null for %s", *OwnerAbility->GetName());
-			return false;
-		}
-		if (!TargetingSource->Sample(PC, Out))
+		const bool bSampled = PC ? TargetingSource->Sample(PC, Out) : TargetingSource->SampleForPawn(OwnerAbility->GetPawn(), Out);
+		if (!bSampled)
 			return false;
 	}
 	else

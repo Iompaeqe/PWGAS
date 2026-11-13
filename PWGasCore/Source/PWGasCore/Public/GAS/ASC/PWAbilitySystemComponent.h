@@ -51,6 +51,11 @@ public:
 	void BP_AddAbilitySet(const UPWAbilitySet* AbilitySet);
 	UFUNCTION(BlueprintCallable, Category="GASCore|Ability", meta=(DisplayName="Add Ability"))
 	void BP_AddAbility(const FGameplayTag& AbilityTag, const FGameplayTag& InputTag = FGameplayTag());
+	// Activates a granted ability by its tag, for AI and scripted casters that have no input.
+	UFUNCTION(BlueprintCallable, Category="GASCore|Ability", meta=(DisplayName="Activate Ability"))
+	bool BP_ActivateAbility(const FGameplayTag& AbilityTag);
+	UFUNCTION(BlueprintCallable, Category="GASCore|Ability", meta=(DisplayName="Cancel Ability"))
+	void BP_CancelAbility(const FGameplayTag& AbilityTag);
 	UFUNCTION(BlueprintCallable, Category="GASCore|Ability", meta=(DisplayName="Remove Ability"))
 	void BP_RemoveAbility(const FGameplayTag& AbilityTag);
 	UFUNCTION(BlueprintCallable, Category="GASCore|Ability", meta=(DisplayName="Upgrade Ability"))

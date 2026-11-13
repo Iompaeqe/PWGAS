@@ -25,6 +25,10 @@ public:
 		return Pawn && SampleFrom(Pawn, Pawn->GetActorLocation(), Out);
 	}
 
+	virtual bool SampleForPawn_Implementation(const APawn* Pawn, FPWTargetingResult& Out) const override
+	{
+		return Pawn && SampleFrom(Pawn, Pawn->GetActorLocation(), Out);
+	}
 	virtual bool SampleFrom_Implementation(const APawn* Pawn, const FVector& Origin, FPWTargetingResult& Out) const override
 	{
 		if (!Pawn)

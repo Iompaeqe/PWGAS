@@ -39,8 +39,8 @@ void UPWAbilityTask_TargetFromSource::Activate()
 
 void UPWAbilityTask_TargetFromSource::SendTargetDataLocal()
 {
-	APlayerController* PC = Ability->GetCurrentActorInfo()->PlayerController.Get();
-	if (!PC || !TargetingModule)
+	const APlayerController* PC = Ability->GetCurrentActorInfo()->PlayerController.Get();
+	if (!TargetingModule)
 	{
 		EndTask();
 		return;
@@ -61,7 +61,9 @@ void UPWAbilityTask_TargetFromSource::SendTargetDataLocal()
 	FGameplayAbilityTargetDataHandle Handle;
 	Handle.Add(Data);
 
-	AbilitySystemComponent->ServerSetReplicatedTargetData(
+	// Only a player has a server to tell; an AI already runs there.
+	if (PC)
+		AbilitySystemComponent->ServerSetReplicatedTargetData(
 		GetAbilitySpecHandle(),
 		GetActivationPredictionKey(),
 		Handle,

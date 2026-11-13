@@ -28,6 +28,7 @@ public class PWGASCoreTests : ModuleRules
                 "PWAbility",
                 "PWTeams",
                 "PWAttributes",
+                "AIModule",
             }
         );
     }

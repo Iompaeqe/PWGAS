@@ -103,6 +103,18 @@ void UPWAbilitySystemComponent::BP_AddAbility(const FGameplayTag& AbilityTag, co
 	AbilityLifecycle->AddAbility(AbilityTag, InputTag);
 }
 
+bool UPWAbilitySystemComponent::BP_ActivateAbility(const FGameplayTag& AbilityTag)
+{
+	const FGameplayAbilitySpec* Spec = DataManagement->GetSpecOfAbility(AbilityTag);
+	return Spec && TryActivateAbility(Spec->Handle);
+}
+
+void UPWAbilitySystemComponent::BP_CancelAbility(const FGameplayTag& AbilityTag)
+{
+	if (const FGameplayAbilitySpec* Spec = DataManagement->GetSpecOfAbility(AbilityTag))
+		CancelAbilityHandle(Spec->Handle);
+}
+
 void UPWAbilitySystemComponent::BP_RemoveAbility(const FGameplayTag& AbilityTag)
 {
 	AbilityLifecycle->RemoveAbility(AbilityTag);

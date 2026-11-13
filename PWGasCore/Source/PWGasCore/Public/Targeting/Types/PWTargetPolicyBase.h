@@ -81,6 +81,11 @@ public:
 	bool Sample(APlayerController* PC, FPWTargetingResult& Out) const;
 	virtual bool Sample_Implementation(APlayerController* PC, FPWTargetingResult& Out) const;
 
+	// Used when the caster is not a player. An AI aims at its focus actor, then its focal point, then straight ahead.
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Targeting")
+	bool SampleForPawn(const APawn* Pawn, FPWTargetingResult& Out) const;
+	virtual bool SampleForPawn_Implementation(const APawn* Pawn, FPWTargetingResult& Out) const;
+
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Targeting")
 	bool SampleFrom(const APawn* Pawn, const FVector& Origin, FPWTargetingResult& Out) const;
 	virtual bool SampleFrom_Implementation(const APawn* Pawn, const FVector& Origin, FPWTargetingResult& Out) const;
