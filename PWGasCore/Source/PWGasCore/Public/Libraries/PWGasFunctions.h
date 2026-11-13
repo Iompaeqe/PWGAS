@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameplayEffect.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
-#include "GASCoreFunctions.generated.h"
+#include "PWGasFunctions.generated.h"
 
 enum class EGameplayEffectDurationType : uint8;
 struct FGameplayAttribute;
@@ -13,7 +13,7 @@ class UPWAbilitySystemComponent;
 class USpellParams;
 
 USTRUCT(BlueprintType)
-struct FEffectModifierValue
+struct FPWEffectModifierValue
 {
 	GENERATED_BODY()
 	
@@ -31,12 +31,12 @@ public:
 };
 
 UCLASS()
-class PWGASCORE_API UGASCoreFunctions : public UBlueprintFunctionLibrary
+class PWGASCORE_API UPWGasFunctions : public UBlueprintFunctionLibrary
 {
 	GENERATED_BODY()
 
 public:
 	static bool ApplyEffects(UPWAbilitySystemComponent* ASC, const USpellParams* SpellParams);
 	// With a target, only the effect groups whose mask includes it are read.
-	static TArray<FEffectModifierValue> GetModifierValuesFromEffects(const USpellParams* SpellParams, const FGameplayAttribute& Attribute, const AActor* Target = nullptr);
+	static TArray<FPWEffectModifierValue> GetModifierValuesFromEffects(const USpellParams* SpellParams, const FGameplayAttribute& Attribute, const AActor* Target = nullptr);
 };

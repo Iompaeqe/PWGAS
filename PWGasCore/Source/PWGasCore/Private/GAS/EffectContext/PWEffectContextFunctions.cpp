@@ -1,9 +1,9 @@
 // Copyright (c) 2025 Metehan Goksel Kurtulan (Iompaeqe)
 
-#include "GAS/EffectContext/EffectContextFunctions.h"
+#include "GAS/EffectContext/PWEffectContextFunctions.h"
 
 
-FPWGameplayEffectContext* UEffectContextFunctions::GetPWContext(const FGameplayEffectContextHandle& Handle)
+FPWGameplayEffectContext* UPWEffectContextFunctions::GetPWContext(const FGameplayEffectContextHandle& Handle)
 {
 	FGameplayEffectContext* Context = const_cast<FGameplayEffectContext*>(Handle.Get());
 	if (Context && Context->GetScriptStruct()->IsChildOf(FPWGameplayEffectContext::StaticStruct()))
@@ -11,7 +11,7 @@ FPWGameplayEffectContext* UEffectContextFunctions::GetPWContext(const FGameplayE
 	return nullptr;
 }
 
-void UEffectContextFunctions::CopyHitResultToContext(FGameplayEffectContextHandle& Handle, const FHitResult& Hit)
+void UPWEffectContextFunctions::CopyHitResultToContext(FGameplayEffectContextHandle& Handle, const FHitResult& Hit)
 {
 	if (FPWGameplayEffectContext* Ctx = GetPWContext(Handle))
 	{
@@ -19,7 +19,7 @@ void UEffectContextFunctions::CopyHitResultToContext(FGameplayEffectContextHandl
 	}
 }
 
-bool UEffectContextFunctions::GetHitResult(const FGameplayEffectContextHandle& Handle, FHitResult& OutHit)
+bool UPWEffectContextFunctions::GetHitResult(const FGameplayEffectContextHandle& Handle, FHitResult& OutHit)
 {
 	if (const FPWGameplayEffectContext* Ctx = GetPWContext(Handle))
 	{

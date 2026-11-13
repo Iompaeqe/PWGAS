@@ -151,13 +151,13 @@ FVector UPWAbilityModule_MultiActor::SnapToGround(const FVector& Location) const
 FQuat UPWAbilityModule_MultiActor::GetPatternBasis(const FPWTargetingResult& Target) const
 {
     FQuat Basis = FQuat::Identity;
-    if (PatternOrientation != EActorPatternOrientation::World)
+    if (PatternOrientation != EPWActorPatternOrientation::World)
     {
         FVector Direction = Target.Rotation.Vector();
         if (const APawn* Pawn = OwnerAbility->GetPawn())
         {
             Direction = Pawn->GetActorForwardVector();
-            if (PatternOrientation == EActorPatternOrientation::Camera && Pawn->GetController())
+            if (PatternOrientation == EPWActorPatternOrientation::Camera && Pawn->GetController())
                 Direction = Pawn->GetControlRotation().Vector();
         }
 

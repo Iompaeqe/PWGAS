@@ -90,7 +90,7 @@ protected:
 	void OnRep_Health(float OldHealth);
 
 private:
-	struct FOngoingEffect
+	struct FPWOngoingEffect
 	{
 		FTimerHandle Tick;
 		FTimerHandle End;
@@ -101,9 +101,9 @@ private:
 
 	void TickOngoing(float Amount, TWeakObjectPtr<AActor> Instigator);
 	void EndOngoing(FTimerHandle TickHandle);
-	void StopOngoing(const FOngoingEffect& Effect) const;
+	void StopOngoing(const FPWOngoingEffect& Effect) const;
 	bool HasAuthority() const;
 
-	TArray<FOngoingEffect> OngoingEffects;
+	TArray<FPWOngoingEffect> OngoingEffects;
 	bool bDepleted = false;
 };

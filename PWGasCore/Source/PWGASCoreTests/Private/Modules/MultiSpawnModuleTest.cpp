@@ -326,11 +326,11 @@ bool FMultiActorOrientationTest::RunTest(const FString& Parameters)
 		Module->SpawnMultipleActors(Target);
 	};
 
-	Module->PatternOrientation = EActorPatternOrientation::World;
+	Module->PatternOrientation = EPWActorPatternOrientation::World;
 	Respawn();
 	TestTrue("World orientation starts on world forward", HasActorAt(FVector(200, 1000, -300)));
 
-	Module->PatternOrientation = EActorPatternOrientation::Caster;
+	Module->PatternOrientation = EPWActorPatternOrientation::Caster;
 	Module->PatternRotation = FRotator(0, 90, 0);
 	Respawn();
 	TestTrue("Pattern rotation turns the pattern from the cast direction", HasActorAt(FVector(-200, 1000, -300)));
@@ -362,7 +362,7 @@ bool FMultiActorSpreadLineTest::RunTest(const FString& Parameters)
 		Module->ActorClass = APWTestSpellActor::StaticClass();
 		Module->ActorCount = Count;
 		Module->Radius = 300.f;
-		Module->PatternOrientation = EActorPatternOrientation::World;
+		Module->PatternOrientation = EPWActorPatternOrientation::World;
 		UPWSpawnPattern_Line* Line = NewObject<UPWSpawnPattern_Line>(Module);
 		Line->Order = EPWLineOrder::CenterOut;
 		Module->Pattern = Line;
@@ -400,7 +400,7 @@ bool FMultiActorSpreadStepsTest::RunTest(const FString& Parameters)
 			Module->ActorClass = APWTestSpellActor::StaticClass();
 			Module->ActorCount = Count;
 			Module->Radius = 300.f;
-			Module->PatternOrientation = EActorPatternOrientation::World;
+			Module->PatternOrientation = EPWActorPatternOrientation::World;
 			UPWSpawnPattern_Rings* Rings = NewObject<UPWSpawnPattern_Rings>(Module);
 			Rings->ActorsPerRing = 2;
 			Rings->bCenterActor = Count % 2 == 1;

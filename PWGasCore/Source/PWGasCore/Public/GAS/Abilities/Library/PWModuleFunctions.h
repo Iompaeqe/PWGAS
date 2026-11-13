@@ -4,14 +4,14 @@
 
 #include "CoreMinimal.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
-#include "ModuleFunctions.generated.h"
+#include "PWModuleFunctions.generated.h"
 
 class UProjectileSpellParamsExtension;
 class UActorSpellParamsExtension;
 class UEffectSpellParamsExtension;
 class USpellParams;
 UCLASS()
-class PWGASCORE_API UModuleFunctions : public UBlueprintFunctionLibrary
+class PWGASCORE_API UPWModuleFunctions : public UBlueprintFunctionLibrary
 {
 	GENERATED_BODY()
 

@@ -5,7 +5,7 @@
 
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
-#include "FEffectProperties.h"
+#include "PWEffectProperties.h"
 #include "GameplayEffectExtension.h"
 #include "GameplayTagsManager.h"
 #include "Net/UnrealNetwork.h"
@@ -147,7 +147,7 @@ FGameplayAttribute UPWAttributeSetBase::GetAttribute(const FGameplayTag& Attribu
 	return FGameplayAttribute();
 }
 
-void UPWAttributeSetBase::SetEffectProperties(const FGameplayEffectModCallbackData& Data, FEffectProperties& Props)
+void UPWAttributeSetBase::SetEffectProperties(const FGameplayEffectModCallbackData& Data, FPWEffectProperties& Props)
 {
 	Props.EffectContextHandle = Data.EffectSpec.GetContext();
 	Data.EffectSpec.GetAllAssetTags(Props.EffectAssetTags);
@@ -159,7 +159,7 @@ void UPWAttributeSetBase::SetEffectProperties(const FGameplayEffectModCallbackDa
 	Props.Target.ASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(Props.Target.AvatarActor);
 }
 
-void UPWAttributeSetBase::SetEffectObject(FEffectObject& Props, const FGameplayAbilityActorInfo* ActorInfo)
+void UPWAttributeSetBase::SetEffectObject(FPWEffectObject& Props, const FGameplayAbilityActorInfo* ActorInfo)
 {
 	if (ActorInfo && ActorInfo->AvatarActor.IsValid())
 	{

@@ -11,7 +11,7 @@
 class UPWSpawnPattern;
 
 UENUM(BlueprintType)
-enum class EActorPatternOrientation : uint8
+enum class EPWActorPatternOrientation : uint8
 {
     Caster UMETA(DisplayName="Relative To Caster"),
     World UMETA(DisplayName="Relative To World"),
@@ -44,7 +44,7 @@ public:
 
     // What the pattern's forward direction follows: the caster, the world or the camera.
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Pattern")
-    EActorPatternOrientation PatternOrientation = EActorPatternOrientation::Camera;
+    EPWActorPatternOrientation PatternOrientation = EPWActorPatternOrientation::Camera;
 
     // Moves the whole pattern from the target point, in the pattern's own space.
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Pattern")

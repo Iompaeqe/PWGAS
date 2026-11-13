@@ -7,12 +7,12 @@
 #include "AbilitySystemGlobals.h"
 #include "GAS/Abilities/PWModularGameplayAbility.h"
 #include "Ability/Affectable.h"
-#include "Libraries/GASCoreFunctions.h"
+#include "Libraries/PWGasFunctions.h"
 #include "TeamFunctions.h"
 
 namespace
 {
-	FActiveGameplayEffectHandle ApplyEntry(UAbilitySystemComponent* SourceASC, UAbilitySystemComponent* TargetASC, const FEffectEntry& Entry, const int32 Level)
+	FActiveGameplayEffectHandle ApplyEntry(UAbilitySystemComponent* SourceASC, UAbilitySystemComponent* TargetASC, const FPWEffectEntry& Entry, const int32 Level)
 	{
 		if (!Entry.EffectClass)
 			return FActiveGameplayEffectHandle();
@@ -40,7 +40,7 @@ void UEffectSpellParamsExtension::ApplyEffectsToTarget(UAbilitySystemComponent* 
 	{
 		if (!UTeamFunctions::MatchesMask(SourceASC->GetAvatarActor(), TargetASC->GetAvatarActor(), Group.TargetMask))
 			continue;
-		for (const FEffectEntry& Entry : Group.Effects)
+		for (const FPWEffectEntry& Entry : Group.Effects)
 			ApplyEntry(SourceASC, TargetASC, Entry, AbilityLevel);
 	}
 }
@@ -87,7 +87,7 @@ void UPWAbilityModule_Effect::ApplyEffects(UAbilitySystemComponent* SourceASC, U
 		if (!UTeamFunctions::MatchesMask(SourceASC->GetAvatarActor(), TargetASC->GetAvatarActor(), Group.TargetMask))
 			continue;
 
-		for (const FEffectEntry& Entry : Group.Effects)
+		for (const FPWEffectEntry& Entry : Group.Effects)
 			if (const FActiveGameplayEffectHandle Handle = ApplyEntry(SourceASC, TargetASC, Entry, OwnerAbility->GetAbilityLevel()); Handle.IsValid())
 				ActiveEffectHandles.FindOrAdd(TargetASC).Add(Handle);
 	}

@@ -1,7 +1,7 @@
 ﻿// Copyright (c) 2025 Metehan Goksel Kurtulan (Iompaeqe)
 
 
-#include "Libraries/GASCoreFunctions.h"
+#include "Libraries/PWGasFunctions.h"
 
 #include "AbilitySystemGlobals.h"
 #include "Ability/Affectable.h"
@@ -11,7 +11,7 @@
 #include "GAS/ASC/PWAbilitySystemComponent.h"
 #include "TeamFunctions.h"
 
-bool UGASCoreFunctions::ApplyEffects(UPWAbilitySystemComponent* ASC, const USpellParams* SpellParams)
+bool UPWGasFunctions::ApplyEffects(UPWAbilitySystemComponent* ASC, const USpellParams* SpellParams)
 {
 	if (!ASC) return false;
 	if (!SpellParams) return false;
@@ -24,9 +24,9 @@ bool UGASCoreFunctions::ApplyEffects(UPWAbilitySystemComponent* ASC, const USpel
 	return true;
 }
 
-TArray<FEffectModifierValue> UGASCoreFunctions::GetModifierValuesFromEffects(const USpellParams* SpellParams, const FGameplayAttribute& Attribute, const AActor* Target)
+TArray<FPWEffectModifierValue> UPWGasFunctions::GetModifierValuesFromEffects(const USpellParams* SpellParams, const FGameplayAttribute& Attribute, const AActor* Target)
 {
-	TArray<FEffectModifierValue> Values;
+	TArray<FPWEffectModifierValue> Values;
 	if (!SpellParams) return Values;
 
 	const UEffectSpellParamsExtension* EffectParams = SpellParams->FindExtension<UEffectSpellParamsExtension>();
@@ -37,7 +37,7 @@ TArray<FEffectModifierValue> UGASCoreFunctions::GetModifierValuesFromEffects(con
 		if (Target && !UTeamFunctions::MatchesMask(SpellParams->SourceAvatar, Target, Group.TargetMask))
 			continue;
 
-		for (const FEffectEntry& Effect : Group.Effects)
+		for (const FPWEffectEntry& Effect : Group.Effects)
 		{
 			const UGameplayEffect* GE = Effect.EffectClass ? Effect.EffectClass.GetDefaultObject() : nullptr;
 			if (!GE) continue;
@@ -47,7 +47,7 @@ TArray<FEffectModifierValue> UGASCoreFunctions::GetModifierValuesFromEffects(con
 				if (Modifier.Attribute != Attribute)
 					continue;
 
-				FEffectModifierValue Emv;
+				FPWEffectModifierValue Emv;
 				Emv.EffectClass = Effect.EffectClass;
 				Emv.DurationType = GE->DurationPolicy;
 				Emv.Period = GE->Period.GetValueAtLevel(SpellParams->AbilityLevel);

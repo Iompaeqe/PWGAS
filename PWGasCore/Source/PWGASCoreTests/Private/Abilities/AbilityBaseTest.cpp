@@ -12,7 +12,7 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FAbilityBaseCostTest, "PW.Abilities.Base.Cost",
 
 bool FAbilityBaseCostTest::RunTest(const FString& Parameters)
 {
-	TArray<FCostData> Costs;
+	TArray<FPWCostData> Costs;
 	GetDefault<UPWTestCostAbility>()->GetCost(1, Costs);
 	if (!TestEqual("Cost count", Costs.Num(), 1))
 		return false;

@@ -5,11 +5,11 @@
 #include "CoreMinimal.h"
 #include "PWGameplayEffectContext.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
-#include "EffectContextFunctions.generated.h"
+#include "PWEffectContextFunctions.generated.h"
 
 struct FGameplayEffectContextHandle;
 UCLASS()
-class PWGASCORE_API UEffectContextFunctions : public UBlueprintFunctionLibrary
+class PWGASCORE_API UPWEffectContextFunctions : public UBlueprintFunctionLibrary
 {
 	GENERATED_BODY()
 

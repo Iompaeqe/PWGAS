@@ -39,7 +39,7 @@ float UPWGameplayAbilityBase::GetCooldown(int32 Level) const
 	return Cooldown.GetValueAtLevel(Level);
 }
 
-void UPWGameplayAbilityBase::GetCost(int32 Level, TArray<FCostData>& CostData) const
+void UPWGameplayAbilityBase::GetCost(int32 Level, TArray<FPWCostData>& CostData) const
 {
 	UGameplayEffect* CostGE = GetCostGameplayEffect();
 	if (!CostGE) return;
@@ -48,7 +48,7 @@ void UPWGameplayAbilityBase::GetCost(int32 Level, TArray<FCostData>& CostData) c
 	{
 		float Value = 0.f;
 		Modifier.ModifierMagnitude.GetStaticMagnitudeIfPossible(Level, Value);
-		FCostData Data = FCostData(Modifier.Attribute.AttributeName, Modifier.ModifierOp, Value);
+		FPWCostData Data = FPWCostData(Modifier.Attribute.AttributeName, Modifier.ModifierOp, Value);
 		CostData.Add(Data);
 	}
 }

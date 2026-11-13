@@ -12,7 +12,7 @@ class UGameplayEffect;
 class UAbilitySystemComponent;
 
 USTRUCT(BlueprintType)
-struct FEffectEntry
+struct FPWEffectEntry
 {
 	GENERATED_BODY()
 
@@ -35,7 +35,7 @@ struct FPWEffectGroup
 	int32 TargetMask = (int32)ERelationMask::All;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TArray<FEffectEntry> Effects;
+	TArray<FPWEffectEntry> Effects;
 };
 
 UCLASS(BlueprintType)
@@ -64,7 +64,7 @@ public:
 	UPROPERTY()
 	int32 TargetMask_DEPRECATED = (int32)ERelationMask::All;
 	UPROPERTY()
-	TArray<FEffectEntry> Effects_DEPRECATED;
+	TArray<FPWEffectEntry> Effects_DEPRECATED;
 
 	TMap<TWeakObjectPtr<UAbilitySystemComponent>, TArray<FActiveGameplayEffectHandle>> ActiveEffectHandles;
 	

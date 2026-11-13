@@ -21,11 +21,11 @@ void FPWTargetHighlighter::Update(const TArray<TObjectPtr<AActor>>& Targets, UMa
 		if (!Target || Highlighted.Contains(Target))
 			continue;
 
-		TArray<FSavedMesh>& Saved = Highlighted.Add(Target);
+		TArray<FPWSavedMesh>& Saved = Highlighted.Add(Target);
 		TInlineComponentArray<UMeshComponent*> Meshes(Target);
 		for (UMeshComponent* Mesh : Meshes)
 		{
-			FSavedMesh& Entry = Saved.AddDefaulted_GetRef();
+			FPWSavedMesh& Entry = Saved.AddDefaulted_GetRef();
 			Entry.Mesh = Mesh;
 			Entry.Overlay = Mesh->GetOverlayMaterial();
 			Entry.bCustomDepth = Mesh->bRenderCustomDepth;
@@ -44,14 +44,14 @@ void FPWTargetHighlighter::Update(const TArray<TObjectPtr<AActor>>& Targets, UMa
 
 void FPWTargetHighlighter::Clear()
 {
-	for (const TPair<TWeakObjectPtr<AActor>, TArray<FSavedMesh>>& Pair : Highlighted)
+	for (const TPair<TWeakObjectPtr<AActor>, TArray<FPWSavedMesh>>& Pair : Highlighted)
 		Restore(Pair.Value);
 	Highlighted.Reset();
 }
 
-void FPWTargetHighlighter::Restore(const TArray<FSavedMesh>& Saved)
+void FPWTargetHighlighter::Restore(const TArray<FPWSavedMesh>& Saved)
 {
-	for (const FSavedMesh& Entry : Saved)
+	for (const FPWSavedMesh& Entry : Saved)
 	{
 		UMeshComponent* Mesh = Entry.Mesh.Get();
 		if (!Mesh)

@@ -3,7 +3,7 @@
 #include "PWTestWorld.h"
 #include "PWTestTypes.h"
 #include "Ability/SpellParams.h"
-#include "Libraries/GASCoreFunctions.h"
+#include "Libraries/PWGasFunctions.h"
 #include "Misc/AutomationTest.h"
 
 #if WITH_DEV_AUTOMATION_TESTS
@@ -31,12 +31,12 @@ bool FGASCoreFunctionsApplyEffectsTest::RunTest(const FString& Parameters)
 	Params->AddExtension<UEffectSpellParamsExtension>()->Groups.AddDefaulted_GetRef().Effects.Add({UPWTestEffect::StaticClass(), 1});
 
 	Params->SourceAvatar = Test.Actor;
-	TestTrue("Applied", UGASCoreFunctions::ApplyEffects(Target, Params));
+	TestTrue("Applied", UPWGasFunctions::ApplyEffects(Target, Params));
 	TestEqual("Effect on target", Target->GetGameplayEffectCount(UPWTestEffect::StaticClass(), nullptr), 1);
 	TestTrue("Caster is the instigator", GetEffectInstigator(Target) == Test.ASC);
 
 	Params->SourceAvatar = nullptr;
-	TestTrue("Applied without a source", UGASCoreFunctions::ApplyEffects(Other, Params));
+	TestTrue("Applied without a source", UPWGasFunctions::ApplyEffects(Other, Params));
 	TestTrue("Target is its own instigator", GetEffectInstigator(Other) == Other);
 
 	return true;
@@ -53,7 +53,7 @@ bool FGASCoreFunctionsModifierValuesTest::RunTest(const FString& Parameters)
 	Effects->Groups.AddDefaulted_GetRef().Effects.Add({UPWTestEffect::StaticClass(), 1});
 	Effects->Groups.AddDefaulted_GetRef().Effects.Add({nullptr, 1});
 
-	const TArray<FEffectModifierValue> Values = UGASCoreFunctions::GetModifierValuesFromEffects(Params, UPWTestAttributeSet::GetHealthAttribute());
+	const TArray<FPWEffectModifierValue> Values = UPWGasFunctions::GetModifierValuesFromEffects(Params, UPWTestAttributeSet::GetHealthAttribute());
 	if (!TestEqual("Only effects that change the attribute are returned", Values.Num(), 1))
 		return false;
 
@@ -62,7 +62,7 @@ bool FGASCoreFunctionsModifierValuesTest::RunTest(const FString& Parameters)
 	TestEqual("Value", Values[0].Value, -10.f);
 	TestEqual("An infinite effect has no duration", Values[0].Duration, 0.f);
 
-	TestEqual("Another attribute gives nothing", UGASCoreFunctions::GetModifierValuesFromEffects(Params, UPWTestAttributeSet::GetHealthMaxAttribute()).Num(), 0);
+	TestEqual("Another attribute gives nothing", UPWGasFunctions::GetModifierValuesFromEffects(Params, UPWTestAttributeSet::GetHealthMaxAttribute()).Num(), 0);
 	return true;
 }
 

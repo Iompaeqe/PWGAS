@@ -5,7 +5,7 @@
 #include "Ability/SpellParams.h"
 #include "Engine/World.h"
 #include "GameFramework/Actor.h"
-#include "Libraries/GASCoreFunctions.h"
+#include "Libraries/PWGasFunctions.h"
 #include "Net/UnrealNetwork.h"
 #include "TimerManager.h"
 
@@ -42,9 +42,9 @@ bool UPWDamageableComponent::ApplySpellParams(USpellParams* SpellParams)
 
 	UWorld* World = GetWorld();
 	AActor* Instigator = SpellParams->SourceAvatar;
-	const TArray<FEffectModifierValue> Values = UGASCoreFunctions::GetModifierValuesFromEffects(SpellParams, DamageAttribute, GetOwner());
+	const TArray<FPWEffectModifierValue> Values = UPWGasFunctions::GetModifierValuesFromEffects(SpellParams, DamageAttribute, GetOwner());
 
-	for (const FEffectModifierValue& Value : Values)
+	for (const FPWEffectModifierValue& Value : Values)
 	{
 		if (Value.DurationType == EGameplayEffectDurationType::Instant)
 		{
@@ -55,7 +55,7 @@ bool UPWDamageableComponent::ApplySpellParams(USpellParams* SpellParams)
 			continue;
 
 		// The same effect from the same caster restarts, it does not stack.
-		OngoingEffects.RemoveAll([&](const FOngoingEffect& Existing)
+		OngoingEffects.RemoveAll([&](const FPWOngoingEffect& Existing)
 		{
 			if (Existing.Instigator != Instigator || Existing.EffectClass != Value.EffectClass)
 				return false;
@@ -63,7 +63,7 @@ bool UPWDamageableComponent::ApplySpellParams(USpellParams* SpellParams)
 			return true;
 		});
 
-		FOngoingEffect& Ongoing = OngoingEffects.AddDefaulted_GetRef();
+		FPWOngoingEffect& Ongoing = OngoingEffects.AddDefaulted_GetRef();
 		Ongoing.Instigator = Instigator;
 		Ongoing.EffectClass = Value.EffectClass;
 		Ongoing.bInfinite = Value.DurationType == EGameplayEffectDurationType::Infinite;
@@ -103,10 +103,10 @@ void UPWDamageableComponent::RemoveSpellParams(const USpellParams* SpellParams, 
 
 	const AActor* Instigator = SpellParams->SourceAvatar;
 	TArray<TSubclassOf<UGameplayEffect>> Classes;
-	for (const FEffectModifierValue& Value : UGASCoreFunctions::GetModifierValuesFromEffects(SpellParams, DamageAttribute, GetOwner()))
+	for (const FPWEffectModifierValue& Value : UPWGasFunctions::GetModifierValuesFromEffects(SpellParams, DamageAttribute, GetOwner()))
 		Classes.Add(Value.EffectClass);
 
-	OngoingEffects.RemoveAll([&](const FOngoingEffect& Existing)
+	OngoingEffects.RemoveAll([&](const FPWOngoingEffect& Existing)
 	{
 		if (Existing.Instigator != Instigator || !Classes.Contains(Existing.EffectClass) || (bInfiniteOnly && !Existing.bInfinite))
 			return false;
@@ -117,12 +117,12 @@ void UPWDamageableComponent::RemoveSpellParams(const USpellParams* SpellParams, 
 
 void UPWDamageableComponent::ClearOngoingEffects()
 {
-	for (const FOngoingEffect& Effect : OngoingEffects)
+	for (const FPWOngoingEffect& Effect : OngoingEffects)
 		StopOngoing(Effect);
 	OngoingEffects.Reset();
 }
 
-void UPWDamageableComponent::StopOngoing(const FOngoingEffect& Effect) const
+void UPWDamageableComponent::StopOngoing(const FPWOngoingEffect& Effect) const
 {
 	if (const UWorld* World = GetWorld())
 	{
@@ -169,7 +169,7 @@ void UPWDamageableComponent::TickOngoing(const float Amount, const TWeakObjectPt
 
 void UPWDamageableComponent::EndOngoing(FTimerHandle TickHandle)
 {
-	OngoingEffects.RemoveAll([&](const FOngoingEffect& Existing)
+	OngoingEffects.RemoveAll([&](const FPWOngoingEffect& Existing)
 	{
 		if (Existing.Tick != TickHandle)
 			return false;

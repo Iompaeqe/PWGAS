@@ -16,7 +16,7 @@
 #include "Animation/Skeleton.h"
 #include "Engine/SkeletalMeshSocket.h"
 #include "Engine/EngineTypes.h"
-#include "Libraries/GASCoreFunctions.h"
+#include "Libraries/PWGasFunctions.h"
 #include "Ability/SpellCollision.h"
 #include "Ability/Affectable.h"
 #include "TeamFunctions.h"

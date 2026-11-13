@@ -7,8 +7,8 @@
 #include "AttributeSet.h"
 #include "PWAttributeSetBase.generated.h"
 
-struct FEffectProperties;
-struct FEffectObject;
+struct FPWEffectProperties;
+struct FPWEffectObject;
 struct FGameplayTag;
 
 #define ATTRIBUTE_ACCESSORS(ClassName, PropertyName) \
@@ -73,8 +73,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category="PW|Attributes")
 	virtual FGameplayAttribute GetAttribute(const FGameplayTag& AttributeTag) const;
 
-	virtual void SetEffectProperties(const FGameplayEffectModCallbackData& Data, FEffectProperties& Props);
-	virtual void SetEffectObject(FEffectObject& Props, const FGameplayAbilityActorInfo* ActorInfo);
+	virtual void SetEffectProperties(const FGameplayEffectModCallbackData& Data, FPWEffectProperties& Props);
+	virtual void SetEffectObject(FPWEffectObject& Props, const FGameplayAbilityActorInfo* ActorInfo);
 
 protected:
 	struct FClamp

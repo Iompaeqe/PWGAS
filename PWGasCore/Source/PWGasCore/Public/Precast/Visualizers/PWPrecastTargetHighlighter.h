@@ -18,7 +18,7 @@ struct PWGASCORE_API FPWTargetHighlighter
 	static UMaterialInterface* MakeTint(UObject* Outer, const FLinearColor& Color);
 
 private:
-	struct FSavedMesh
+	struct FPWSavedMesh
 	{
 		TWeakObjectPtr<UMeshComponent> Mesh;
 		TWeakObjectPtr<UMaterialInterface> Overlay;
@@ -26,7 +26,7 @@ private:
 		int32 Stencil = 0;
 	};
 
-	static void Restore(const TArray<FSavedMesh>& Saved);
+	static void Restore(const TArray<FPWSavedMesh>& Saved);
 
-	TMap<TWeakObjectPtr<AActor>, TArray<FSavedMesh>> Highlighted;
+	TMap<TWeakObjectPtr<AActor>, TArray<FPWSavedMesh>> Highlighted;
 };

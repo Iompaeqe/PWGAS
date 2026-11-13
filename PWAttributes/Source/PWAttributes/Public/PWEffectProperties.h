@@ -2,17 +2,17 @@
 
 #pragma once
 #include "GameplayEffectTypes.h"
-#include "FEffectProperties.generated.h"
+#include "PWEffectProperties.generated.h"
 
 class UAbilitySystemComponent;
 
 USTRUCT()
-struct FEffectObject
+struct FPWEffectObject
 {
 	GENERATED_BODY()
 
-	FEffectObject() {}
-	FEffectObject(UAbilitySystemComponent* ASC, AActor* AA, AController* Controller, ACharacter* Char)
+	FPWEffectObject() {}
+	FPWEffectObject(UAbilitySystemComponent* ASC, AActor* AA, AController* Controller, ACharacter* Char)
 	: ASC(ASC), AvatarActor(AA), Controller(Controller), Character(Char) {}
 
 	UPROPERTY()
@@ -30,14 +30,14 @@ struct FEffectObject
 };
 
 USTRUCT()
-struct FEffectProperties
+struct FPWEffectProperties
 {
 	GENERATED_BODY()
 
-	FEffectProperties() {}
+	FPWEffectProperties() {}
 	
-	FEffectObject Source;
-	FEffectObject Target;
+	FPWEffectObject Source;
+	FPWEffectObject Target;
 	FGameplayEffectContextHandle EffectContextHandle;
 	FGameplayTagContainer EffectAssetTags;
 };

@@ -7,7 +7,7 @@
 #include "Ability/SpellParams.h"
 #include "PWAbilityModule_Aura.generated.h"
 
-struct FEffectEntry;
+struct FPWEffectEntry;
 class USphereComponent;
 
 UCLASS(Blueprintable, BlueprintType, EditInlineNew, DefaultToInstanced)

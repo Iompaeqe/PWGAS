@@ -22,7 +22,7 @@ enum class EPWActivationGroup : uint8
 };
 
 USTRUCT(BlueprintType)
-struct PWGASCORE_API FCostData
+struct PWGASCORE_API FPWCostData
 {
 	GENERATED_BODY()
 
@@ -33,8 +33,8 @@ struct PWGASCORE_API FCostData
 	UPROPERTY(BlueprintReadOnly)
 	float Value = 0.f;
 
-	FCostData() = default;
-	FCostData(const FString& AttributeName, const EGameplayModOp::Type Modifier, const float Value)
+	FPWCostData() = default;
+	FPWCostData(const FString& AttributeName, const EGameplayModOp::Type Modifier, const float Value)
 	{
 		this->AttributeName = AttributeName;
 		this->Modifier = Modifier;
@@ -107,7 +107,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Cooldown")
 	virtual float GetCooldown(int32 Level) const;
 	UFUNCTION(BlueprintCallable, Category = "Cost")
-	virtual void GetCost(int32 Level, TArray<FCostData>& CostData) const;
+	virtual void GetCost(int32 Level, TArray<FPWCostData>& CostData) const;
 	
 	UFUNCTION(BlueprintPure, Category="Animation")
 	void GetAnimMontageFromActor(UAnimMontage*& OutMontage, float& OutAnimRate, int Index = 0) const;

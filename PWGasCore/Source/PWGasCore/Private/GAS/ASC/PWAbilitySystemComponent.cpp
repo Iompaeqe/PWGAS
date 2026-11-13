@@ -10,7 +10,7 @@
 #include "GAS/ASC/PWASC_InputBinding.h"
 #include "GAS/ASC/PWASC_VfxLifecycle.h"
 #include "GAS/Data/GASCoreEnums.h"
-#include "GAS/EffectContext/EffectContextFunctions.h"
+#include "GAS/EffectContext/PWEffectContextFunctions.h"
 #include "GAS/Data/PWNiagaraEntry.h"
 #include "GAS/Tags/GASCoreTags.h"
 #include "PWGASCoreLogChannels.h"
@@ -80,7 +80,7 @@ void UPWAbilitySystemComponent::OnRep_ActivateAbilities()
 FGameplayEffectContextHandle UPWAbilitySystemComponent::MakeEffectContext() const
 {
 	const FGameplayEffectContextHandle Context = Super::MakeEffectContext();
-	if (UEffectContextFunctions::GetPWContext(Context))
+	if (UPWEffectContextFunctions::GetPWContext(Context))
 		return Context;
 
 	FGameplayEffectContextHandle PWContext(new FPWGameplayEffectContext());
