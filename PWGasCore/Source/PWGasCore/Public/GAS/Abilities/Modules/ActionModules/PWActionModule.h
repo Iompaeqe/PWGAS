@@ -7,7 +7,7 @@
 #include "PWActionModule.generated.h"
 
 class UPWDataModule;
-class USpellParams;
+class UPWSpellParams;
 struct FPWTargetingResult;
 UCLASS(Blueprintable, BlueprintType, EditInlineNew, DefaultToInstanced)
 class PWGASCORE_API UPWActionModule : public UPWAbilityModule
@@ -16,10 +16,10 @@ class PWGASCORE_API UPWActionModule : public UPWAbilityModule
 
 public:
 	UFUNCTION(BlueprintNativeEvent, Category="Module")
-	USpellParams* MakeSpellParams(const FPWTargetingResult& Target);
-	virtual USpellParams* MakeSpellParams_Implementation(const FPWTargetingResult& Target);
+	UPWSpellParams* MakeSpellParams(const FPWTargetingResult& Target);
+	virtual UPWSpellParams* MakeSpellParams_Implementation(const FPWTargetingResult& Target);
 
-	virtual void ExtendParamsWithData(USpellParams* Params) const;
+	virtual void ExtendParamsWithData(UPWSpellParams* Params) const;
 
 	UFUNCTION(BlueprintCallable, Category="Module")
 	virtual void ExecuteAction() {}

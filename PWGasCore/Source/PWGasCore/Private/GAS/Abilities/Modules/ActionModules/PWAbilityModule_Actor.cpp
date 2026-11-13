@@ -10,13 +10,13 @@
 #include "PWGASCoreLogChannels.h"
 
 
-USpellParams* UPWAbilityModule_Actor::MakeSpellParams_Implementation(const FPWTargetingResult& Target)
+UPWSpellParams* UPWAbilityModule_Actor::MakeSpellParams_Implementation(const FPWTargetingResult& Target)
 {
 	if (!OwnerAbility)
 		return nullptr;
 
-	USpellParams* Params = OwnerAbility->MakeSpellParams();
-	UActorSpellParamsExtension* ActorParams = Params->AddExtension<UActorSpellParamsExtension>();
+	UPWSpellParams* Params = OwnerAbility->MakeSpellParams();
+	UPWActorSpellParams* ActorParams = Params->AddExtension<UPWActorSpellParams>();
 	ActorParams->SpawnLocation = Target.Location;
 	// The rotation the actor really spawns with, from its socket, so anything that launches along it flies at the target.
 	ActorParams->SpawnRotation = BuildSpawnTransform(Target).Rotator();
@@ -60,7 +60,7 @@ AActor* UPWAbilityModule_Actor::SpawnActorWithTargetingResult(const FPWTargeting
 		DrawDebugSphere(GetWorld(), SpawnTM.GetLocation(), 5, 16, FColor::Red, false, 3);
 	}
 
-	if (USpellParams* ParamsObj = MakeSpellParams(Target))
+	if (UPWSpellParams* ParamsObj = MakeSpellParams(Target))
 	{
 		IPWSpellParamsInterface::Execute_SetSpellParams(Spawned, ParamsObj);
 	}

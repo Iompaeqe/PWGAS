@@ -1,6 +1,6 @@
 // Copyright (c) 2025 Metehan Goksel Kurtulan (Iompaeqe)
 
-#include "MultiDataArray.h"
+#include "PWMultiDataArray.h"
 #include "Misc/AutomationTest.h"
 
 #if WITH_DEV_AUTOMATION_TESTS
@@ -9,7 +9,7 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMultiDataArrayTest, "PW.SharedTypes.MultiDataA
 
 bool FMultiDataArrayTest::RunTest(const FString& Parameters)
 {
-	UMultiDataArray* Data = NewObject<UMultiDataArray>();
+	UPWMultiDataArray* Data = NewObject<UPWMultiDataArray>();
 
 	Data->AddFloat("Range", 750.f);
 	Data->AddInt("Count", 3);

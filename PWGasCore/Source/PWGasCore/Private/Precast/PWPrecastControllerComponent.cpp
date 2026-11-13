@@ -17,8 +17,8 @@
 #include "Engine/SkeletalMeshSocket.h"
 #include "Engine/EngineTypes.h"
 #include "Libraries/PWGasFunctions.h"
-#include "Ability/SpellCollision.h"
-#include "Ability/Affectable.h"
+#include "Ability/PWSpellCollision.h"
+#include "Ability/PWAffectable.h"
 #include "TeamFunctions.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/GameplayStaticsTypes.h"
@@ -273,7 +273,7 @@ void UPWPrecastControllerComponent::GatherTargets(const TArray<FPWTargetingResul
 		{
 			if (!IsValid(Actor) || OutTargets.Contains(Actor))
 				continue;
-			if (!UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(Actor) && !IAffectable::Find(Actor))
+			if (!UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(Actor) && !IPWAffectable::Find(Actor))
 				continue;
 			if (Effect && !UTeamFunctions::MatchesMask(Pawn, Actor, Effect->GetCombinedMask()))
 				continue;
@@ -308,13 +308,13 @@ FPWPrecastPath UPWPrecastControllerComponent::SimulatePath(const FVector& Start,
 		AActor* Actor = Hit.GetActor();
 		if (!Component || !Actor)
 			return false;
-		if (Component->Implements<UDontTriggerCollision>() || Actor->Implements<UDontTriggerCollision>())
+		if (Component->Implements<UPWDontTriggerCollision>() || Actor->Implements<UPWDontTriggerCollision>())
 			return false;
 		if (ActorSphere.IsValid() && ActorSphere->GetCollisionResponseToChannel(Component->GetCollisionObjectType()) == ECR_Ignore)
 			return false;
 		if (Component->GetCollisionResponseToChannel(ProjectileChannel) == ECR_Ignore)
 			return false;
-		if (!IAffectable::Find(Actor))
+		if (!IPWAffectable::Find(Actor))
 			return true;
 		return !ActorModule || !Pawn || UTeamFunctions::MatchesMask(Pawn, Actor, ActorModule->TargetMask);
 	};

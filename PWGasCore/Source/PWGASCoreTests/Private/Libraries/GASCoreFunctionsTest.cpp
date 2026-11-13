@@ -2,7 +2,7 @@
 
 #include "PWTestWorld.h"
 #include "PWTestTypes.h"
-#include "Ability/SpellParams.h"
+#include "Ability/PWSpellParams.h"
 #include "Libraries/PWGasFunctions.h"
 #include "Misc/AutomationTest.h"
 
@@ -26,9 +26,9 @@ bool FGASCoreFunctionsApplyEffectsTest::RunTest(const FString& Parameters)
 	UPWAbilitySystemComponent* Target = Test.SpawnASC();
 	UPWAbilitySystemComponent* Other = Test.SpawnASC();
 
-	USpellParams* Params = NewObject<USpellParams>();
+	UPWSpellParams* Params = NewObject<UPWSpellParams>();
 	Params->AbilityLevel = 1;
-	Params->AddExtension<UEffectSpellParamsExtension>()->Groups.AddDefaulted_GetRef().Effects.Add({UPWTestEffect::StaticClass(), 1});
+	Params->AddExtension<UPWEffectSpellParams>()->Groups.AddDefaulted_GetRef().Effects.Add({UPWTestEffect::StaticClass(), 1});
 
 	Params->SourceAvatar = Test.Actor;
 	TestTrue("Applied", UPWGasFunctions::ApplyEffects(Target, Params));
@@ -46,9 +46,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FGASCoreFunctionsModifierValuesTest, "PW.Librar
 
 bool FGASCoreFunctionsModifierValuesTest::RunTest(const FString& Parameters)
 {
-	USpellParams* Params = NewObject<USpellParams>();
+	UPWSpellParams* Params = NewObject<UPWSpellParams>();
 	Params->AbilityLevel = 1;
-	UEffectSpellParamsExtension* Effects = Params->AddExtension<UEffectSpellParamsExtension>();
+	UPWEffectSpellParams* Effects = Params->AddExtension<UPWEffectSpellParams>();
 	Effects->Groups.AddDefaulted_GetRef().Effects.Add({UPWTestPeriodicDamageEffect::StaticClass(), 1});
 	Effects->Groups.AddDefaulted_GetRef().Effects.Add({UPWTestEffect::StaticClass(), 1});
 	Effects->Groups.AddDefaulted_GetRef().Effects.Add({nullptr, 1});

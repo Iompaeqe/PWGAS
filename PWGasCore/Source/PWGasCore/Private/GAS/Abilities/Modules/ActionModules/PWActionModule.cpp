@@ -6,7 +6,7 @@
 #include "GAS/Abilities/PWModularGameplayAbility.h"
 
 
-USpellParams* UPWActionModule::MakeSpellParams_Implementation(const FPWTargetingResult& Target)
+UPWSpellParams* UPWActionModule::MakeSpellParams_Implementation(const FPWTargetingResult& Target)
 {
 	return nullptr;
 }
@@ -22,7 +22,7 @@ void UPWActionModule::FinishAction()
 	OnActionFinished.Broadcast();
 }
 
-void UPWActionModule::ExtendParamsWithData(USpellParams* Params) const
+void UPWActionModule::ExtendParamsWithData(UPWSpellParams* Params) const
 {
 	for (TObjectPtr Data : OwnerAbility->DataModules)
 	{

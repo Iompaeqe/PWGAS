@@ -70,9 +70,9 @@ public:
 	APWTestSpellActor();
 
 	UPROPERTY()
-	TObjectPtr<USpellParams> SpellParams;
+	TObjectPtr<UPWSpellParams> SpellParams;
 
-	virtual void SetSpellParams_Implementation(USpellParams* Params) override { SpellParams = Params; }
+	virtual void SetSpellParams_Implementation(UPWSpellParams* Params) override { SpellParams = Params; }
 };
 
 UCLASS(NotBlueprintable, HideDropdown)

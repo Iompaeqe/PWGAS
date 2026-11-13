@@ -3,8 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Ability/Affectable.h"
-#include "Ability/EffectReceiver.h"
+#include "Ability/PWAffectable.h"
+#include "Ability/PWEffectReceiver.h"
 #include "GameFramework/Actor.h"
 #include "PWDamageableActor.generated.h"
 
@@ -12,7 +12,7 @@ class UPWDamageableComponent;
 
 // Ready-made actor that takes ability effects through a damageable component. Any actor can do the same by adding the component and forwarding ApplyEffects to it.
 UCLASS(Blueprintable)
-class PWGASCORE_API APWDamageableActor : public AActor, public IEffectReceiver, public IAffectable
+class PWGASCORE_API APWDamageableActor : public AActor, public IPWEffectReceiver, public IPWAffectable
 {
 	GENERATED_BODY()
 
@@ -23,8 +23,8 @@ public:
 	UPWDamageableComponent* GetDamageable() const { return Damageable; }
 
 protected:
-	virtual bool ApplyEffects_Implementation(USpellParams* SpellParams) override;
-	virtual void RemoveEffects_Implementation(USpellParams* SpellParams, bool bInfiniteOnly) override;
+	virtual bool ApplyEffects_Implementation(UPWSpellParams* SpellParams) override;
+	virtual void RemoveEffects_Implementation(UPWSpellParams* SpellParams, bool bInfiniteOnly) override;
 	virtual UObject* GetEffectReceiver_Implementation() override;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Damageable")

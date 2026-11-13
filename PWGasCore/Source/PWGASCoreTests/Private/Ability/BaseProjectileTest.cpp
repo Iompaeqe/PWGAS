@@ -2,7 +2,7 @@
 
 #include "PWTestWorld.h"
 #include "PWProjectile.h"
-#include "Ability/SpellParams.h"
+#include "Ability/PWSpellParams.h"
 #include "Misc/AutomationTest.h"
 
 #if WITH_DEV_AUTOMATION_TESTS
@@ -12,7 +12,7 @@ static APWProjectile* SpawnProjectile(const FPWTestWorld& Test, const FGuid& Cas
 	const FTransform Transform(Location);
 	APWProjectile* Projectile = Test.World->SpawnActorDeferred<APWProjectile>(APWProjectile::StaticClass(), Transform, Test.Actor, Cast<APawn>(Test.Actor), ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
 
-	USpellParams* Params = NewObject<USpellParams>(Projectile);
+	UPWSpellParams* Params = NewObject<UPWSpellParams>(Projectile);
 	Params->SourceAvatar = Test.Actor;
 	Params->CastId = CastId;
 	IPWSpellParamsInterface::Execute_SetSpellParams(Projectile, Params);

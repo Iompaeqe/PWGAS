@@ -42,7 +42,7 @@ private:
 	FGuid CastId;
 
 protected:
-	virtual USpellParams* MakeSpellParams_Implementation(const FPWTargetingResult& Target) override;
+	virtual UPWSpellParams* MakeSpellParams_Implementation(const FPWTargetingResult& Target) override;
 
 	void BuildSpreadSteps();
 	FPWTargetingResult MakeSpreadTarget(const FPWTargetingResult& Target, const FRotator& Offset) const;

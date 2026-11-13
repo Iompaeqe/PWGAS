@@ -4,7 +4,7 @@
 #include "PWTestTypes.h"
 #include "TeamComponent.h"
 #include "TeamFunctions.h"
-#include "Ability/SpellParams.h"
+#include "Ability/PWSpellParams.h"
 #include "Misc/AutomationTest.h"
 
 #if WITH_DEV_AUTOMATION_TESTS

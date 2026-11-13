@@ -4,7 +4,7 @@
 #include "Targeting/PresetupPolicies/Resolver/PWTargetResolver_Sphere.h"
 
 #include "Engine/OverlapResult.h"
-#include "Ability/SpellParams.h"
+#include "Ability/PWSpellParams.h"
 #include "GAS/Abilities/PWModularGameplayAbility.h"
 #include "GAS/Abilities/Modules/DataModules/PWAbilityModule_Radius.h"
 

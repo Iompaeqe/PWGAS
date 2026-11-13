@@ -2,7 +2,7 @@
 
 #include "PWTestWorld.h"
 #include "PWTestTypes.h"
-#include "Ability/SpellParams.h"
+#include "Ability/PWSpellParams.h"
 #include "GAS/Abilities/Modules/DataModules/PWAbilityModule_Effect.h"
 #include "World/PWDamageableActor.h"
 #include "World/PWDamageableComponent.h"
@@ -10,12 +10,12 @@
 
 #if WITH_DEV_AUTOMATION_TESTS
 
-static USpellParams* MakeHitParams(AActor* Source, const TSubclassOf<UGameplayEffect> Effect)
+static UPWSpellParams* MakeHitParams(AActor* Source, const TSubclassOf<UGameplayEffect> Effect)
 {
-	USpellParams* Params = NewObject<USpellParams>();
+	UPWSpellParams* Params = NewObject<UPWSpellParams>();
 	Params->AbilityLevel = 1;
 	Params->SourceAvatar = Source;
-	Params->AddExtension<UEffectSpellParamsExtension>()->Groups.AddDefaulted_GetRef().Effects.Add({Effect, 1});
+	Params->AddExtension<UPWEffectSpellParams>()->Groups.AddDefaulted_GetRef().Effects.Add({Effect, 1});
 	return Params;
 }
 
@@ -37,10 +37,10 @@ bool FDamageableInstantTest::RunTest(const FString& Parameters)
 	UPWDamageableComponent* Damageable = Actor->GetDamageable();
 	TestEqual("Starts at max health", Damageable->GetHealth(), 100.f);
 
-	TestTrue("Effect accepted through the interface", IAffectable::Execute_ApplyEffects(Actor, MakeHitParams(Test.Actor, UPWTestInstantHitEffect::StaticClass())));
+	TestTrue("Effect accepted through the interface", IPWAffectable::Execute_ApplyEffects(Actor, MakeHitParams(Test.Actor, UPWTestInstantHitEffect::StaticClass())));
 	TestEqual("Instant damage", Damageable->GetHealth(), 75.f);
 
-	TestFalse("An effect on another attribute is ignored", IAffectable::Execute_ApplyEffects(Actor, MakeHitParams(Test.Actor, UPWTestEffect::StaticClass())));
+	TestFalse("An effect on another attribute is ignored", IPWAffectable::Execute_ApplyEffects(Actor, MakeHitParams(Test.Actor, UPWTestEffect::StaticClass())));
 	TestEqual("Health unchanged", Damageable->GetHealth(), 75.f);
 
 	Damageable->ApplyDamage(-500.f, nullptr);

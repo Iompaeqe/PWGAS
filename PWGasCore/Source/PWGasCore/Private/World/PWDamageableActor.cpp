@@ -12,12 +12,12 @@ APWDamageableActor::APWDamageableActor()
 	Damageable = CreateDefaultSubobject<UPWDamageableComponent>("Damageable");
 }
 
-bool APWDamageableActor::ApplyEffects_Implementation(USpellParams* SpellParams)
+bool APWDamageableActor::ApplyEffects_Implementation(UPWSpellParams* SpellParams)
 {
 	return Damageable->ApplySpellParams(SpellParams);
 }
 
-void APWDamageableActor::RemoveEffects_Implementation(USpellParams* SpellParams, const bool bInfiniteOnly)
+void APWDamageableActor::RemoveEffects_Implementation(UPWSpellParams* SpellParams, const bool bInfiniteOnly)
 {
 	Damageable->RemoveSpellParams(SpellParams, bInfiniteOnly);
 }

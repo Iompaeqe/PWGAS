@@ -8,7 +8,7 @@
 #include "PWTargetPolicyBase.generated.h"
 
 class UPWDataModule;
-class USpellParams;
+class UPWSpellParams;
 class UPWModularGameplayAbility;
 struct FPWTargetingResult;
 
@@ -63,7 +63,7 @@ public:
 
 protected:
 	// Set while a spawned actor is asking for targets.
-	mutable const USpellParams* ActiveParams = nullptr;
+	mutable const UPWSpellParams* ActiveParams = nullptr;
 
 public:
 	
@@ -126,7 +126,7 @@ class PWGASCORE_API UPWTargetResolver : public UPWTargetPolicyBase, public IPWSp
 	GENERATED_BODY()
 
 public:
-	virtual void GetImpactTargets(const AActor* SpellActor, const USpellParams* Params, const FHitResult& Hit, TArray<AActor*>& OutTargets) const override;
+	virtual void GetImpactTargets(const AActor* SpellActor, const UPWSpellParams* Params, const FHitResult& Hit, TArray<AActor*>& OutTargets) const override;
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Targeting")
 	void Resolve(const AActor* Actor, const FPWTargetingResult& Target, TArray<AActor*>& OutActors) const;

@@ -6,7 +6,7 @@
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemGlobals.h"
 #include "GAS/Abilities/PWModularGameplayAbility.h"
-#include "Ability/Affectable.h"
+#include "Ability/PWAffectable.h"
 #include "Libraries/PWGasFunctions.h"
 #include "TeamFunctions.h"
 
@@ -31,7 +31,7 @@ namespace
 	}
 }
 
-void UEffectSpellParamsExtension::ApplyEffectsToTarget(UAbilitySystemComponent* SourceASC, UAbilitySystemComponent* TargetASC, const int32 AbilityLevel) const
+void UPWEffectSpellParams::ApplyEffectsToTarget(UAbilitySystemComponent* SourceASC, UAbilitySystemComponent* TargetASC, const int32 AbilityLevel) const
 {
 	if (!SourceASC || !TargetASC)
 		return;
@@ -67,12 +67,12 @@ int32 UPWAbilityModule_Effect::GetCombinedMask() const
 	return Mask;
 }
 
-void UPWAbilityModule_Effect::ExtendParams(USpellParams* Params) const
+void UPWAbilityModule_Effect::ExtendParams(UPWSpellParams* Params) const
 {
 	if (!Params)
 		return;
 
-	UEffectSpellParamsExtension* Extension = Params->AddExtension<UEffectSpellParamsExtension>();
+	UPWEffectSpellParams* Extension = Params->AddExtension<UPWEffectSpellParams>();
 	Extension->Groups = EffectGroups;
 	Params->TargetEffectMask = GetCombinedMask();
 }
@@ -123,13 +123,13 @@ void UPWAbilityModule_Effect::ApplyEffectsToActor(UAbilitySystemComponent* Sourc
 		return;
 	}
 
-	UObject* Receiver = IAffectable::Find(Target);
+	UObject* Receiver = IPWAffectable::Find(Target);
 	if (!Receiver || !OwnerAbility || !UTeamFunctions::MatchesMask(SourceASC->GetAvatarActor(), Target, GetCombinedMask()))
 		return;
 
-	USpellParams* Params = OwnerAbility->MakeSpellParams();
+	UPWSpellParams* Params = OwnerAbility->MakeSpellParams();
 	ExtendParams(Params);
-	IAffectable::Execute_ApplyEffects(Receiver, Params);
+	IPWAffectable::Execute_ApplyEffects(Receiver, Params);
 }
 
 void UPWAbilityModule_Effect::RemoveEffectsFromActor(UAbilitySystemComponent* SourceASC, AActor* Target, const bool bInfiniteOnly)
@@ -143,11 +143,11 @@ void UPWAbilityModule_Effect::RemoveEffectsFromActor(UAbilitySystemComponent* So
 		return;
 	}
 
-	UObject* Receiver = IAffectable::Find(Target);
+	UObject* Receiver = IPWAffectable::Find(Target);
 	if (!Receiver || !OwnerAbility)
 		return;
 
-	USpellParams* Params = OwnerAbility->MakeSpellParams();
+	UPWSpellParams* Params = OwnerAbility->MakeSpellParams();
 	ExtendParams(Params);
-	IAffectable::Execute_RemoveEffects(Receiver, Params, bInfiniteOnly);
+	IPWAffectable::Execute_RemoveEffects(Receiver, Params, bInfiniteOnly);
 }

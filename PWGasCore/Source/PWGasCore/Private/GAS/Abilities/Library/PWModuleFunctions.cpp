@@ -3,31 +3,31 @@
 
 #include "GAS/Abilities/Library/PWModuleFunctions.h"
 
-#include "Ability/SpellParams.h"
+#include "Ability/PWSpellParams.h"
 #include "GAS/Abilities/Modules/ActionModules/PWAbilityModule_Actor.h"
 
-UEffectSpellParamsExtension* UPWModuleFunctions::GetEffectParams(const USpellParams* Params)
+UPWEffectSpellParams* UPWModuleFunctions::GetEffectParams(const UPWSpellParams* Params)
 {
-	return Params ? Params->FindExtension<UEffectSpellParamsExtension>() : nullptr;
+	return Params ? Params->FindExtension<UPWEffectSpellParams>() : nullptr;
 }
 
-UProjectileSpellParamsExtension* UPWModuleFunctions::GetProjectileParams(const USpellParams* Params)
+UPWProjectileSpellParams* UPWModuleFunctions::GetProjectileParams(const UPWSpellParams* Params)
 {
-	return Params ? Params->FindExtension<UProjectileSpellParamsExtension>() : nullptr;
+	return Params ? Params->FindExtension<UPWProjectileSpellParams>() : nullptr;
 }
 
-UActorSpellParamsExtension* UPWModuleFunctions::GetActorParams(const USpellParams* Params)
+UPWActorSpellParams* UPWModuleFunctions::GetActorParams(const UPWSpellParams* Params)
 {
-	return Params ? Params->FindExtension<UActorSpellParamsExtension>() : nullptr;
+	return Params ? Params->FindExtension<UPWActorSpellParams>() : nullptr;
 }
 
 
-float UPWModuleFunctions::GetRange(const USpellParams* Params)
+float UPWModuleFunctions::GetRange(const UPWSpellParams* Params)
 {
 	return Params ? Params->More->GetFloat("Range") : 0.f;
 }
 
-float UPWModuleFunctions::GetRadius(const USpellParams* Params)
+float UPWModuleFunctions::GetRadius(const UPWSpellParams* Params)
 {
 	return Params ? Params->More->GetFloat("Radius") : 0.f;
 }

@@ -91,7 +91,7 @@ bool FInstantEffectAtLocationTest::RunTest(const FString& Parameters)
 	TestEqual("Inside the ability a policy reads the value from its data module", Resolver->LastRadius, 300.f);
 	TestEqual("A key no module owns reads as zero", Resolver->GetFloat("Nothing"), 0.f);
 
-	USpellParams* Params = Ability->MakeSpellParams();
+	UPWSpellParams* Params = Ability->MakeSpellParams();
 	RadiusModule->ExtendParams(Params);
 	ResolverModule->ExtendParams(Params);
 	RadiusModule->Radius = 900.f;

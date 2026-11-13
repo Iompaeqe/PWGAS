@@ -13,5 +13,5 @@ class PWGASCORE_API UPWControlModule : public UPWAbilityModule
 
 public:
 	// Lets a control module add to the spell params given to spawned actors.
-	virtual void ExtendParams(class USpellParams* Params) const {}
+	virtual void ExtendParams(class UPWSpellParams* Params) const {}
 };

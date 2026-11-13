@@ -8,7 +8,7 @@
 #include "Components/ActorComponent.h"
 #include "PWDamageableComponent.generated.h"
 
-class USpellParams;
+class UPWSpellParams;
 class UPWDamageableComponent;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FPWDamageableHealthChanged, UPWDamageableComponent*, Component, float, OldHealth, float, NewHealth, AActor*, Instigator);
@@ -45,7 +45,7 @@ public:
 
 	// Reads the effects carried by the spell params. Instant ones hit once, periodic ones keep ticking.
 	UFUNCTION(BlueprintCallable, Category="Damageable")
-	bool ApplySpellParams(USpellParams* SpellParams);
+	bool ApplySpellParams(UPWSpellParams* SpellParams);
 
 	// A negative amount heals.
 	UFUNCTION(BlueprintCallable, Category="Damageable")
@@ -53,7 +53,7 @@ public:
 
 	// Ends the ongoing effects this caster applied with these spell params.
 	UFUNCTION(BlueprintCallable, Category="Damageable")
-	void RemoveSpellParams(const USpellParams* SpellParams, bool bInfiniteOnly = false);
+	void RemoveSpellParams(const UPWSpellParams* SpellParams, bool bInfiniteOnly = false);
 
 	UFUNCTION(BlueprintCallable, Category="Damageable")
 	void ClearOngoingEffects();

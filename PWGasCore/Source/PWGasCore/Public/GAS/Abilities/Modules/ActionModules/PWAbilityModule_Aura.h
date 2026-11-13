@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "PWActionModule.h"
-#include "Ability/SpellParams.h"
+#include "Ability/PWSpellParams.h"
 #include "PWAbilityModule_Aura.generated.h"
 
 struct FPWEffectEntry;

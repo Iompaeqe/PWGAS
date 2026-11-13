@@ -51,7 +51,7 @@ void UPWAbilityModule_Range::Initialize(UPWModularGameplayAbility* InOwner)
 		RangePolicy->Initialize(InOwner);
 }
 
-void UPWAbilityModule_Range::ExtendParams(USpellParams* Params) const
+void UPWAbilityModule_Range::ExtendParams(UPWSpellParams* Params) const
 {
 	if (!Params)
 		return;

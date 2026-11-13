@@ -9,7 +9,7 @@
 #include "PWAbilityModule_Projectile.generated.h"
 
 UCLASS(BlueprintType)
-class PWGASCORE_API UProjectileSpellParamsExtension : public UActorSpellParamsExtension
+class PWGASCORE_API UPWProjectileSpellParams : public UPWActorSpellParams
 {
 	GENERATED_BODY()
 
@@ -46,5 +46,5 @@ public:
 	const FPWProjectileSimConfig& GetProjectileConfig() const;
 
 protected:
-	virtual USpellParams* MakeSpellParams_Implementation(const FPWTargetingResult& Target) override;
+	virtual UPWSpellParams* MakeSpellParams_Implementation(const FPWTargetingResult& Target) override;
 };

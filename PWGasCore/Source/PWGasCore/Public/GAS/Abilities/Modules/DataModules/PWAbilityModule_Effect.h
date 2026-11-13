@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "PWDataModule.h"
-#include "Ability/SpellParams.h"
+#include "Ability/PWSpellParams.h"
 #include "PWAbilityModule_Effect.generated.h"
 
 struct FPWTargetingResult;
@@ -39,7 +39,7 @@ struct FPWEffectGroup
 };
 
 UCLASS(BlueprintType)
-class PWGASCORE_API UEffectSpellParamsExtension : public USpellParamsExtension
+class PWGASCORE_API UPWEffectSpellParams : public UPWSpellParamsExtension
 {
 	GENERATED_BODY()
 
@@ -71,13 +71,13 @@ public:
 	void ApplyEffects(UAbilitySystemComponent* SourceASC, UAbilitySystemComponent* TargetASC);
 	void RemoveEffects(UAbilitySystemComponent* SourceASC, UAbilitySystemComponent* TargetASC, bool bInfiniteOnly = false);
 
-	// Uses the target's ability system component when it has one, otherwise its IAffectable receiver.
+	// Uses the target's ability system component when it has one, otherwise its IPWAffectable receiver.
 	void ApplyEffectsToActor(UAbilitySystemComponent* SourceASC, AActor* Target);
 	void RemoveEffectsFromActor(UAbilitySystemComponent* SourceASC, AActor* Target, bool bInfiniteOnly = false);
 
 	// Every relation at least one group applies to.
 	int32 GetCombinedMask() const;
 
-	virtual void ExtendParams(USpellParams* Params) const override;
+	virtual void ExtendParams(UPWSpellParams* Params) const override;
 	virtual void PostLoad() override;
 };

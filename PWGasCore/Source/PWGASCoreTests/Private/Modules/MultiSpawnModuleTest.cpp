@@ -611,8 +611,8 @@ bool FProjectileParamsRotationTest::RunTest(const FString& Parameters)
 	if (!TestNotNull("Spawned", Spawned))
 		return false;
 
-	const USpellParams* Params = Module->MakeSpellParams(Target);
-	const UProjectileSpellParamsExtension* Projectile = Params ? Params->FindExtension<UProjectileSpellParamsExtension>() : nullptr;
+	const UPWSpellParams* Params = Module->MakeSpellParams(Target);
+	const UPWProjectileSpellParams* Projectile = Params ? Params->FindExtension<UPWProjectileSpellParams>() : nullptr;
 	if (!TestNotNull("Projectile params", Projectile))
 		return false;
 

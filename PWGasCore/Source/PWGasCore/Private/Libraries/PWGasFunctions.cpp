@@ -4,19 +4,19 @@
 #include "Libraries/PWGasFunctions.h"
 
 #include "AbilitySystemGlobals.h"
-#include "Ability/Affectable.h"
-#include "Ability/EffectReceiver.h"
-#include "Ability/SpellParams.h"
+#include "Ability/PWAffectable.h"
+#include "Ability/PWEffectReceiver.h"
+#include "Ability/PWSpellParams.h"
 #include "GAS/Abilities/Modules/DataModules/PWAbilityModule_Effect.h"
 #include "GAS/ASC/PWAbilitySystemComponent.h"
 #include "TeamFunctions.h"
 
-bool UPWGasFunctions::ApplyEffects(UPWAbilitySystemComponent* ASC, const USpellParams* SpellParams)
+bool UPWGasFunctions::ApplyEffects(UPWAbilitySystemComponent* ASC, const UPWSpellParams* SpellParams)
 {
 	if (!ASC) return false;
 	if (!SpellParams) return false;
 	
-	UEffectSpellParamsExtension* EffectParams = SpellParams->FindExtension<UEffectSpellParamsExtension>();
+	UPWEffectSpellParams* EffectParams = SpellParams->FindExtension<UPWEffectSpellParams>();
 	if (!EffectParams) return false;
 	
 	UAbilitySystemComponent* SourceASC = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(SpellParams->SourceAvatar);
@@ -24,12 +24,12 @@ bool UPWGasFunctions::ApplyEffects(UPWAbilitySystemComponent* ASC, const USpellP
 	return true;
 }
 
-TArray<FPWEffectModifierValue> UPWGasFunctions::GetModifierValuesFromEffects(const USpellParams* SpellParams, const FGameplayAttribute& Attribute, const AActor* Target)
+TArray<FPWEffectModifierValue> UPWGasFunctions::GetModifierValuesFromEffects(const UPWSpellParams* SpellParams, const FGameplayAttribute& Attribute, const AActor* Target)
 {
 	TArray<FPWEffectModifierValue> Values;
 	if (!SpellParams) return Values;
 
-	const UEffectSpellParamsExtension* EffectParams = SpellParams->FindExtension<UEffectSpellParamsExtension>();
+	const UPWEffectSpellParams* EffectParams = SpellParams->FindExtension<UPWEffectSpellParams>();
 	if (!EffectParams) return Values;
 
 	for (const FPWEffectGroup& Group : EffectParams->Groups)

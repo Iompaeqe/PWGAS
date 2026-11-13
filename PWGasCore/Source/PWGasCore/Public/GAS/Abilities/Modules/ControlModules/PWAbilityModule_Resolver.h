@@ -28,6 +28,6 @@ public:
 	UFUNCTION(BlueprintCallable, Category="Module")
 	FPWTargetingResult ResolveAroundCaster() const;
 
-	virtual void ExtendParams(USpellParams* Params) const override;
+	virtual void ExtendParams(UPWSpellParams* Params) const override;
 	virtual void GetRequiredDataModules_Implementation(TArray<TSubclassOf<UPWDataModule>>& OutRequiredModules) override;
 };

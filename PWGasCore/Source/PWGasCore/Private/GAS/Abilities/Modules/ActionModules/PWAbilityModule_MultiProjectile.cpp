@@ -80,9 +80,9 @@ void UPWAbilityModule_MultiProjectile::GetPreviewAimPoints(const FPWTargetingRes
 		OutAimPoints.Add(MakeSpreadTarget(Target, Shot.Offset).Location);
 }
 
-USpellParams* UPWAbilityModule_MultiProjectile::MakeSpellParams_Implementation(const FPWTargetingResult& Target)
+UPWSpellParams* UPWAbilityModule_MultiProjectile::MakeSpellParams_Implementation(const FPWTargetingResult& Target)
 {
-	USpellParams* Params = Super::MakeSpellParams_Implementation(Target);
+	UPWSpellParams* Params = Super::MakeSpellParams_Implementation(Target);
 	if (Params && ProjectileCount > 1)
 		Params->CastId = CastId;
 	return Params;

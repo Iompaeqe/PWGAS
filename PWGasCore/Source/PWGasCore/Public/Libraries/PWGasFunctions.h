@@ -10,7 +10,7 @@
 enum class EGameplayEffectDurationType : uint8;
 struct FGameplayAttribute;
 class UPWAbilitySystemComponent;
-class USpellParams;
+class UPWSpellParams;
 
 USTRUCT(BlueprintType)
 struct FPWEffectModifierValue
@@ -36,7 +36,7 @@ class PWGASCORE_API UPWGasFunctions : public UBlueprintFunctionLibrary
 	GENERATED_BODY()
 
 public:
-	static bool ApplyEffects(UPWAbilitySystemComponent* ASC, const USpellParams* SpellParams);
+	static bool ApplyEffects(UPWAbilitySystemComponent* ASC, const UPWSpellParams* SpellParams);
 	// With a target, only the effect groups whose mask includes it are read.
-	static TArray<FPWEffectModifierValue> GetModifierValuesFromEffects(const USpellParams* SpellParams, const FGameplayAttribute& Attribute, const AActor* Target = nullptr);
+	static TArray<FPWEffectModifierValue> GetModifierValuesFromEffects(const UPWSpellParams* SpellParams, const FGameplayAttribute& Attribute, const AActor* Target = nullptr);
 };

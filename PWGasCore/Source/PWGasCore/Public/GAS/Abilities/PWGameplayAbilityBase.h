@@ -7,7 +7,7 @@
 #include "Abilities/GameplayAbility.h"
 #include "PWGameplayAbilityBase.generated.h"
 
-class USpellParams;
+class UPWSpellParams;
 class UPWAbilitySystemComponent;
 class UGameplayTagsSettings;
 
@@ -67,7 +67,7 @@ public:
 	// == Ability / Config == //
 	// ====================== //
 
-	USpellParams* MakeSpellParams();
+	UPWSpellParams* MakeSpellParams();
 	
 	// == Utils  == //
 	// ============ //

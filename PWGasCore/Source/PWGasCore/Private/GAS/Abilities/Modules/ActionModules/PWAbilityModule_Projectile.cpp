@@ -5,13 +5,13 @@
 
 #include "GAS/Abilities/PWModularGameplayAbility.h"
 
-USpellParams* UPWAbilityModule_Projectile::MakeSpellParams_Implementation(const FPWTargetingResult& Target)
+UPWSpellParams* UPWAbilityModule_Projectile::MakeSpellParams_Implementation(const FPWTargetingResult& Target)
 {
 	if (!OwnerAbility)
 		return nullptr;
 
-	USpellParams* Params = OwnerAbility->MakeSpellParams();
-	UProjectileSpellParamsExtension* ProjectileParams = Params->AddExtension<UProjectileSpellParamsExtension>();
+	UPWSpellParams* Params = OwnerAbility->MakeSpellParams();
+	UPWProjectileSpellParams* ProjectileParams = Params->AddExtension<UPWProjectileSpellParams>();
 	ProjectileParams->SpawnLocation = Target.Location;
 	ProjectileParams->SpawnRotation = BuildSpawnTransform(Target).Rotator();
 	ProjectileParams->bAttachToOwner = bAttachToOwner;

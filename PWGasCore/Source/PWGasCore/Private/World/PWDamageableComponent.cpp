@@ -2,7 +2,7 @@
 
 #include "World/PWDamageableComponent.h"
 
-#include "Ability/SpellParams.h"
+#include "Ability/PWSpellParams.h"
 #include "Engine/World.h"
 #include "GameFramework/Actor.h"
 #include "Libraries/PWGasFunctions.h"
@@ -35,7 +35,7 @@ void UPWDamageableComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	Super::EndPlay(EndPlayReason);
 }
 
-bool UPWDamageableComponent::ApplySpellParams(USpellParams* SpellParams)
+bool UPWDamageableComponent::ApplySpellParams(UPWSpellParams* SpellParams)
 {
 	if (!SpellParams || !HasAuthority() || bDepleted)
 		return false;
@@ -96,7 +96,7 @@ void UPWDamageableComponent::ApplyDamage(const float Amount, AActor* Instigator)
 	HandleDepleted(Instigator);
 }
 
-void UPWDamageableComponent::RemoveSpellParams(const USpellParams* SpellParams, const bool bInfiniteOnly)
+void UPWDamageableComponent::RemoveSpellParams(const UPWSpellParams* SpellParams, const bool bInfiniteOnly)
 {
 	if (!SpellParams)
 		return;

@@ -31,7 +31,7 @@ public:
 	void ApplyRangePolicy(const AActor* Origin, FPWTargetingResult& InOut) const;
 
 	virtual void Initialize(UPWModularGameplayAbility* InOwner) override;
-	virtual void ExtendParams(USpellParams* Params) const override;
+	virtual void ExtendParams(UPWSpellParams* Params) const override;
 	virtual bool GetValue(FName Key, float& Out) const override;
 	
 };

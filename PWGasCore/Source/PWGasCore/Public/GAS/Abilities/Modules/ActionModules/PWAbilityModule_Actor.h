@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "PWActionModule.h"
-#include "Ability/SpellParams.h"
+#include "Ability/PWSpellParams.h"
 #include "PWAbilityModule_Actor.generated.h"
 
 struct FGameplayAbilityTargetDataHandle;
@@ -12,7 +12,7 @@ class UPWAbilityTask_TargetFromSource;
 struct FPWTargetingResult;
 
 UCLASS(BlueprintType)
-class PWGASCORE_API UActorSpellParamsExtension : public USpellParamsExtension
+class PWGASCORE_API UPWActorSpellParams : public UPWSpellParamsExtension
 {
 	GENERATED_BODY()
 
@@ -80,7 +80,7 @@ public:
 	bool bDebugSpawnPosition = false;
 
 	
-	virtual USpellParams* MakeSpellParams_Implementation(const FPWTargetingResult& Target) override;
+	virtual UPWSpellParams* MakeSpellParams_Implementation(const FPWTargetingResult& Target) override;
 
 	UFUNCTION(BlueprintCallable, Category="Module")
 	virtual AActor* SpawnActorWithTargetingResult(const FPWTargetingResult& Target);

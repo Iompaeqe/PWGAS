@@ -6,10 +6,10 @@
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "PWModuleFunctions.generated.h"
 
-class UProjectileSpellParamsExtension;
-class UActorSpellParamsExtension;
-class UEffectSpellParamsExtension;
-class USpellParams;
+class UPWProjectileSpellParams;
+class UPWActorSpellParams;
+class UPWEffectSpellParams;
+class UPWSpellParams;
 UCLASS()
 class PWGASCORE_API UPWModuleFunctions : public UBlueprintFunctionLibrary
 {
@@ -17,13 +17,13 @@ class PWGASCORE_API UPWModuleFunctions : public UBlueprintFunctionLibrary
 
 public:
 	UFUNCTION(BlueprintPure, Category="GASCore|SpellParams")
-	static UEffectSpellParamsExtension* GetEffectParams(const USpellParams* Params);
+	static UPWEffectSpellParams* GetEffectParams(const UPWSpellParams* Params);
 	UFUNCTION(BlueprintPure, Category="GASCore|SpellParams")
-	static UProjectileSpellParamsExtension* GetProjectileParams(const USpellParams* Params);
+	static UPWProjectileSpellParams* GetProjectileParams(const UPWSpellParams* Params);
 	UFUNCTION(BlueprintPure, Category="GASCore|SpellParams")
-	static UActorSpellParamsExtension* GetActorParams(const USpellParams* Params);
+	static UPWActorSpellParams* GetActorParams(const UPWSpellParams* Params);
 	UFUNCTION(BlueprintPure, BlueprintPure, Category="Accessors")
-	static float GetRange(const USpellParams* Params);
+	static float GetRange(const UPWSpellParams* Params);
 	UFUNCTION(BlueprintPure, BlueprintPure, Category="Accessors")
-	static float GetRadius(const USpellParams* Params);
+	static float GetRadius(const UPWSpellParams* Params);
 };

@@ -10,7 +10,7 @@
 #include "GameplayTagsManager.h"
 #include "GameplayTagsSettings.h"
 #include "PWGASCoreLogChannels.h"
-#include "Ability/SpellParams.h"
+#include "Ability/PWSpellParams.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/PlayerState.h"
 #include "GAS/ASC/PWAbilitySystemComponent.h"
@@ -169,9 +169,9 @@ bool UPWGameplayAbilityBase::ChangeActivationGroup(EPWActivationGroup NewGroup)
 	return true;
 }
 
-USpellParams* UPWGameplayAbilityBase::MakeSpellParams()
+UPWSpellParams* UPWGameplayAbilityBase::MakeSpellParams()
 {
-	USpellParams* Params = NewObject<USpellParams>(this);
+	UPWSpellParams* Params = NewObject<UPWSpellParams>(this);
 	Params->SourceAvatar = GetAvatarActorFromActorInfo();
 	Params->AbilityLevel = GetAbilityLevel();
 
@@ -179,7 +179,7 @@ USpellParams* UPWGameplayAbilityBase::MakeSpellParams()
 		Params->SourcePlayerUniqueId = PS->GetUniqueId();
 
 	if (!Params->More)
-		Params->More = NewObject<UMultiDataArray>(Params);
+		Params->More = NewObject<UPWMultiDataArray>(Params);
 
 	return Params;
 }

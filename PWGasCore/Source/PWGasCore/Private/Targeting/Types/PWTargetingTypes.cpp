@@ -8,8 +8,8 @@
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/Actor.h"
 #include "Targeting/Data/PWTargetingData.h"
-#include "Ability/SpellParams.h"
-#include "MultiDataArray.h"
+#include "Ability/PWSpellParams.h"
+#include "PWMultiDataArray.h"
 #include "GAS/Abilities/PWModularGameplayAbility.h"
 #include "GAS/Abilities/Modules/DataModules/PWDataModule.h"
 
@@ -85,12 +85,12 @@ float UPWTargetPolicyBase::GetFloat(const FName Key) const
 	return Value;
 }
 
-void UPWTargetResolver::GetImpactTargets(const AActor* SpellActor, const USpellParams* Params, const FHitResult& Hit, TArray<AActor*>& OutTargets) const
+void UPWTargetResolver::GetImpactTargets(const AActor* SpellActor, const UPWSpellParams* Params, const FHitResult& Hit, TArray<AActor*>& OutTargets) const
 {
 	if (!SpellActor)
 		return;
 
-	TGuardValue<const USpellParams*> Guard(ActiveParams, Params);
+	TGuardValue<const UPWSpellParams*> Guard(ActiveParams, Params);
 
 	FPWTargetingResult Target;
 	Target.Location = SpellActor->GetActorLocation();
