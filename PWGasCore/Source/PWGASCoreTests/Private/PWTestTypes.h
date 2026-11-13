@@ -14,6 +14,7 @@
 #include "GAS/Abilities/Derived/PWGameplayAbility_Channeling.h"
 #include "GAS/Abilities/Derived/PWGameplayAbility_Charged.h"
 #include "PWAttributeSetBase.h"
+#include "Core/PWTeamsSubsystem.h"
 #include "PWTestTypes.generated.h"
 
 UCLASS(NotBlueprintable, HideDropdown)
@@ -223,4 +224,35 @@ class UPWTestInterruptibleAbility : public UPWGameplayAbilityBase
 
 public:
 	UPWTestInterruptibleAbility();
+};
+
+UCLASS(NotBlueprintable, HideDropdown)
+class UPWTestTeamsListener : public UObject
+{
+	GENERATED_BODY()
+
+public:
+	int32 Registered = 0;
+	int32 Unregistered = 0;
+	int32 FactionsCreated = 0;
+	int32 FactionsDestroyed = 0;
+	int32 FactionChanges = 0;
+	FName LastOldFaction;
+	FName LastNewFaction;
+
+	UFUNCTION()
+	void OnRegistered(const FPWTeamParticipant& Participant) { ++Registered; }
+	UFUNCTION()
+	void OnUnregistered(const FPWTeamParticipant& Participant) { ++Unregistered; }
+	UFUNCTION()
+	void OnFactionCreated(const FPWTeamFaction& Faction) { ++FactionsCreated; }
+	UFUNCTION()
+	void OnFactionDestroyed(const FPWTeamFaction& Faction) { ++FactionsDestroyed; }
+	UFUNCTION()
+	void OnFactionChanged(FPWTeamParticipantHandle Participant, FName OldFaction, FName NewFaction)
+	{
+		++FactionChanges;
+		LastOldFaction = OldFaction;
+		LastNewFaction = NewFaction;
+	}
 };
