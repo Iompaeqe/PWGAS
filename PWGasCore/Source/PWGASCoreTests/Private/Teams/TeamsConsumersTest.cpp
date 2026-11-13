@@ -8,6 +8,8 @@
 #include "Ability/PWSpellParams.h"
 #include "Libraries/PWGasFunctions.h"
 #include "GAS/Abilities/Modules/DataModules/PWAbilityModule_Effect.h"
+#include "GAS/Abilities/Modules/ActionModules/PWAbilityModule_Projectile.h"
+#include "Targeting/Data/PWTargetingData.h"
 #include "Misc/AutomationTest.h"
 
 #if WITH_DEV_AUTOMATION_TESTS
@@ -120,6 +122,30 @@ bool FSpellParamsSourceIdentityTest::RunTest(const FString& Parameters)
 	TestEqual("The spell still knows whose it is", Source.Owner, CasterParticipant);
 	TestEqual("And which side it is on", Source.Faction, FName("Radiant"));
 	TestEqual("So it still knows its enemies", Teams->GetRelationship(Source, UPWTeamsSubsystem::GetIdentity(Enemy->GetOwner())).Attitude, EPWTeamAttitude::Hostile);
+
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FActorModulesCollisionFilterTest, "PW.Teams.Consumers.CollisionFilter", EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FActorModulesCollisionFilterTest::RunTest(const FString& Parameters)
+{
+	const FPWTestWorld Test;
+	UPWTestModularAbility* Ability = Test.ActivateAbility<UPWTestModularAbility>();
+	if (!TestNotNull("Ability", Ability))
+		return false;
+
+	UPWAbilityModule_Actor* Actor = NewObject<UPWAbilityModule_Actor>(Ability);
+	Actor->Initialize(Ability);
+	Actor->TargetFilter.AnyOf.AddTag(PWTeamTags::Relation_Enemy);
+	const UPWSpellParams* ActorParams = Actor->MakeSpellParams(FPWTargetingResult());
+	TestTrue("An actor module hands its collision filter to the spawned actor", ActorParams && ActorParams->CollisionFilter.AnyOf.HasTagExact(PWTeamTags::Relation_Enemy));
+
+	UPWAbilityModule_Projectile* Projectile = NewObject<UPWAbilityModule_Projectile>(Ability);
+	Projectile->Initialize(Ability);
+	Projectile->TargetFilter.AnyOf.AddTag(PWTeamTags::Relation_Enemy);
+	const UPWSpellParams* ProjectileParams = Projectile->MakeSpellParams(FPWTargetingResult());
+	TestTrue("So does a projectile module", ProjectileParams && ProjectileParams->CollisionFilter.AnyOf.HasTagExact(PWTeamTags::Relation_Enemy));
 
 	return true;
 }

@@ -19,6 +19,7 @@ UPWSpellParams* UPWAbilityModule_Projectile::MakeSpellParams_Implementation(cons
 	
 	ProjectileParams->InitialSpeed = ProjectileConfig.InitialSpeed;
 	ProjectileParams->GravityZOverride = ProjectileConfig.GravityZOverride;
+	Params->CollisionFilter = TargetFilter;
 
 	ExtendParamsWithData(Params);
 
