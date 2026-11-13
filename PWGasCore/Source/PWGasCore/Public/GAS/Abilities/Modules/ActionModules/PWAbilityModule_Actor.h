@@ -52,7 +52,7 @@ public:
 	/** Actor class to spawn. Must implement PWSpellParamsInterface. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(MustImplement="PWSpellParamsInterface"))
 	TSubclassOf<AActor> ActorClass;
-	// Relations the spawned actor collides with; anyone outside the mask is passed through.
+	// Targets the spawned actor collides with; those outside the mask are passed through. Walls and other scenery always stop it.
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(Bitmask, BitmaskEnum="/Script/PWSharedTypes.ERelationMask"))
 	int32 TargetMask = (int32)ERelationMask::All;
 	// Spawns as soon as the ability activates, so no graph is needed.

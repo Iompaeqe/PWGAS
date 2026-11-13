@@ -9,6 +9,7 @@
 #include "GAS/Abilities/Modules/ActionModules/PWAbilityModule_Actor.h"
 #include "Components/PrimitiveComponent.h"
 #include "Components/SphereComponent.h"
+#include "GameFramework/ProjectileMovementComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Animation/AnimMontage.h"
 #include "Animation/AnimSequence.h"
@@ -16,6 +17,7 @@
 #include "Engine/SkeletalMeshSocket.h"
 #include "Engine/EngineTypes.h"
 #include "Libraries/GASCoreFunctions.h"
+#include "Ability/SpellCollision.h"
 #include "TeamFunctions.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/GameplayStaticsTypes.h"
@@ -77,11 +79,24 @@ void UPWPrecastControllerComponent::SetActionModule(UPWActionModule* InActionMod
 
 	// The preview collides with the size of the real projectile, so both touch a surface at the same point.
 	ActorRadius = 0.f;
+	ActorSphere = nullptr;
+	ActorGravityScale = 1.f;
 	if (const TSubclassOf<AActor> ActorClass = InActionModule ? InActionModule->GetPreviewActorClass() : nullptr)
 		AActor::ForEachComponentOfActorClassDefault<USphereComponent>(ActorClass, [this](const USphereComponent* Sphere)
 		{
-			ActorRadius = FMath::Max(ActorRadius, Sphere->GetUnscaledSphereRadius() * Sphere->GetRelativeScale3D().GetAbsMax());
+			const float Radius = Sphere->GetUnscaledSphereRadius() * Sphere->GetRelativeScale3D().GetAbsMax();
+			if (Radius > ActorRadius)
+			{
+				ActorRadius = Radius;
+				ActorSphere = Sphere;
+			}
 			return true;
+		});
+	if (const TSubclassOf<AActor> ActorClass = InActionModule ? InActionModule->GetPreviewActorClass() : nullptr)
+		AActor::ForEachComponentOfActorClassDefault<UProjectileMovementComponent>(ActorClass, [this](const UProjectileMovementComponent* Movement)
+		{
+			ActorGravityScale = Movement->ProjectileGravityScale;
+			return false;
 		});
 }
 
@@ -259,7 +274,7 @@ void UPWPrecastControllerComponent::GatherTargets(const TArray<FPWTargetingResul
 				continue;
 			if (!UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(Actor) && !UGASCoreFunctions::FindAffectable(Actor))
 				continue;
-			if (Effect && !UTeamFunctions::MatchesMask(Pawn, Actor, Effect->TargetMask))
+			if (Effect && !UTeamFunctions::MatchesMask(Pawn, Actor, Effect->GetCombinedMask()))
 				continue;
 			OutTargets.Add(Actor);
 		}
@@ -268,52 +283,67 @@ void UPWPrecastControllerComponent::GatherTargets(const TArray<FPWTargetingResul
 
 FPWPrecastPath UPWPrecastControllerComponent::SimulatePath(const FVector& Start, const FVector& AimPoint, FHitResult& OutHit) const
 {
-	FPredictProjectilePathParams Params;
-	Params.bTraceWithCollision = true;
-	Params.ProjectileRadius = ActorRadius > 0.f ? ActorRadius : ProjCfg.ProjectileRadius;
-	Params.MaxSimTime = ProjCfg.MaxSimTime;
-	Params.SimFrequency = ProjCfg.SimFrequency;
-	Params.TraceChannel = ProjCfg.TraceChannel;
-	Params.DrawDebugType = EDrawDebugTrace::None;
-	if (!FMath::IsNearlyZero(ProjCfg.GravityZOverride))
-		Params.OverrideGravityZ = ProjCfg.GravityZOverride;
-	if (ProjCfg.PreviewObjectTypes.Num() > 0)
-	{
-		Params.bTraceWithChannel = false;
-		for (const TEnumAsByte<ECollisionChannel> Channel : ProjCfg.PreviewObjectTypes)
-			Params.ObjectTypes.Add(UEngineTypes::ConvertToObjectType(Channel));
-	}
-
-	APawn* Pawn = GetPawn();
-	if (Pawn)
-		Params.ActorsToIgnore.Add(Pawn);
-	const UPWAbilityModule_Actor* ActorModule = Cast<UPWAbilityModule_Actor>(ActionModule.Get());
-
-	Params.StartLocation = Start;
-	Params.LaunchVelocity = (AimPoint - Start).GetSafeNormal() * ProjCfg.InitialSpeed;
-
-	// The projectile flies through actors outside its collision mask, so the preview does too.
-	FPredictProjectilePathResult PathResult;
-	for (int32 Attempt = 0; Attempt < 8; ++Attempt)
-	{
-		PathResult = FPredictProjectilePathResult();
-		UGameplayStatics::PredictProjectilePath(GetWorld(), Params, PathResult);
-
-		AActor* HitActor = PathResult.HitResult.GetActor();
-		const UPrimitiveComponent* HitComponent = PathResult.HitResult.GetComponent();
-		const bool bSolid = !HitComponent || HitComponent->GetCollisionObjectType() == ECC_WorldStatic;
-		if (!HitActor || bSolid || !ActorModule || !Pawn || UTeamFunctions::MatchesMask(Pawn, HitActor, ActorModule->TargetMask))
-			break;
-		Params.ActorsToIgnore.Add(HitActor);
-	}
-	OutHit = PathResult.HitResult;
-
 	FPWPrecastPath Path;
-	for (const FPredictProjectilePathPointData& Point : PathResult.PathData)
-		Path.Points.Add(Point.Location);
+	OutHit = FHitResult();
 
-	Path.bHit = OutHit.bBlockingHit;
-	Path.ImpactPoint = Path.bHit ? OutHit.ImpactPoint : (Path.Points.Num() ? Path.Points.Last() : AimPoint);
+	const UWorld* World = GetWorld();
+	if (!World)
+		return Path;
+
+	const APawn* Pawn = GetPawn();
+	const UPWAbilityModule_Actor* ActorModule = Cast<UPWAbilityModule_Actor>(ActionModule.Get());
+	const ECollisionChannel ProjectileChannel = ActorSphere.IsValid() ? ActorSphere->GetCollisionObjectType() : ProjCfg.TraceChannel.GetValue();
+	const float GravityZ = FMath::IsNearlyZero(ProjCfg.GravityZOverride) ? World->GetGravityZ() * ActorGravityScale : ProjCfg.GravityZOverride;
+	const float Step = 1.f / FMath::Max(ProjCfg.SimFrequency, 1.f);
+
+	const FCollisionShape Shape = FCollisionShape::MakeSphere(ActorRadius > 0.f ? ActorRadius : ProjCfg.ProjectileRadius);
+	const FCollisionObjectQueryParams Objects(FCollisionObjectQueryParams::InitType::AllObjects);
+	const FCollisionQueryParams Query(SCENE_QUERY_STAT(PWPrecastPath), false, Pawn);
+
+	// The same rules the real projectile uses to decide what it hits.
+	const auto StopsAt = [&](const FHitResult& Hit)
+	{
+		const UPrimitiveComponent* Component = Hit.GetComponent();
+		AActor* Actor = Hit.GetActor();
+		if (!Component || !Actor)
+			return false;
+		if (Component->Implements<UDontTriggerCollision>() || Actor->Implements<UDontTriggerCollision>())
+			return false;
+		if (ActorSphere.IsValid() && ActorSphere->GetCollisionResponseToChannel(Component->GetCollisionObjectType()) == ECR_Ignore)
+			return false;
+		if (Component->GetCollisionResponseToChannel(ECC_Pawn) != ECR_Block && Component->GetCollisionResponseToChannel(ProjectileChannel) != ECR_Block)
+			return false;
+		if (!UGASCoreFunctions::FindAffectable(Actor))
+			return true;
+		return !ActorModule || !Pawn || UTeamFunctions::MatchesMask(Pawn, Actor, ActorModule->TargetMask);
+	};
+
+	FVector Position = Start;
+	FVector Velocity = (AimPoint - Start).GetSafeNormal() * ProjCfg.InitialSpeed;
+	Path.Points.Add(Position);
+
+	for (float Time = 0.f; Time < ProjCfg.MaxSimTime && !Path.bHit; Time += Step)
+	{
+		const FVector Next = Position + Velocity * Step + FVector(0.f, 0.f, 0.5f * GravityZ * Step * Step);
+		Velocity.Z += GravityZ * Step;
+
+		TArray<FHitResult> Hits;
+		World->SweepMultiByObjectType(Hits, Position, Next, FQuat::Identity, Objects, Shape, Query);
+		for (const FHitResult& Hit : Hits)
+		{
+			if (!StopsAt(Hit))
+				continue;
+			OutHit = Hit;
+			OutHit.bBlockingHit = true;
+			Path.bHit = true;
+			break;
+		}
+
+		Position = Path.bHit ? OutHit.Location : Next;
+		Path.Points.Add(Position);
+	}
+
+	Path.ImpactPoint = Path.bHit ? OutHit.ImpactPoint : Path.Points.Last();
 	Path.ImpactNormal = (Path.bHit && ProjCfg.bAlignToGroundNormal) ? OutHit.ImpactNormal : FVector::UpVector;
 	return Path;
 }

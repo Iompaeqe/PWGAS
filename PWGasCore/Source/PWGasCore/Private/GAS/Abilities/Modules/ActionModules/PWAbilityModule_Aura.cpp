@@ -4,7 +4,7 @@
 #include "PWGasCore/Public/GAS/Abilities/Modules/ActionModules/PWAbilityModule_Aura.h"
 
 #include "AbilitySystemGlobals.h"
-#include "Components/SphereComponent.h"
+#include "GAS/Abilities/Modules/ActionModules/PWAuraSphereComponent.h"
 #include "GAS/Abilities/PWModularGameplayAbility.h"
 #include "GAS/Abilities/Modules/DataModules/PWAbilityModule_Effect.h"
 #include "GAS/Abilities/Modules/DataModules/PWAbilityModule_Range.h"
@@ -25,7 +25,7 @@ void UPWAbilityModule_Aura::OnAbilityActivated_Implementation()
 		return;
 
 	// --- Create sphere component dynamically ---
-	AuraSphere = NewObject<USphereComponent>(OwnerPawn);
+	AuraSphere = NewObject<UPWAuraSphereComponent>(OwnerPawn);
 	if (!AuraSphere)
 		return;
 
@@ -37,7 +37,12 @@ void UPWAbilityModule_Aura::OnAbilityActivated_Implementation()
 		Radius = Range->GetRangeValue();
 	
 	AuraSphere->SetSphereRadius(Radius);
-	AuraSphere->SetCollisionProfileName(TEXT("OverlapAllDynamic"));
+	// Only detects the listed object types and ignores everything else, so projectiles and traces pass through it.
+	AuraSphere->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	AuraSphere->SetCollisionObjectType(ECC_WorldDynamic);
+	AuraSphere->SetCollisionResponseToAllChannels(ECR_Ignore);
+	for (const TEnumAsByte<ECollisionChannel> Channel : ObjectChannels)
+		AuraSphere->SetCollisionResponseToChannel(Channel, ECR_Overlap);
 	AuraSphere->SetGenerateOverlapEvents(true);
 
 	AuraSphere->OnComponentBeginOverlap.AddDynamic(this, &UPWAbilityModule_Aura::HandleBeginOverlap);

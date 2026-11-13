@@ -15,6 +15,7 @@ class UPWPrecastVisualizer;
 class UPWTargetResolver;
 class UPWActionModule;
 class UAnimMontage;
+class USphereComponent;
 
 UCLASS(ClassGroup=(GASCore), meta=(BlueprintSpawnableComponent))
 class PWGASCORE_API UPWPrecastControllerComponent : public UActorComponent
@@ -60,6 +61,8 @@ private:
 	float PreviewRadius = 0.f;
 	float PreviewRange = 0.f;
 	float ActorRadius = 0.f;
+	float ActorGravityScale = 1.f;
+	TWeakObjectPtr<const USphereComponent> ActorSphere;
 	bool bHasReleaseOrigin = false;
 	FVector ReleaseOrigin = FVector::ZeroVector;
 	FName OriginSocket = NAME_None;

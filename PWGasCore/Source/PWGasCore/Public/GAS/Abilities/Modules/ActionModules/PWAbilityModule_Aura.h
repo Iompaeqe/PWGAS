@@ -27,6 +27,10 @@ protected:
 	UPROPERTY(BlueprintReadOnly)
 	TArray<AActor*> OverlappingActors;
 
+	// Object types the aura affects; anything else, projectiles included, passes through it.
+	UPROPERTY(EditAnywhere)
+	TArray<TEnumAsByte<ECollisionChannel>> ObjectChannels = {ECC_Pawn, ECC_WorldDynamic, ECC_PhysicsBody, ECC_Destructible};
+
 	// Draws the aura's sphere when it starts.
 	UPROPERTY(EditAnywhere)
 	bool bDrawDebug = false;
