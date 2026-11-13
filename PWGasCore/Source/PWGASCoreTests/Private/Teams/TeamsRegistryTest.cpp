@@ -3,6 +3,8 @@
 #include "PWTestWorld.h"
 #include "PWTestTypes.h"
 #include "Core/PWTeamsSubsystem.h"
+#include "Core/PWTeamsSettings.h"
+#include "Core/PWTeamSetup.h"
 #include "Misc/AutomationTest.h"
 
 #if WITH_DEV_AUTOMATION_TESTS
@@ -96,6 +98,35 @@ bool FTeamsFactionsTest::RunTest(const FString& Parameters)
 	TestFalse("It is gone", Teams->GetFaction("Radiant", Faction));
 	TestEqual("The participant itself remains", Teams->GetParticipants().Num(), 2);
 
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FTeamsSetupTest, "PW.Teams.Registry.Setup", EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FTeamsSetupTest::RunTest(const FString& Parameters)
+{
+	UPWTeamsSettings* Settings = GetMutableDefault<UPWTeamsSettings>();
+	const TSoftObjectPtr<UPWTeamSetup> Previous = Settings->TeamSetup;
+
+	UPWTeamSetup* Setup = NewObject<UPWTeamSetup>();
+	Setup->AddToRoot();
+	Setup->Factions.Add({"Radiant", false});
+	Setup->Factions.Add({"Wild", true});
+	Settings->TeamSetup = Setup;
+
+	TestEqual("The setup's names fill dropdowns", UPWTeamsSettings::GetFactionNames().Num(), 2);
+	{
+		const FPWTestWorld Test;
+		const UPWTeamsSubsystem* Teams = UPWTeamsSubsystem::Get(Test.World);
+
+		FPWTeamFaction Faction;
+		TestTrue("The server creates the setup's factions when play begins", Teams->GetFaction("Radiant", Faction));
+		TestTrue("With their neutral flags", Teams->GetFaction("Wild", Faction) && Faction.bNeutral);
+		TestEqual("And only those", Teams->GetFactions().Num(), 2);
+	}
+
+	Settings->TeamSetup = Previous;
+	Setup->RemoveFromRoot();
 	return true;
 }
 
