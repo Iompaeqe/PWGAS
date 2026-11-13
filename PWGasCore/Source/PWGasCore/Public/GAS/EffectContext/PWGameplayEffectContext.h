@@ -6,7 +6,6 @@
 #include "ScalableFloat.h"
 #include "PWGameplayEffectContext.generated.h"
 
-enum class ERelevancy : uint8;
 class UGameplayEffect;
 
 USTRUCT(BlueprintType)
