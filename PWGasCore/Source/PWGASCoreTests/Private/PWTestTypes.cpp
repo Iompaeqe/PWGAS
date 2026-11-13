@@ -44,14 +44,14 @@ UPWTestInstantEffectAbility::UPWTestInstantEffectAbility()
 	ActionModule = CreateDefaultSubobject<UPWAbilityModule_InstantEffect>("InstantEffect");
 
 	UPWAbilityModule_Effect* Effect = CreateDefaultSubobject<UPWAbilityModule_Effect>("Effect");
-	Effect->Effects.Add({UPWTestEffect::StaticClass(), 1});
+	Effect->EffectGroups.AddDefaulted_GetRef().Effects.Add({UPWTestEffect::StaticClass(), 1});
 	DataModules.Add(Effect);
 }
 
 UPWTestPassiveEffectAbility::UPWTestPassiveEffectAbility()
 {
 	UPWAbilityModule_Effect* Effect = CreateDefaultSubobject<UPWAbilityModule_Effect>("Effect");
-	Effect->Effects.Add({UPWTestEffect::StaticClass(), 1});
+	Effect->EffectGroups.AddDefaulted_GetRef().Effects.Add({UPWTestEffect::StaticClass(), 1});
 	DataModules.Add(Effect);
 }
 
@@ -68,8 +68,8 @@ UPWTestInstantBuffAbility::UPWTestInstantBuffAbility()
 	ActionModule = InstantEffect;
 
 	UPWAbilityModule_Effect* Effect = CreateDefaultSubobject<UPWAbilityModule_Effect>("Effect");
-	Effect->Effects.Add({UPWTestEffect::StaticClass(), 1});
-	Effect->Effects.Add({UPWTestDurationEffect::StaticClass(), 1});
+	Effect->EffectGroups.AddDefaulted_GetRef().Effects.Add({UPWTestEffect::StaticClass(), 1});
+	Effect->EffectGroups.AddDefaulted_GetRef().Effects.Add({UPWTestDurationEffect::StaticClass(), 1});
 	DataModules.Add(Effect);
 }
 
@@ -82,7 +82,7 @@ UPWTestConfirmedAbility::UPWTestConfirmedAbility()
 	ActionModule = InstantEffect;
 
 	UPWAbilityModule_Effect* Effect = CreateDefaultSubobject<UPWAbilityModule_Effect>("Effect");
-	Effect->Effects.Add({UPWTestDurationEffect::StaticClass(), 1});
+	Effect->EffectGroups.AddDefaulted_GetRef().Effects.Add({UPWTestDurationEffect::StaticClass(), 1});
 	DataModules.Add(Effect);
 }
 
@@ -126,7 +126,7 @@ UPWTestAuraAbility::UPWTestAuraAbility()
 	DataModules.Add(CreateDefaultSubobject<UPWAbilityModule_Range>("Range"));
 
 	UPWAbilityModule_Effect* Effect = CreateDefaultSubobject<UPWAbilityModule_Effect>("Effect");
-	Effect->Effects.Add({UPWTestPeriodicDamageEffect::StaticClass(), 1});
+	Effect->EffectGroups.AddDefaulted_GetRef().Effects.Add({UPWTestPeriodicDamageEffect::StaticClass(), 1});
 	DataModules.Add(Effect);
 }
 

@@ -10,31 +10,61 @@
 #include "Libraries/GASCoreFunctions.h"
 #include "TeamFunctions.h"
 
+namespace
+{
+	FActiveGameplayEffectHandle ApplyEntry(UAbilitySystemComponent* SourceASC, UAbilitySystemComponent* TargetASC, const FEffectEntry& Entry, const int32 Level)
+	{
+		if (!Entry.EffectClass)
+			return FActiveGameplayEffectHandle();
+
+		FGameplayEffectContextHandle Context = SourceASC->MakeEffectContext();
+		Context.AddSourceObject(SourceASC->GetAvatarActor());
+
+		const FGameplayEffectSpecHandle SpecHandle = SourceASC->MakeOutgoingSpec(Entry.EffectClass, Level, Context);
+		if (!SpecHandle.IsValid())
+			return FActiveGameplayEffectHandle();
+
+		if (Entry.StackCount > 1)
+			SpecHandle.Data->SetStackCount(Entry.StackCount);
+
+		return SourceASC->ApplyGameplayEffectSpecToTarget(*SpecHandle.Data.Get(), TargetASC);
+	}
+}
+
 void UEffectSpellParamsExtension::ApplyEffectsToTarget(UAbilitySystemComponent* SourceASC, UAbilitySystemComponent* TargetASC, const int32 AbilityLevel) const
 {
 	if (!SourceASC || !TargetASC)
 		return;
 
-	for (const FEffectEntry& Entry : Effects)
+	for (const FPWEffectGroup& Group : Groups)
 	{
-		if (!Entry.EffectClass)
+		if (!UTeamFunctions::MatchesMask(SourceASC->GetAvatarActor(), TargetASC->GetAvatarActor(), Group.TargetMask))
 			continue;
-
-		FGameplayEffectContextHandle Context = SourceASC->MakeEffectContext();
-		Context.AddSourceObject(SourceASC->GetAvatarActor());
-
-		FGameplayEffectSpecHandle SpecHandle = SourceASC->MakeOutgoingSpec(Entry.EffectClass, AbilityLevel, Context);
-		if (!SpecHandle.IsValid())
-			continue;
-
-		if (FGameplayEffectSpec* Spec = SpecHandle.Data.Get())
-		{
-			if (Entry.StackCount > 1)
-				Spec->SetStackCount(Entry.StackCount);
-		}
-
-		SourceASC->ApplyGameplayEffectSpecToTarget(*SpecHandle.Data.Get(), TargetASC);
+		for (const FEffectEntry& Entry : Group.Effects)
+			ApplyEntry(SourceASC, TargetASC, Entry, AbilityLevel);
 	}
+}
+
+void UPWAbilityModule_Effect::PostLoad()
+{
+	Super::PostLoad();
+
+	// Abilities saved before effect groups kept a single mask and list.
+	if (Effects_DEPRECATED.IsEmpty())
+		return;
+
+	FPWEffectGroup& Group = EffectGroups.AddDefaulted_GetRef();
+	Group.TargetMask = TargetMask_DEPRECATED;
+	Group.Effects = MoveTemp(Effects_DEPRECATED);
+	Effects_DEPRECATED.Reset();
+}
+
+int32 UPWAbilityModule_Effect::GetCombinedMask() const
+{
+	int32 Mask = 0;
+	for (const FPWEffectGroup& Group : EffectGroups)
+		Mask |= Group.TargetMask;
+	return Mask;
 }
 
 void UPWAbilityModule_Effect::ExtendParams(USpellParams* Params) const
@@ -43,39 +73,23 @@ void UPWAbilityModule_Effect::ExtendParams(USpellParams* Params) const
 		return;
 
 	UEffectSpellParamsExtension* Extension = Params->AddExtension<UEffectSpellParamsExtension>();
-	Extension->Effects = Effects;
-	Params->TargetEffectMask = TargetMask;
+	Extension->Groups = EffectGroups;
+	Params->TargetEffectMask = GetCombinedMask();
 }
 
 void UPWAbilityModule_Effect::ApplyEffects(UAbilitySystemComponent* SourceASC, UAbilitySystemComponent* TargetASC)
 {
 	if (!SourceASC || !TargetASC)
 		return;
-	if (!UTeamFunctions::MatchesMask(SourceASC->GetAvatarActor(), TargetASC->GetAvatarActor(), TargetMask))
-		return;
 
-	for (const FEffectEntry& Entry : Effects)
+	for (const FPWEffectGroup& Group : EffectGroups)
 	{
-		if (!Entry.EffectClass)
+		if (!UTeamFunctions::MatchesMask(SourceASC->GetAvatarActor(), TargetASC->GetAvatarActor(), Group.TargetMask))
 			continue;
 
-		FGameplayEffectContextHandle Context = SourceASC->MakeEffectContext();
-		Context.AddSourceObject(SourceASC->GetAvatarActor());
-
-		FGameplayEffectSpecHandle SpecHandle = SourceASC->MakeOutgoingSpec(Entry.EffectClass, OwnerAbility->GetAbilityLevel(), Context);
-		if (!SpecHandle.IsValid())
-			continue;
-
-		if (FGameplayEffectSpec* Spec = SpecHandle.Data.Get())
-		{
-			if (Entry.StackCount > 1)
-				Spec->SetStackCount(Entry.StackCount);
-		}
-
-		FActiveGameplayEffectHandle Handle = SourceASC->ApplyGameplayEffectSpecToTarget(*SpecHandle.Data.Get(), TargetASC);
-
-		if (Handle.IsValid())
-			ActiveEffectHandles.FindOrAdd(TargetASC).Add(Handle);
+		for (const FEffectEntry& Entry : Group.Effects)
+			if (const FActiveGameplayEffectHandle Handle = ApplyEntry(SourceASC, TargetASC, Entry, OwnerAbility->GetAbilityLevel()); Handle.IsValid())
+				ActiveEffectHandles.FindOrAdd(TargetASC).Add(Handle);
 	}
 }
 
@@ -110,7 +124,7 @@ void UPWAbilityModule_Effect::ApplyEffectsToActor(UAbilitySystemComponent* Sourc
 	}
 
 	UObject* Receiver = UGASCoreFunctions::FindAffectable(Target);
-	if (!Receiver || !OwnerAbility || !UTeamFunctions::MatchesMask(SourceASC->GetAvatarActor(), Target, TargetMask))
+	if (!Receiver || !OwnerAbility || !UTeamFunctions::MatchesMask(SourceASC->GetAvatarActor(), Target, GetCombinedMask()))
 		return;
 
 	USpellParams* Params = OwnerAbility->MakeSpellParams();

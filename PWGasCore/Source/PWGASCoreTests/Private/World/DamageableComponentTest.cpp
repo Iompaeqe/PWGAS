@@ -15,7 +15,7 @@ static USpellParams* MakeHitParams(AActor* Source, const TSubclassOf<UGameplayEf
 	USpellParams* Params = NewObject<USpellParams>();
 	Params->AbilityLevel = 1;
 	Params->SourceAvatar = Source;
-	Params->AddExtension<UEffectSpellParamsExtension>()->Effects.Add({Effect, 1});
+	Params->AddExtension<UEffectSpellParamsExtension>()->Groups.AddDefaulted_GetRef().Effects.Add({Effect, 1});
 	return Params;
 }
 
@@ -99,16 +99,21 @@ bool FDamageableFromModuleTest::RunTest(const FString& Parameters)
 
 	UPWAbilityModule_Effect* Effect = NewObject<UPWAbilityModule_Effect>(Ability);
 	Effect->Initialize(Ability);
-	Effect->Effects.Add({UPWTestInstantHitEffect::StaticClass(), 1});
+	Effect->EffectGroups.AddDefaulted_GetRef().Effects.Add({UPWTestInstantHitEffect::StaticClass(), 1});
 
 	APWDamageableActor* Actor = SpawnDamageable(Test, 100.f);
 	UPWDamageableComponent* Damageable = Actor->GetDamageable();
 
+	Effect->EffectGroups[0].TargetMask = static_cast<int32>(ERelationMask::Enemy);
+	Effect->ApplyEffectsToActor(Test.ASC, Actor);
+	TestEqual("A neutral actor is skipped by an enemy only group", Damageable->GetHealth(), 100.f);
+
+	Effect->EffectGroups[0].TargetMask = static_cast<int32>(ERelationMask::All);
 	Effect->ApplyEffectsToActor(Test.ASC, Actor);
 	TestEqual("An actor without an ability system takes the effect", Damageable->GetHealth(), 75.f);
 
-	Effect->Effects.Reset();
-	Effect->Effects.Add({UPWTestPeriodicDamageEffect::StaticClass(), 1});
+	Effect->EffectGroups.Reset();
+	Effect->EffectGroups.AddDefaulted_GetRef().Effects.Add({UPWTestPeriodicDamageEffect::StaticClass(), 1});
 	Effect->ApplyEffectsToActor(Test.ASC, Actor);
 	for (int32 i = 0; i < 6; ++i)
 		Test.TickTimers(0.25f);

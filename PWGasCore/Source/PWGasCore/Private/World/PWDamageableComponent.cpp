@@ -42,7 +42,7 @@ bool UPWDamageableComponent::ApplySpellParams(USpellParams* SpellParams)
 
 	UWorld* World = GetWorld();
 	AActor* Instigator = SpellParams->SourceAvatar;
-	const TArray<FEffectModifierValue> Values = UGASCoreFunctions::GetModifierValuesFromEffects(SpellParams, DamageAttribute);
+	const TArray<FEffectModifierValue> Values = UGASCoreFunctions::GetModifierValuesFromEffects(SpellParams, DamageAttribute, GetOwner());
 
 	for (const FEffectModifierValue& Value : Values)
 	{
@@ -103,7 +103,7 @@ void UPWDamageableComponent::RemoveSpellParams(const USpellParams* SpellParams, 
 
 	const AActor* Instigator = SpellParams->SourceAvatar;
 	TArray<TSubclassOf<UGameplayEffect>> Classes;
-	for (const FEffectModifierValue& Value : UGASCoreFunctions::GetModifierValuesFromEffects(SpellParams, DamageAttribute))
+	for (const FEffectModifierValue& Value : UGASCoreFunctions::GetModifierValuesFromEffects(SpellParams, DamageAttribute, GetOwner()))
 		Classes.Add(Value.EffectClass);
 
 	OngoingEffects.RemoveAll([&](const FOngoingEffect& Existing)

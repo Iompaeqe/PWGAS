@@ -39,5 +39,6 @@ public:
 	static bool ApplyEffects(UPWAbilitySystemComponent* ASC, const USpellParams* SpellParams);
 	// The object that takes effects for an actor without an ability system component, or null.
 	static UObject* FindAffectable(AActor* Target);
-	static TArray<FEffectModifierValue> GetModifierValuesFromEffects(const USpellParams* SpellParams, const FGameplayAttribute& Attribute);
+	// With a target, only the effect groups whose mask includes it are read.
+	static TArray<FEffectModifierValue> GetModifierValuesFromEffects(const USpellParams* SpellParams, const FGameplayAttribute& Attribute, const AActor* Target = nullptr);
 };

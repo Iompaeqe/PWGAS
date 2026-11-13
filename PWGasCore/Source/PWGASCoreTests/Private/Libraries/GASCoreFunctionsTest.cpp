@@ -28,7 +28,7 @@ bool FGASCoreFunctionsApplyEffectsTest::RunTest(const FString& Parameters)
 
 	USpellParams* Params = NewObject<USpellParams>();
 	Params->AbilityLevel = 1;
-	Params->AddExtension<UEffectSpellParamsExtension>()->Effects.Add({UPWTestEffect::StaticClass(), 1});
+	Params->AddExtension<UEffectSpellParamsExtension>()->Groups.AddDefaulted_GetRef().Effects.Add({UPWTestEffect::StaticClass(), 1});
 
 	Params->SourceAvatar = Test.Actor;
 	TestTrue("Applied", UGASCoreFunctions::ApplyEffects(Target, Params));
@@ -49,9 +49,9 @@ bool FGASCoreFunctionsModifierValuesTest::RunTest(const FString& Parameters)
 	USpellParams* Params = NewObject<USpellParams>();
 	Params->AbilityLevel = 1;
 	UEffectSpellParamsExtension* Effects = Params->AddExtension<UEffectSpellParamsExtension>();
-	Effects->Effects.Add({UPWTestPeriodicDamageEffect::StaticClass(), 1});
-	Effects->Effects.Add({UPWTestEffect::StaticClass(), 1});
-	Effects->Effects.Add({nullptr, 1});
+	Effects->Groups.AddDefaulted_GetRef().Effects.Add({UPWTestPeriodicDamageEffect::StaticClass(), 1});
+	Effects->Groups.AddDefaulted_GetRef().Effects.Add({UPWTestEffect::StaticClass(), 1});
+	Effects->Groups.AddDefaulted_GetRef().Effects.Add({nullptr, 1});
 
 	const TArray<FEffectModifierValue> Values = UGASCoreFunctions::GetModifierValuesFromEffects(Params, UPWTestAttributeSet::GetHealthAttribute());
 	if (!TestEqual("Only effects that change the attribute are returned", Values.Num(), 1))

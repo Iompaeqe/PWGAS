@@ -25,15 +25,28 @@ struct FEffectEntry
 	int32 StackCount = 1;
 };
 
+USTRUCT(BlueprintType)
+struct FPWEffectGroup
+{
+	GENERATED_BODY()
+
+	// Relations that receive these effects; anyone outside the mask is skipped.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(Bitmask, BitmaskEnum="/Script/PWSharedTypes.ERelationMask"))
+	int32 TargetMask = (int32)ERelationMask::All;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TArray<FEffectEntry> Effects;
+};
+
 UCLASS(BlueprintType)
 class PWGASCORE_API UEffectSpellParamsExtension : public USpellParamsExtension
 {
 	GENERATED_BODY()
 
 public:
-	// Effects carried to the spawned actor for it to apply on hit.
+	// Effects carried to the spawned actor for it to apply on hit, each group with its own mask.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TArray<FEffectEntry> Effects;
+	TArray<FPWEffectGroup> Groups;
 	UFUNCTION(BlueprintCallable)
 	void ApplyEffectsToTarget(UAbilitySystemComponent* SourceASC, UAbilitySystemComponent* TargetASC, int32 AbilityLevel = 1) const;
 };
@@ -44,12 +57,14 @@ class PWGASCORE_API UPWAbilityModule_Effect : public UPWDataModule
 	GENERATED_BODY()
 
 public:
-	// Relations that receive the effects; anyone outside the mask is skipped.
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(Bitmask, BitmaskEnum="/Script/PWSharedTypes.ERelationMask"))
-	int32 TargetMask = (int32)ERelationMask::All;
-	// Effects this ability applies to its targets.
+	// Effects this ability applies, grouped by who receives them: for example damage for enemies and neutrals, burn for enemies only.
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TArray<FEffectEntry> Effects;
+	TArray<FPWEffectGroup> EffectGroups;
+
+	UPROPERTY()
+	int32 TargetMask_DEPRECATED = (int32)ERelationMask::All;
+	UPROPERTY()
+	TArray<FEffectEntry> Effects_DEPRECATED;
 
 	TMap<TWeakObjectPtr<UAbilitySystemComponent>, TArray<FActiveGameplayEffectHandle>> ActiveEffectHandles;
 	
@@ -60,5 +75,9 @@ public:
 	void ApplyEffectsToActor(UAbilitySystemComponent* SourceASC, AActor* Target);
 	void RemoveEffectsFromActor(UAbilitySystemComponent* SourceASC, AActor* Target, bool bInfiniteOnly = false);
 
+	// Every relation at least one group applies to.
+	int32 GetCombinedMask() const;
+
 	virtual void ExtendParams(USpellParams* Params) const override;
+	virtual void PostLoad() override;
 };

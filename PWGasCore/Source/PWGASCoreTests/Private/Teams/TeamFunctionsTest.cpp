@@ -63,14 +63,21 @@ bool FEffectModuleTargetMaskTest::RunTest(const FString& Parameters)
 	if (!TestNotNull("Effect module", Effect))
 		return false;
 
-	Effect->TargetMask = static_cast<int32>(ERelationMask::Enemy);
+	Effect->EffectGroups[0].TargetMask = static_cast<int32>(ERelationMask::Enemy);
+	FPWEffectGroup& AllyGroup = Effect->EffectGroups.AddDefaulted_GetRef();
+	AllyGroup.TargetMask = static_cast<int32>(ERelationMask::Ally);
+	AllyGroup.Effects.Add({UPWTestDurationEffect::StaticClass(), 1});
+
 	Effect->ApplyEffects(Caster, Caster);
 	Effect->ApplyEffects(Caster, Ally);
 	Effect->ApplyEffects(Caster, Enemy);
 
 	TestEqual("Self skipped", Caster->GetGameplayEffectCount(UPWTestEffect::StaticClass(), nullptr), 0);
-	TestEqual("Ally skipped", Ally->GetGameplayEffectCount(UPWTestEffect::StaticClass(), nullptr), 0);
+	TestEqual("Ally skipped by the enemy group", Ally->GetGameplayEffectCount(UPWTestEffect::StaticClass(), nullptr), 0);
 	TestEqual("Enemy hit", Enemy->GetGameplayEffectCount(UPWTestEffect::StaticClass(), nullptr), 1);
+	TestEqual("Ally takes the ally group", Ally->GetGameplayEffectCount(UPWTestDurationEffect::StaticClass(), nullptr), 1);
+	TestEqual("Enemy skipped by the ally group", Enemy->GetGameplayEffectCount(UPWTestDurationEffect::StaticClass(), nullptr), 0);
+	TestEqual("Combined mask", Effect->GetCombinedMask(), static_cast<int32>(ERelationMask::Enemy | ERelationMask::Ally));
 
 	return true;
 }
