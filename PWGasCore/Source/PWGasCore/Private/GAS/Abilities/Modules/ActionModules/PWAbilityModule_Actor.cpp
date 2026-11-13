@@ -8,6 +8,7 @@
 #include "GAS/Abilities/Modules/ControlModules/PWAbilityModule_Targeting.h"
 #include "GAS/AbilityTasks/PWAbilityTask_TargetFromSource.h"
 #include "PWGASCoreLogChannels.h"
+#include "HAL/IConsoleManager.h"
 #include "Core/PWTeamsSubsystem.h"
 #include "Agents/PWTeamAgentComponent.h"
 #include "Libraries/PWGasFunctions.h"
@@ -73,6 +74,14 @@ AActor* UPWAbilityModule_Actor::SpawnActorWithTargetingResult(const FPWTargeting
 	// A summon, totem or turret with a team agent is attributed to the caster's participant, whoever ends up controlling it.
 	if (UPWTeamAgentComponent* Agent = Spawned->FindComponentByClass<UPWTeamAgentComponent>(); Agent && !Agent->GetOwnerParticipant().IsValid())
 		Agent->SetOwnerParticipant(UPWTeamsSubsystem::GetAgentOwner(Avatar));
+
+	if (const IConsoleVariable* DebugTargeting = IConsoleManager::Get().FindConsoleVariable(TEXT("PW.Debug.Targeting")); DebugTargeting && DebugTargeting->GetInt())
+	{
+		const FVector Aim = (Target.Location - Avatar->GetActorLocation()).GetSafeNormal();
+		UE_LOG(LogPWGASCoreAbilityModule, Warning, TEXT("[Targeting] %s SPAWN for %s: caster=%s facing=%s spawnAt=%s rotation=%s target=%s | aim against facing=%.2f (negative is behind)"),
+			*GetNameSafe(OwnerAbility), *GetNameSafe(Avatar), *Avatar->GetActorLocation().ToCompactString(), *Avatar->GetActorRotation().ToCompactString(), *SpawnTM.GetLocation().ToCompactString(),
+			*SpawnTM.Rotator().ToCompactString(), *Target.Location.ToCompactString(), FVector::DotProduct(Aim, Avatar->GetActorForwardVector()));
+	}
 
 	if (bDebugSpawnPosition)
 	{

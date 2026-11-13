@@ -78,10 +78,12 @@ void UPWAbilityTask_TargetDataUnderMouse::SendMouseCursorData()
 
 void UPWAbilityTask_TargetDataUnderMouse::OnTargetDataReplicatedCallback(const FGameplayAbilityTargetDataHandle& DataHandle, FGameplayTag ActivationTag)
 {
+	// Consuming clears the ability system's cached copy, which DataHandle may be. Keep our own first.
+	const FGameplayAbilityTargetDataHandle Data = DataHandle;
 	AbilitySystemComponent.Get()->ConsumeClientReplicatedTargetData(GetAbilitySpecHandle(),GetActivationPredictionKey());
 	
 	if (ShouldBroadcastAbilityTaskDelegates())
 	{
-		ValidData.Broadcast(DataHandle);
+		ValidData.Broadcast(Data);
 	}
 }
