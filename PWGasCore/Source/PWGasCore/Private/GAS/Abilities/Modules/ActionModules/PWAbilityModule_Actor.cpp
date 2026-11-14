@@ -101,13 +101,10 @@ AActor* UPWAbilityModule_Actor::SpawnActorWithTargetingResult(const FPWTargeting
 	{
 		if (SpawnSocket != NAME_None)
 		{
-			if (USkeletalMeshComponent* Mesh = Avatar->FindComponentByClass<USkeletalMeshComponent>())
-			{
-				if (Mesh->DoesSocketExist(SpawnSocket))
-					Spawned->AttachToComponent(Mesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale, SpawnSocket);
-				else
-					UE_LOG(LogPWGASCoreAbilityModule, Warning, TEXT("Attach socket '%s' missing on %s."), *SpawnSocket.ToString(), *Avatar->GetName());
-			}
+			if (UMeshComponent* Mesh = UPWGasFunctions::FindSocketMesh(Avatar, SpawnSocket))
+				Spawned->AttachToComponent(Mesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale, SpawnSocket);
+			else
+				UE_LOG(LogPWGASCoreAbilityModule, Warning, TEXT("Attach socket '%s' missing on %s."), *SpawnSocket.ToString(), *Avatar->GetName());
 		}
 		else
 		{
@@ -179,13 +176,10 @@ FTransform UPWAbilityModule_Actor::BuildSpawnTransform(const FPWTargetingResult&
 	{
 		if (const APawn* Pawn = OwnerAbility->GetPawn())
 		{
-			if (const USkeletalMeshComponent* Mesh = Pawn->FindComponentByClass<USkeletalMeshComponent>())
+			if (const UMeshComponent* Mesh = UPWGasFunctions::FindSocketMesh(Pawn, SpawnSocket))
 			{
-				if (Mesh->DoesSocketExist(SpawnSocket))
-				{
-					Loc = Mesh->GetSocketLocation(SpawnSocket);
-					Rot = (Target.Location - Loc).Rotation();
-				}
+				Loc = Mesh->GetSocketLocation(SpawnSocket);
+				Rot = (Target.Location - Loc).Rotation();
 			}
 		}
 	}

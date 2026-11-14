@@ -11,6 +11,7 @@
 #include "GAS/ASC/PWAbilitySystemComponent.h"
 #include "Core/PWTeamsSubsystem.h"
 #include "Core/PWTeamsTags.h"
+#include "Components/SkeletalMeshComponent.h"
 
 bool UPWGasFunctions::ApplyEffects(UPWAbilitySystemComponent* ASC, const UPWSpellParams* SpellParams)
 {
@@ -86,4 +87,17 @@ FPWTeamTargetFilter UPWGasFunctions::FilterFromLegacyMask(const int32 Mask)
 	if (Filter.AnyOf.IsEmpty())
 		Filter.NoneOf.AddTag(PWTeamTags::Relation);
 	return Filter;
+}
+
+UMeshComponent* UPWGasFunctions::FindSocketMesh(const AActor* Actor, const FName Socket)
+{
+	if (!Actor || Socket.IsNone())
+		return nullptr;
+
+	TInlineComponentArray<UMeshComponent*> Meshes(Actor);
+	Meshes.StableSort([](const UMeshComponent& A, const UMeshComponent& B) { return A.IsA<USkeletalMeshComponent>() && !B.IsA<USkeletalMeshComponent>(); });
+	for (UMeshComponent* Mesh : Meshes)
+		if (Mesh->DoesSocketExist(Socket))
+			return Mesh;
+	return nullptr;
 }

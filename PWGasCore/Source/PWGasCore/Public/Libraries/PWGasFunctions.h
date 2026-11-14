@@ -5,6 +5,7 @@
 #include "Targeting/PWTeamTargetFilter.h"
 #include "CoreMinimal.h"
 #include "GameplayEffect.h"
+#include "Components/MeshComponent.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "PWGasFunctions.generated.h"
 
@@ -43,4 +44,8 @@ public:
 
 	// With a target, only the effect groups whose filter accepts it are read.
 	static TArray<FPWEffectModifierValue> GetModifierValuesFromEffects(const UPWSpellParams* SpellParams, const FGameplayAttribute& Attribute, const AActor* Target = nullptr);
+
+	// The actor's mesh that has this socket, skeletal or static. Skeletal meshes are checked first, so a character's body wins over what it carries.
+	UFUNCTION(BlueprintPure, Category="PW|Sockets")
+	static UMeshComponent* FindSocketMesh(const AActor* Actor, FName Socket);
 };

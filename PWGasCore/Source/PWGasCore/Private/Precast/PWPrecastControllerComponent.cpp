@@ -207,11 +207,11 @@ FVector UPWPrecastControllerComponent::GetOriginLocation() const
 
 	if (!OriginSocket.IsNone())
 	{
-		if (const USkeletalMeshComponent* Skel = P->FindComponentByClass<USkeletalMeshComponent>())
+		if (const UMeshComponent* Mesh = UPWGasFunctions::FindSocketMesh(P, OriginSocket))
 		{
 			if (bHasReleaseOrigin)
-				return Skel->GetComponentTransform().TransformPosition(ReleaseOrigin);
-			return Skel->GetSocketLocation(OriginSocket);
+				return Mesh->GetComponentTransform().TransformPosition(ReleaseOrigin);
+			return Mesh->GetSocketLocation(OriginSocket);
 		}
 	}
 	const USceneComponent* Root = P->GetRootComponent();

@@ -16,6 +16,7 @@
 #include "GameFramework/PlayerState.h"
 #include "GAS/ASC/PWAbilitySystemComponent.h"
 #include "GAS/Tags/GASCoreTags.h"
+#include "Libraries/PWGasFunctions.h"
 #include "VisualAndAudio/PWMontageProvider.h"
 
 
@@ -96,9 +97,8 @@ void UPWGameplayAbilityBase::ExecuteCueAtSocket(const FGameplayTag CueTag, const
 	UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo();
 	if (!Avatar || !ASC) return;
 
-	const USkeletalMeshComponent* Mesh = GetOwningComponentFromActorInfo();
-	const bool bHasSocket = Mesh && Mesh->DoesSocketExist(SocketName);
-	const FVector Origin = bHasSocket ? Mesh->GetSocketLocation(SocketName) : Avatar->GetActorLocation();
+	const UMeshComponent* Mesh = UPWGasFunctions::FindSocketMesh(Avatar, SocketName);
+	const FVector Origin = Mesh ? Mesh->GetSocketLocation(SocketName) : Avatar->GetActorLocation();
 
 	FGameplayCueParameters Parameters;
 	Parameters.Instigator = Avatar;

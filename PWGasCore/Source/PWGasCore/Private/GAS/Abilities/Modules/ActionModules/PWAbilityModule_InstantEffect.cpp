@@ -8,7 +8,7 @@
 #include "GAS/Abilities/Modules/ControlModules/PWAbilityModule_Targeting.h"
 #include "GAS/Abilities/Modules/DataModules/PWAbilityModule_Effect.h"
 #include "GAS/AbilityTasks/PWAbilityTask_TargetFromSource.h"
-#include "Components/SkeletalMeshComponent.h"
+#include "Libraries/PWGasFunctions.h"
 #include "GameFramework/Pawn.h"
 #include "PWGasCore/Public/Targeting/Types/PWTargetPolicyBase.h"
 #include "PWGASCoreLogChannels.h"
@@ -136,9 +136,8 @@ void UPWAbilityModule_InstantEffect::ApplyEffectsAtSocket(const FName SocketName
 	const APawn* Pawn = GetPawn();
 	if (!Pawn) return;
 
-	const USkeletalMeshComponent* Mesh = Pawn->FindComponentByClass<USkeletalMeshComponent>();
-	const bool bHasSocket = Mesh && Mesh->DoesSocketExist(SocketName);
-	ApplyEffectsAtLocation(bHasSocket ? Mesh->GetSocketLocation(SocketName) : Pawn->GetActorLocation());
+	const UMeshComponent* Mesh = UPWGasFunctions::FindSocketMesh(Pawn, SocketName);
+	ApplyEffectsAtLocation(Mesh ? Mesh->GetSocketLocation(SocketName) : Pawn->GetActorLocation());
 }
 
 void UPWAbilityModule_InstantEffect::OnTargetDataReady(const FGameplayAbilityTargetDataHandle& DataHandle, const struct FPWTargetingResult& Result)
