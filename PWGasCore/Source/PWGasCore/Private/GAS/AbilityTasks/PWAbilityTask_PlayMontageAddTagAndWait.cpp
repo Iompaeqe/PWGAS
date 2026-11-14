@@ -170,6 +170,7 @@ void UPWAbilityTask_PlayMontageAddTagAndWait::AddTags()
 	if (!ASC || bTagsAdded)
 		return;
 	ASC->AddLooseGameplayTags(TagsToAdd);
+	ReplicateTags(*ASC, true);
 	bTagsAdded = true;
 }
 
@@ -180,7 +181,23 @@ void UPWAbilityTask_PlayMontageAddTagAndWait::RemoveTags()
 	if (!ASC || !bTagsAdded)
 		return;
 	ASC->RemoveLooseGameplayTags(TagsToAdd);
+	ReplicateTags(*ASC, false);
 	bTagsAdded = false;
+}
+
+void UPWAbilityTask_PlayMontageAddTagAndWait::ReplicateTags(UAbilitySystemComponent& ASC, const bool bAdd) const
+{
+	// The same way the engine sends an ability's own owned tags, and under the same project setting, so other players see them too.
+	if (!UAbilitySystemGlobals::Get().ShouldReplicateActivationOwnedTags())
+		return;
+
+	// An ability that also runs on the owning client already put them on there, so only the other machines are told.
+	const EGameplayAbilityNetExecutionPolicy::Type Policy = Ability ? Ability->GetNetExecutionPolicy() : EGameplayAbilityNetExecutionPolicy::ServerOnly;
+	const bool bOwnerRunsIt = Policy == EGameplayAbilityNetExecutionPolicy::LocalPredicted || Policy == EGameplayAbilityNetExecutionPolicy::ServerInitiated;
+	if (bOwnerRunsIt)
+		bAdd ? ASC.AddMinimalReplicationGameplayTags(TagsToAdd) : ASC.RemoveMinimalReplicationGameplayTags(TagsToAdd);
+	else
+		bAdd ? ASC.AddReplicatedLooseGameplayTags(TagsToAdd) : ASC.RemoveReplicatedLooseGameplayTags(TagsToAdd);
 }
 
 void UPWAbilityTask_PlayMontageAddTagAndWait::StartWithoutMontage()

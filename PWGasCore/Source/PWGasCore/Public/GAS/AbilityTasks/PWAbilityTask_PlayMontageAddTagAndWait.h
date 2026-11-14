@@ -73,6 +73,7 @@ protected:
 
 	void AddTags();
 	void RemoveTags();
+	void ReplicateTags(UAbilitySystemComponent& ASC, bool bAdd) const;
 
 	void StartWithoutMontage();
 	void FinishWithoutMontage();

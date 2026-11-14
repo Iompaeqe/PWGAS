@@ -16,6 +16,14 @@ static UPWAbilityTask_PlayMontageAddTagAndWait* PlayWithoutMontage(UGameplayAbil
 	return Task;
 }
 
+// The tags other players get; the accessor is protected, so it is read like the replicated property it is.
+static bool IsSentToOthers(const UAbilitySystemComponent* ASC, const FGameplayTag& Tag)
+{
+	const FStructProperty* Property = CastField<FStructProperty>(UAbilitySystemComponent::StaticClass()->FindPropertyByName(TEXT("MinimalReplicationTags")));
+	const FMinimalReplicationTagCountMap* Tags = Property ? Property->ContainerPtrToValuePtr<FMinimalReplicationTagCountMap>(ASC) : nullptr;
+	return Tags && Tags->TagMap.Contains(Tag);
+}
+
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FNoMontageCastTest, "PW.Animation.Montage.NoMontage", EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
 
 bool FNoMontageCastTest::RunTest(const FString& Parameters)
@@ -33,6 +41,7 @@ bool FNoMontageCastTest::RunTest(const FString& Parameters)
 	Test.TickTimers(0.f);
 	PlayWithoutMontage(Ability, 0.5f);
 	TestTrue("The casting tag is on although nothing plays", Test.ASC->HasMatchingGameplayTag(PWTags::ASC::State::Casting::Root));
+	TestTrue("and is sent to the other players", IsSentToOthers(Test.ASC, PWTags::ASC::State::Casting::Root));
 
 	Test.TickTimers(0.3f);
 	TestEqual("No trigger before the delay", Triggers, 0);
@@ -40,6 +49,7 @@ bool FNoMontageCastTest::RunTest(const FString& Parameters)
 	Test.TickTimers(0.3f);
 	TestEqual("The task sends the trigger the montage would have", Triggers, 1);
 	TestFalse("The casting tag comes off with it", Test.ASC->HasMatchingGameplayTag(PWTags::ASC::State::Casting::Root));
+	TestFalse("for the other players too", IsSentToOthers(Test.ASC, PWTags::ASC::State::Casting::Root));
 
 	PlayWithoutMontage(Ability, 0.5f);
 	Ability->K2_CancelAbility();
