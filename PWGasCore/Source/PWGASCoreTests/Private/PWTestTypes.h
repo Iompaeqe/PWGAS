@@ -99,6 +99,26 @@ public:
 	UPWTestDurationEffect();
 };
 
+// Lasts as long as the ability's Cooldown says, like a project's GE_Cooldown.
+UCLASS(NotBlueprintable, HideDropdown)
+class UPWTestCooldownEffect : public UGameplayEffect
+{
+	GENERATED_BODY()
+
+public:
+	UPWTestCooldownEffect();
+};
+
+UCLASS(NotBlueprintable, HideDropdown)
+class UPWTestCooldownAbility : public UPWTestModularAbility
+{
+	GENERATED_BODY()
+
+public:
+	UPWTestCooldownAbility();
+
+	void SetCooldown(const float Seconds) { Cooldown = FScalableFloat(Seconds); }
+};
 
 UCLASS(NotBlueprintable, HideDropdown)
 class UPWTestInstantBuffAbility : public UPWGameplayAbility_Instant

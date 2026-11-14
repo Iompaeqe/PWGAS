@@ -273,9 +273,20 @@ void UPWGameplayAbilityBase::ApplyCooldown(const FGameplayAbilitySpecHandle Hand
 	if (const UGameplayEffect* CooldownGE = GetCooldownGameplayEffect())
 	{
 		const FGameplayEffectSpecHandle SpecHandle = MakeOutgoingGameplayEffectSpec(CooldownGE->GetClass(), GetAbilityLevel());
+		if (!SpecHandle.IsValid())
+			return;
+
 		const FGameplayTag CooldownTag = PWTags::Ability::Skill::GetCooldownTag(AbilityTag);
 		SpecHandle.Data.Get()->DynamicGrantedTags.AppendTags(CooldownTag.GetSingleTagContainer());
 		SpecHandle.Data.Get()->SetSetByCallerMagnitude(PWTags::Ability::SetByCaller::Cooldown, Cd);
+
+		// A duration effect that works out to 0 seconds is never timed out, so its tag would stay forever. A cooldown of 0 is no cooldown.
+		float Duration = 0.f;
+		if (CooldownGE->DurationPolicy == EGameplayEffectDurationType::HasDuration
+			&& CooldownGE->DurationMagnitude.AttemptCalculateMagnitude(*SpecHandle.Data, Duration, false)
+			&& Duration <= 0.f)
+			return;
+
 		ApplyGameplayEffectSpecToOwner(Handle, ActorInfo, ActivationInfo, SpecHandle);
 	}
 

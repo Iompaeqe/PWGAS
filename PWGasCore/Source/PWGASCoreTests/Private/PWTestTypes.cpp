@@ -61,6 +61,19 @@ UPWTestDurationEffect::UPWTestDurationEffect()
 	DurationMagnitude = FScalableFloat(10.f);
 }
 
+UPWTestCooldownEffect::UPWTestCooldownEffect()
+{
+	DurationPolicy = EGameplayEffectDurationType::HasDuration;
+	FSetByCallerFloat Duration;
+	Duration.DataTag = PWTags::Ability::SetByCaller::Cooldown;
+	DurationMagnitude = FGameplayEffectModifierMagnitude(Duration);
+}
+
+UPWTestCooldownAbility::UPWTestCooldownAbility()
+{
+	CooldownGameplayEffectClass = UPWTestCooldownEffect::StaticClass();
+}
+
 UPWTestInstantBuffAbility::UPWTestInstantBuffAbility()
 {
 	UPWAbilityModule_InstantEffect* InstantEffect = CreateDefaultSubobject<UPWAbilityModule_InstantEffect>("InstantEffect");

@@ -83,4 +83,32 @@ bool FAbilityCancellationTagsTest::RunTest(const FString& Parameters)
 	return true;
 }
 
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FAbilityBaseZeroCooldownTest, "PW.Abilities.Base.ZeroCooldown", EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FAbilityBaseZeroCooldownTest::RunTest(const FString& Parameters)
+{
+	const FPWTestWorld Test;
+	UPWTestCooldownAbility* Ability = Test.ActivateAbility<UPWTestCooldownAbility>();
+	if (!TestTrue("Ability active", Ability && Ability->IsActive()))
+		return false;
+
+	const auto CommitCooldown = [Ability]() { Ability->CommitAbilityCooldown(Ability->GetCurrentAbilitySpecHandle(), Ability->GetCurrentActorInfo(), Ability->GetCurrentActivationInfo(), false); };
+	const auto ActiveCooldowns = [&Test]() { return Test.ASC->GetGameplayEffectCount(UPWTestCooldownEffect::StaticClass(), nullptr); };
+
+	Ability->SetCooldown(0.f);
+	CommitCooldown();
+	TestEqual("A cooldown of 0 applies nothing, as it would never run out", ActiveCooldowns(), 0);
+
+	Ability->SetCooldown(0.5f);
+	CommitCooldown();
+	TestEqual("A real cooldown applies", ActiveCooldowns(), 1);
+
+	// The test world's clock doesn't move, so check the duration the engine times out by instead of waiting for it.
+	FGameplayEffectQuery Query;
+	Query.EffectDefinition = UPWTestCooldownEffect::StaticClass();
+	const TArray<float> Durations = Test.ASC->GetActiveEffectsDuration(Query);
+	TestTrue("with the ability's own duration", Durations.Num() == 1 && FMath::IsNearlyEqual(Durations[0], 0.5f));
+	return true;
+}
+
 #endif
