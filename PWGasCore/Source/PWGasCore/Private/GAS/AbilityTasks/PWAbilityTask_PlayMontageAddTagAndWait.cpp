@@ -9,6 +9,7 @@
 #include "AbilitySystemGlobals.h"
 #include "GAS/Tags/GASCoreTags.h"
 #include "Engine/World.h"
+#include "Misc/EngineVersionComparison.h"
 #include "TimerManager.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(PWAbilityTask_PlayMontageAddTagAndWait)
@@ -169,8 +170,7 @@ void UPWAbilityTask_PlayMontageAddTagAndWait::AddTags()
 	UAbilitySystemComponent* ASC = AbilitySystemComponent.Get();
 	if (!ASC || bTagsAdded)
 		return;
-	ASC->AddLooseGameplayTags(TagsToAdd);
-	ReplicateTags(*ASC, true);
+	ApplyTags(*ASC, true);
 	bTagsAdded = true;
 }
 
@@ -180,15 +180,17 @@ void UPWAbilityTask_PlayMontageAddTagAndWait::RemoveTags()
 	UAbilitySystemComponent* ASC = AbilitySystemComponent.Get();
 	if (!ASC || !bTagsAdded)
 		return;
-	ASC->RemoveLooseGameplayTags(TagsToAdd);
-	ReplicateTags(*ASC, false);
+	ApplyTags(*ASC, false);
 	bTagsAdded = false;
 }
 
-void UPWAbilityTask_PlayMontageAddTagAndWait::ReplicateTags(UAbilitySystemComponent& ASC, const bool bAdd) const
+void UPWAbilityTask_PlayMontageAddTagAndWait::ApplyTags(UAbilitySystemComponent& ASC, const bool bAdd) const
 {
-	// The same way the engine sends an ability's own owned tags, and under the same project setting, so other players see them too.
-	if (!UAbilitySystemGlobals::Get().ShouldReplicateActivationOwnedTags())
+	// The same way the engine puts an ability's own owned tags on, under the same project setting, so other players see them too.
+	const bool bReplicate = UAbilitySystemGlobals::Get().ShouldReplicateActivationOwnedTags();
+#if UE_VERSION_OLDER_THAN(5, 7, 0)
+	bAdd ? ASC.AddLooseGameplayTags(TagsToAdd) : ASC.RemoveLooseGameplayTags(TagsToAdd);
+	if (!bReplicate)
 		return;
 
 	// An ability that also runs on the owning client already put them on there, so only the other machines are told.
@@ -198,6 +200,10 @@ void UPWAbilityTask_PlayMontageAddTagAndWait::ReplicateTags(UAbilitySystemCompon
 		bAdd ? ASC.AddMinimalReplicationGameplayTags(TagsToAdd) : ASC.RemoveMinimalReplicationGameplayTags(TagsToAdd);
 	else
 		bAdd ? ASC.AddReplicatedLooseGameplayTags(TagsToAdd) : ASC.RemoveReplicatedLooseGameplayTags(TagsToAdd);
+#else
+	const EGameplayTagReplicationState Replication = bReplicate ? EGameplayTagReplicationState::CountToOwner : EGameplayTagReplicationState::None;
+	bAdd ? ASC.AddLooseGameplayTags(TagsToAdd, 1, Replication) : ASC.RemoveLooseGameplayTags(TagsToAdd, 1, Replication);
+#endif
 }
 
 void UPWAbilityTask_PlayMontageAddTagAndWait::StartWithoutMontage()
