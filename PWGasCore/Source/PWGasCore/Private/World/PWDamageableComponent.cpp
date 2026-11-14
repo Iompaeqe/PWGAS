@@ -35,7 +35,7 @@ void UPWDamageableComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	Super::EndPlay(EndPlayReason);
 }
 
-bool UPWDamageableComponent::ApplySpellParams(UPWSpellParams* SpellParams)
+bool UPWDamageableComponent::ApplyEffects(UPWSpellParams* SpellParams)
 {
 	if (!SpellParams || !HasAuthority() || bDepleted)
 		return false;
@@ -96,7 +96,7 @@ void UPWDamageableComponent::ApplyDamage(const float Amount, AActor* Instigator)
 	HandleDepleted(Instigator);
 }
 
-void UPWDamageableComponent::RemoveSpellParams(const UPWSpellParams* SpellParams, const bool bInfiniteOnly)
+void UPWDamageableComponent::RemoveEffects(const UPWSpellParams* SpellParams, const bool bInfiniteOnly)
 {
 	if (!SpellParams)
 		return;

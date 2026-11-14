@@ -45,7 +45,7 @@ public:
 
 	// Reads the effects carried by the spell params. Instant ones hit once, periodic ones keep ticking.
 	UFUNCTION(BlueprintCallable, Category="Damageable")
-	bool ApplySpellParams(UPWSpellParams* SpellParams);
+	bool ApplyEffects(UPWSpellParams* SpellParams);
 
 	// A negative amount heals.
 	UFUNCTION(BlueprintCallable, Category="Damageable")
@@ -53,7 +53,7 @@ public:
 
 	// Ends the ongoing effects this caster applied with these spell params.
 	UFUNCTION(BlueprintCallable, Category="Damageable")
-	void RemoveSpellParams(const UPWSpellParams* SpellParams, bool bInfiniteOnly = false);
+	void RemoveEffects(const UPWSpellParams* SpellParams, bool bInfiniteOnly = false);
 
 	UFUNCTION(BlueprintCallable, Category="Damageable")
 	void ClearOngoingEffects();

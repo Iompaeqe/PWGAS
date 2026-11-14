@@ -14,12 +14,12 @@ APWDamageableActor::APWDamageableActor()
 
 bool APWDamageableActor::ApplyEffects_Implementation(UPWSpellParams* SpellParams)
 {
-	return Damageable->ApplySpellParams(SpellParams);
+	return Damageable->ApplyEffects(SpellParams);
 }
 
 void APWDamageableActor::RemoveEffects_Implementation(UPWSpellParams* SpellParams, const bool bInfiniteOnly)
 {
-	Damageable->RemoveSpellParams(SpellParams, bInfiniteOnly);
+	Damageable->RemoveEffects(SpellParams, bInfiniteOnly);
 }
 
 UObject* APWDamageableActor::GetEffectReceiver_Implementation()

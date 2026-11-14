@@ -62,7 +62,7 @@ bool FDamageableOverTimeTest::RunTest(const FString& Parameters)
 		const APWDamageableActor* Actor = SpawnDamageable(Test, 100.f);
 		UPWDamageableComponent* Damageable = Actor->GetDamageable();
 
-		Damageable->ApplySpellParams(MakeHitParams(Test.Actor, UPWTestTimedHitEffect::StaticClass()));
+		Damageable->ApplyEffects(MakeHitParams(Test.Actor, UPWTestTimedHitEffect::StaticClass()));
 		TestEqual("Nothing before the first period", Damageable->GetHealth(), 100.f);
 
 		for (int32 i = 0; i < 4; ++i)
@@ -82,7 +82,7 @@ bool FDamageableOverTimeTest::RunTest(const FString& Parameters)
 		const APWDamageableActor* Actor = SpawnDamageable(Test, 100.f);
 		UPWDamageableComponent* Damageable = Actor->GetDamageable();
 
-		Damageable->ApplySpellParams(MakeHitParams(Test.Actor, UPWTestTimedHitEffect::StaticClass()));
+		Damageable->ApplyEffects(MakeHitParams(Test.Actor, UPWTestTimedHitEffect::StaticClass()));
 		Damageable->ClearOngoingEffects();
 		for (int32 i = 0; i < 8; ++i)
 			Test.TickTimers(0.25f);
