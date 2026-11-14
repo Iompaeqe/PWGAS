@@ -4,12 +4,6 @@
 
 #include "GAS/Tags/GASCoreTags.h"
 
-namespace PWTestTags
-{
-	UE_DEFINE_GAMEPLAY_TAG(AttributeRoot, "PWTest.Attribute");
-	UE_DEFINE_GAMEPLAY_TAG(AttributeCooldown, "PWTest.Attribute.Cooldown");
-}
-
 UPWTestEffect::UPWTestEffect()
 {
 	DurationPolicy = EGameplayEffectDurationType::Infinite;
@@ -123,7 +117,8 @@ PW_REPLICATE_ATTRIBUTES(UPWTestAttributeSet)
 
 UPWTestAttributeSet::UPWTestAttributeSet()
 {
-	AttributeTagRoot = PWTestTags::AttributeRoot;
+	// Only Cooldown sits under it natively, whatever a project or the examples add elsewhere under Ability.
+	AttributeTagRoot = PWTags::Ability::SetByCaller::Root;
 	AddClamped(GetHealthAttribute(), GetHealthMaxAttribute());
 }
 

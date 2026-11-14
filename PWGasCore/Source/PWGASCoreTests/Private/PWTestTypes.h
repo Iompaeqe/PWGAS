@@ -20,15 +20,7 @@
 #include "Agents/PWTeamAgent.h"
 #include "Agents/PWTeamAgentComponent.h"
 #include "Relationships/PWTeamRelationshipProvider.h"
-#include "NativeGameplayTags.h"
 #include "PWTestTypes.generated.h"
-
-// Tags only the tests use, so a test never depends on what else a project or the examples define.
-namespace PWTestTags
-{
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(AttributeRoot);
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(AttributeCooldown);
-}
 
 UCLASS(NotBlueprintable, HideDropdown)
 class UPWTestEffect : public UGameplayEffect
