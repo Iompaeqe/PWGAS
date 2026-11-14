@@ -46,7 +46,7 @@ class PWGASCORE_API UPWAbilityModule_Actor : public UPWActionModule
 
 public:
 	/** Actor class to spawn. Must implement PWSpellParamsInterface. */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(MustImplement="PWSpellParamsInterface"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(MustImplement="/Script/PWContracts.PWSpellParamsInterface"))
 	TSubclassOf<AActor> ActorClass;
 	// Which targets the spawned actor collides with, by the tags that describe them; the rest are passed through. Empty collides with every target. Walls and other scenery always stop it.
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
