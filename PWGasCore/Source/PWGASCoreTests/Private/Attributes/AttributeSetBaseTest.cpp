@@ -17,8 +17,8 @@ bool FAttributeSetTagsTest::RunTest(const FString& Parameters)
 	UPWTestAttributeSet* Set = NewObject<UPWTestAttributeSet>(Test.Actor);
 	Test.ASC->AddAttributeSetSubobject(Set);
 
-	// The set looks under Ability, where Ability.SetByCaller.Cooldown matches the Cooldown attribute.
-	const FGameplayTag Cooldown = PWTags::Ability::SetByCaller::Cooldown;
+	// The set looks under PWTest.Attribute, where PWTest.Attribute.Cooldown matches the Cooldown attribute.
+	const FGameplayTag Cooldown = PWTestTags::AttributeCooldown;
 
 	TestTrue("Tag found by attribute name", Set->GetAttribute(Cooldown) == UPWTestAttributeSet::GetCooldownAttribute());
 	TestTrue("Attribute to tag", Set->GetAttributeTag(UPWTestAttributeSet::GetCooldownAttribute()) == Cooldown);
