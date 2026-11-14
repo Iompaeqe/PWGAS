@@ -22,6 +22,7 @@ public class PWGASCoreTests : ModuleRules
                 "Engine",
                 "GameplayTags",
                 "GameplayAbilities",
+                "GameplayTasks",
                 "PWGasCore",
                 "PWSharedTypes",
                 "PWContracts",

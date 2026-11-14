@@ -8,6 +8,8 @@
 #include "AbilitySystemLog.h"
 #include "AbilitySystemGlobals.h"
 #include "GAS/Tags/GASCoreTags.h"
+#include "Engine/World.h"
+#include "TimerManager.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(PWAbilityTask_PlayMontageAddTagAndWait)
 
@@ -18,7 +20,7 @@ UPWAbilityTask_PlayMontageAddTagAndWait::UPWAbilityTask_PlayMontageAddTagAndWait
 	bStopWhenAbilityEnds = true;
 }
 
-void UPWAbilityTask_PlayMontageAddTagAndWait::OnMontageBlendingOut(UAnimMontage* Montage, const bool bInterrupted) const
+void UPWAbilityTask_PlayMontageAddTagAndWait::OnMontageBlendingOut(UAnimMontage* Montage, const bool bInterrupted)
 {
 	if (Ability && Ability->GetCurrentMontage() == MontageToPlay)
 	{
@@ -45,7 +47,7 @@ void UPWAbilityTask_PlayMontageAddTagAndWait::OnMontageBlendingOut(UAnimMontage*
 	{
 		if (ShouldBroadcastAbilityTaskDelegates())
 		{
-			AbilitySystemComponent.Get()->RemoveLooseGameplayTags(TagsToAdd);
+			RemoveTags();
 			OnInterrupted.Broadcast();
 		}
 	}
@@ -53,7 +55,7 @@ void UPWAbilityTask_PlayMontageAddTagAndWait::OnMontageBlendingOut(UAnimMontage*
 	{
 		if (ShouldBroadcastAbilityTaskDelegates())
 		{
-			AbilitySystemComponent.Get()->RemoveLooseGameplayTags(TagsToAdd);
+			RemoveTags();
 			OnBlendOut.Broadcast();
 		}
 	}
@@ -66,7 +68,7 @@ void UPWAbilityTask_PlayMontageAddTagAndWait::OnMontageInterrupted()
 		// Let the BP handle the interrupt as well
 		if (ShouldBroadcastAbilityTaskDelegates())
 		{
-			AbilitySystemComponent.Get()->RemoveLooseGameplayTags(TagsToAdd);
+			RemoveTags();
 			OnInterrupted.Broadcast();
 		}
 	}
@@ -78,7 +80,7 @@ void UPWAbilityTask_PlayMontageAddTagAndWait::OnMontageEnded(UAnimMontage* Monta
 	{
 		if (ShouldBroadcastAbilityTaskDelegates())
 		{
-			AbilitySystemComponent.Get()->RemoveLooseGameplayTags(TagsToAdd);
+			RemoveTags();
 			OnCompleted.Broadcast();
 		}
 	}
@@ -87,7 +89,7 @@ void UPWAbilityTask_PlayMontageAddTagAndWait::OnMontageEnded(UAnimMontage* Monta
 }
 
 UPWAbilityTask_PlayMontageAddTagAndWait* UPWAbilityTask_PlayMontageAddTagAndWait::CreatePlayMontageAddTagAndWaitProxy(UGameplayAbility* OwningAbility, FGameplayTagContainer TagsToAdd,
-                                                                                                                  FName TaskInstanceName, UAnimMontage* MontageToPlay, float Rate, FName StartSection, bool bStopWhenAbilityEnds, float AnimRootMotionTranslationScale, float StartTimeSeconds)
+                                                                                                                  FName TaskInstanceName, UAnimMontage* MontageToPlay, float Rate, FName StartSection, bool bStopWhenAbilityEnds, float AnimRootMotionTranslationScale, float StartTimeSeconds, float NoMontageDelay)
 {
 	UAbilitySystemGlobals::NonShipping_ApplyGlobalAbilityScaler_Rate(Rate);
 
@@ -99,6 +101,7 @@ UPWAbilityTask_PlayMontageAddTagAndWait* UPWAbilityTask_PlayMontageAddTagAndWait
 	MyObj->AnimRootMotionTranslationScale = AnimRootMotionTranslationScale;
 	MyObj->bStopWhenAbilityEnds = bStopWhenAbilityEnds;
 	MyObj->StartTimeSeconds = StartTimeSeconds;
+	MyObj->NoMontageDelay = NoMontageDelay;
 
 	return MyObj;
 }
@@ -143,37 +146,84 @@ void UPWAbilityTask_PlayMontageAddTagAndWait::Activate()
 
 				bPlayedMontage = true;
 
-				ASC->AddLooseGameplayTags(TagsToAdd);
+				AddTags();
 			}
 		}
-		else
-		{
-			ABILITY_LOG(Warning, TEXT("UAbilityTask_PlayMontageAndWait call to PlayMontage failed!"));
-		}
+
+		// No montage, or nothing to play it on, such as a static mesh: the cast still happens after the delay.
+		if (!bPlayedMontage)
+			StartWithoutMontage();
 	}
 	else
 	{
 		ABILITY_LOG(Warning, TEXT("UAbilityTask_PlayMontageAndWait called on invalid AbilitySystemComponent"));
-	}
-
-	if (!bPlayedMontage)
-	{
-		ABILITY_LOG(Warning, TEXT("UAbilityTask_PlayMontageAndWait called in Ability %s failed to play montage %s; Task Instance Name %s."), *Ability->GetName(), *GetNameSafe(MontageToPlay), *InstanceName.ToString());
 		if (ShouldBroadcastAbilityTaskDelegates())
-		{
-			AbilitySystemComponent.Get()->RemoveLooseGameplayTags(TagsToAdd);
 			OnCancelled.Broadcast();
-		}
 	}
 
 	SetWaitingOnAvatar();
+}
+
+void UPWAbilityTask_PlayMontageAddTagAndWait::AddTags()
+{
+	UAbilitySystemComponent* ASC = AbilitySystemComponent.Get();
+	if (!ASC || bTagsAdded)
+		return;
+	ASC->AddLooseGameplayTags(TagsToAdd);
+	bTagsAdded = true;
+}
+
+void UPWAbilityTask_PlayMontageAddTagAndWait::RemoveTags()
+{
+	// Several paths end a montage; the tags must only come off once, or a tag something else also holds would drop with them.
+	UAbilitySystemComponent* ASC = AbilitySystemComponent.Get();
+	if (!ASC || !bTagsAdded)
+		return;
+	ASC->RemoveLooseGameplayTags(TagsToAdd);
+	bTagsAdded = false;
+}
+
+void UPWAbilityTask_PlayMontageAddTagAndWait::StartWithoutMontage()
+{
+	if (!ShouldBroadcastAbilityTaskDelegates())
+		return;
+
+	ABILITY_LOG(Log, TEXT("%s plays without a montage; the trigger comes after %.2fs."), *Ability->GetName(), NoMontageDelay);
+	AddTags();
+
+	FTimerManager& Timers = GetWorld()->GetTimerManager();
+	if (NoMontageDelay > 0.f)
+		Timers.SetTimer(NoMontageTimer, this, &ThisClass::FinishWithoutMontage, NoMontageDelay, false);
+	else
+		NoMontageTimer = Timers.SetTimerForNextTick(this, &ThisClass::FinishWithoutMontage);
+}
+
+void UPWAbilityTask_PlayMontageAddTagAndWait::FinishWithoutMontage()
+{
+	UAbilitySystemComponent* ASC = AbilitySystemComponent.Get();
+	if (ASC && ShouldBroadcastAbilityTaskDelegates())
+	{
+		// What the montage's notify would have sent.
+		FGameplayEventData Payload;
+		Payload.EventTag = PWTags::MontageEvent::Trigger;
+		Payload.Instigator = GetAvatarActor();
+		{
+			FScopedPredictionWindow PredictionWindow(ASC, true);
+			ASC->HandleGameplayEvent(Payload.EventTag, &Payload);
+		}
+
+		RemoveTags();
+		if (ShouldBroadcastAbilityTaskDelegates())
+			OnCompleted.Broadcast();
+	}
+	EndTask();
 }
 
 void UPWAbilityTask_PlayMontageAddTagAndWait::ExternalCancel()
 {
 	if (ShouldBroadcastAbilityTaskDelegates())
 	{
-		AbilitySystemComponent.Get()->RemoveLooseGameplayTags(TagsToAdd);
+		RemoveTags();
 		OnCancelled.Broadcast();
 	}
 	Super::ExternalCancel();
@@ -193,6 +243,11 @@ void UPWAbilityTask_PlayMontageAddTagAndWait::OnDestroy(const bool AbilityEnded)
 			StopPlayingMontage();
 		}
 	}
+	if (UWorld* World = GetWorld())
+		World->GetTimerManager().ClearTimer(NoMontageTimer);
+
+	// Stopping the montage above unbinds its end callbacks, so the tags come off here instead.
+	RemoveTags();
 	Super::OnDestroy(AbilityEnded);
 }
 
@@ -260,7 +315,7 @@ void UPWAbilityTask_PlayMontageAddTagAndWait::StopMontage()
 {
 	if (ShouldBroadcastAbilityTaskDelegates())
 	{
-		AbilitySystemComponent.Get()->RemoveLooseGameplayTags(TagsToAdd);
+		RemoveTags();
 		OnCancelled.Broadcast();
 	}
 

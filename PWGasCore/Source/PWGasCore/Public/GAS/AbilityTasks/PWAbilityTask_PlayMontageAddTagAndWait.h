@@ -26,7 +26,7 @@ class PWGASCORE_API UPWAbilityTask_PlayMontageAddTagAndWait : public UAbilityTas
 	FMontageWaitDelegate	OnCancelled;
 	
 	UFUNCTION()
-	void OnMontageBlendingOut(UAnimMontage* Montage, bool bInterrupted) const;
+	void OnMontageBlendingOut(UAnimMontage* Montage, bool bInterrupted);
 
 	UFUNCTION()
 	void OnMontageInterrupted();
@@ -47,11 +47,12 @@ class PWGASCORE_API UPWAbilityTask_PlayMontageAddTagAndWait : public UAbilityTas
 	 * @param bStopWhenAbilityEnds If true, this montage will be aborted if the ability ends normally. It is always stopped when the ability is explicitly cancelled
 	 * @param AnimRootMotionTranslationScale Change to modify size of root motion or set to 0 to block it entirely
 	 * @param StartTimeSeconds Starting time offset in montage, this will be overridden by StartSection if that is also set
+	 * @param NoMontageDelay When the avatar has no montage to play, such as a static mesh totem, the tags still go on, and after this many seconds the task sends Montage Event Trigger itself, as the montage's notify would have
 	 */
 	UFUNCTION(BlueprintCallable, Category="Ability|Tasks", meta = (DisplayName="PlayMontageAddTagAndWait",
 		HidePin = "OwningAbility", DefaultToSelf = "OwningAbility", BlueprintInternalUseOnly = "TRUE"))
 	static UPWAbilityTask_PlayMontageAddTagAndWait* CreatePlayMontageAddTagAndWaitProxy(UGameplayAbility* OwningAbility, FGameplayTagContainer TagsToAdd,
-		FName TaskInstanceName, UAnimMontage* MontageToPlay, float Rate = 1.f, FName StartSection = NAME_None, bool bStopWhenAbilityEnds = true, float AnimRootMotionTranslationScale = 1.f, float StartTimeSeconds = 0.f);
+		FName TaskInstanceName, UAnimMontage* MontageToPlay, float Rate = 1.f, FName StartSection = NAME_None, bool bStopWhenAbilityEnds = true, float AnimRootMotionTranslationScale = 1.f, float StartTimeSeconds = 0.f, float NoMontageDelay = 0.f);
 
 	virtual void Activate() override;
 
@@ -69,6 +70,12 @@ protected:
 
 	/** Checks if the ability is playing a montage and stops that montage, returns true if a montage was stopped, false if not. */
 	bool StopPlayingMontage() const;
+
+	void AddTags();
+	void RemoveTags();
+
+	void StartWithoutMontage();
+	void FinishWithoutMontage();
 
 	FOnMontageBlendingOutStarted BlendingOutDelegate;
 	FOnMontageEnded MontageEndedDelegate;
@@ -94,4 +101,10 @@ protected:
 
 	UPROPERTY()
 	bool bStopWhenAbilityEnds;
+
+	UPROPERTY()
+	float NoMontageDelay = 0.f;
+
+	FTimerHandle NoMontageTimer;
+	bool bTagsAdded = false;
 };
