@@ -321,3 +321,20 @@ public:
 			Relationship.Attitude = EPWTeamAttitude::Friendly;
 	}
 };
+
+// Counts Blueprint events, which need a UFUNCTION to bind to.
+UCLASS(HideDropdown)
+class UPWTestTagListener : public UObject
+{
+	GENERATED_BODY()
+
+public:
+	int32 Added = 0;
+	int32 Removed = 0;
+
+	UFUNCTION()
+	void OnAdded(FGameplayTag Tag) { ++Added; }
+
+	UFUNCTION()
+	void OnRemoved(FGameplayTag Tag) { ++Removed; }
+};
