@@ -19,6 +19,18 @@ namespace PWTags::ASC
 	UE_DEFINE_GAMEPLAY_TAG(Root, "ASC");
 }
 
+namespace PWTags::ASC::State // Character state for abilities to read, such as a channel that a move cancels.
+{
+	UE_DEFINE_GAMEPLAY_TAG(Root, "ASC.State");
+	UE_DEFINE_GAMEPLAY_TAG(Moving, "ASC.State.Moving");
+}
+
+namespace PWTags::ASC::State::Casting
+{
+	UE_DEFINE_GAMEPLAY_TAG(Root, "ASC.State.Casting");
+	UE_DEFINE_GAMEPLAY_TAG(Channeling, "ASC.State.Casting.Channeling");
+}
+
 namespace PWTags::MontageEvent
 {
 	UE_DEFINE_GAMEPLAY_TAG(Root, "MontageEvent");
