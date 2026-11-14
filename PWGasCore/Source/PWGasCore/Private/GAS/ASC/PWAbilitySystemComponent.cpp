@@ -3,6 +3,7 @@
 
 #include "GAS/ASC/PWAbilitySystemComponent.h"
 
+#include "GAS/Abilities/PWAbilityRegistry.h"
 #include "GAS/Abilities/PWModularGameplayAbility.h"
 #include "GAS/ASC/PWASC_AbilityLifecycle.h"
 #include "GAS/ASC/PWASC_DataManagement.h"
@@ -101,6 +102,19 @@ void UPWAbilitySystemComponent::BP_AddAbilitySet(const UPWAbilitySet* AbilitySet
 void UPWAbilitySystemComponent::BP_AddAbility(const FGameplayTag& AbilityTag, const FGameplayTag& InputTag)
 {
 	AbilityLifecycle->AddAbility(AbilityTag, InputTag);
+}
+
+FPWOwnedAbility UPWAbilitySystemComponent::GetOwnedAbility(const FGameplayTag& AbilityTag) const
+{
+	FPWOwnedAbility Owned;
+	Owned.Info = UPWAbilityRegistry::FindAbility(this, AbilityTag);
+	if (const FGameplayAbilitySpec* Spec = DataManagement->GetSpecOfAbility(AbilityTag))
+	{
+		Owned.bOwned = true;
+		Owned.Level = Spec->Level;
+		Owned.InputTag = FPWASC_DataManagement::GetInputFromSpec(*Spec);
+	}
+	return Owned;
 }
 
 bool UPWAbilitySystemComponent::BP_ActivateAbility(const FGameplayTag& AbilityTag)

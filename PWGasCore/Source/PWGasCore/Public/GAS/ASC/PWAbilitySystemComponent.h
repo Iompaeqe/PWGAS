@@ -10,6 +10,7 @@
 #include "PWASC_EffectLifecycle.h"
 #include "PWASC_InputBinding.h"
 #include "PWASC_VfxLifecycle.h"
+#include "GAS/Abilities/PWAbilityInfo.h"
 #include "PWAbilitySystemComponent.generated.h"
 
 struct FPWNiagaraEntry;
@@ -62,6 +63,9 @@ public:
 	bool BP_UpgradeAbility(const FGameplayTag& AbilityTag);
 	UFUNCTION(BlueprintCallable, Category="GASCore|Ability", meta=(DisplayName="Downgrade Ability"))
 	bool BP_DowngradeAbility(const FGameplayTag& AbilityTag);
+	// The ability's definition and this owner's level and input in one call, for UI.
+	UFUNCTION(BlueprintPure, Category="GASCore|Ability")
+	FPWOwnedAbility GetOwnedAbility(const FGameplayTag& AbilityTag) const;
 
 	//Cooldown Helpers
 	UFUNCTION(BlueprintCallable, Category="GASCore|Cooldown", meta=(DisplayName="Get Cooldown Remaining For Tag"))

@@ -10,7 +10,7 @@
 #include "GAS/ASC/PWAbilitySystemComponent.h"
 #include "GAS/ASC/PWASC_DataManagement.h"
 #include "GAS/Tags/GASCoreTags.h"
-#include "Settings/PWGASCoreSettings.h"
+#include "GAS/Abilities/PWAbilityRegistry.h"
 
 FPWASC_AbilityLifecycle::FPWASC_AbilityLifecycle(UPWAbilitySystemComponent& InASC) : ASC(InASC)
 {
@@ -40,7 +40,7 @@ void FPWASC_AbilityLifecycle::AddAbility(const FGameplayTag& AbilityTag, const F
 	if (!ASC.IsOwnerActorAuthoritative())
 		return;
 
-	const FPWAbilityInfo AbilityData = UPWGASCoreSettings::Get()->GetAbilityByTag(AbilityTag);
+	const FPWAbilityInfo AbilityData = UPWAbilityRegistry::FindAbility(&ASC, AbilityTag);
 	if (!AbilityData.IsValid() || !AbilityData.AbilityClass)
 	{
 		UE_LOG(LogPWGASCoreAbilitySystem, Warning, TEXT("%s >> AbilityData is invalid!! Tag: %s"), *FString(__FUNCTION__), *AbilityTag.ToString());
@@ -134,7 +134,7 @@ bool FPWASC_AbilityLifecycle::IsAbilityMaxLevel(const FGameplayTag& AbilityTag) 
 		return false;
 
 	// An ability that is not in the registry has no level cap.
-	const FPWAbilityInfo AbilityData = UPWGASCoreSettings::Get()->GetAbilityByTag(AbilityTag);
+	const FPWAbilityInfo AbilityData = UPWAbilityRegistry::FindAbility(&ASC, AbilityTag);
 	return AbilityData.IsValid() && Spec->Level >= AbilityData.MaxLevel;
 }
 

@@ -51,7 +51,8 @@ public class PWGasCore : ModuleRules
 				"DeveloperSettings",
 				"PWContracts", 
 				"Niagara",
-				"AIModule"
+				"AIModule",
+				"AssetRegistry"
 				// ... add private dependencies that you statically link with here ...	
 			}
 		);

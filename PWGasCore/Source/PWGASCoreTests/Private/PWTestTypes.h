@@ -6,6 +6,8 @@
 #include "GameplayEffect.h"
 #include "Ability/PWSpellParamsInterface.h"
 #include "GameFramework/Actor.h"
+#include "GameFramework/GameModeBase.h"
+#include "GAS/Abilities/PWAbilityRegistryProvider.h"
 #include "GAS/Abilities/PWModularGameplayAbility.h"
 #include "GAS/Abilities/Derived/PWGameplayAbility_Confirmed.h"
 #include "GAS/Abilities/Derived/PWGameplayAbility_Instant.h"
@@ -96,6 +98,7 @@ class UPWTestDurationEffect : public UGameplayEffect
 public:
 	UPWTestDurationEffect();
 };
+
 
 UCLASS(NotBlueprintable, HideDropdown)
 class UPWTestInstantBuffAbility : public UPWGameplayAbility_Instant
@@ -337,4 +340,17 @@ public:
 
 	UFUNCTION()
 	void OnRemoved(FGameplayTag Tag) { ++Removed; }
+};
+
+// A game mode that brings its own ability registry.
+UCLASS(NotBlueprintable, HideDropdown)
+class APWTestRegistryGameMode : public AGameModeBase, public IPWAbilityRegistryProvider
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY()
+	TObjectPtr<UPWAbilityRegistry> Registry;
+
+	virtual UPWAbilityRegistry* GetAbilityRegistry_Implementation() const override { return Registry; }
 };

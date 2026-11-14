@@ -15,13 +15,12 @@ public:
 	static const UPWGASCoreSettings* Get(){ return GetDefault<UPWGASCoreSettings>(); }
 	virtual FName GetCategoryName() const override;
 
-	UFUNCTION(BlueprintCallable)
-	FPWAbilityInfo GetAbilityByTag(const FGameplayTag& AbilityTag) const;
+	// The project's registry. Look abilities up with the registry's Find Ability instead, which also sees a world's own registry.
 	UFUNCTION(BlueprintCallable)
 	TSoftObjectPtr<UPWAbilityRegistry> GetAbilityRegistry(const FGameplayTag& AbilityTag) const;
-	
+
 protected:
-	// Registry asset that maps ability tags to ability classes for the whole game.
+	// Registry asset that maps ability tags to ability classes for the whole game. A game mode can bring its own as a PW Ability Registry Provider.
 	UPROPERTY(EditAnywhere, config, Category="GAS Core Registry")
 	TSoftObjectPtr<UPWAbilityRegistry> AbilityRegistry;
 

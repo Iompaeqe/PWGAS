@@ -6,8 +6,8 @@
 #include "IDetailChildrenBuilder.h"
 #include "PropertyHandle.h"
 #include "GAS/Abilities/PWAbilityInfo.h"
+#include "GAS/Abilities/PWAbilityRegistry.h"
 #include "GAS/Abilities/PWAbilitySet.h"
-#include "Settings/PWGASCoreSettings.h"
 #include "Widgets/Text/STextBlock.h"
 
 TSharedRef<IPropertyTypeCustomization> FPWAbilitySetEntryCustomization::MakeInstance()
@@ -30,8 +30,7 @@ void FPWAbilitySetEntryCustomization::CustomizeHeader(TSharedRef<IPropertyHandle
 		SNew(STextBlock)
 		.Text_Lambda([TagHandle]()
 		{
-			const FString Registry = UPWGASCoreSettings::Get()->GetAbilityRegistry(FGameplayTag()).GetAssetName();
-			return FText::FromString(FString::Printf(TEXT("Ability Tag [%s] is not in %s"), *GetTag(TagHandle).ToString(), Registry.IsEmpty() ? TEXT("the ability registry") : *Registry));
+			return FText::FromString(FString::Printf(TEXT("Ability Tag [%s] is in no ability registry"), *GetTag(TagHandle).ToString()));
 		})
 		.Font(IPropertyTypeCustomizationUtils::GetRegularFont())
 		.ColorAndOpacity(FLinearColor(1.f, 0.35f, 0.2f))
@@ -61,5 +60,5 @@ FGameplayTag FPWAbilitySetEntryCustomization::GetTag(const TSharedPtr<IPropertyH
 
 bool FPWAbilitySetEntryCustomization::IsRegistered(const FGameplayTag& Tag)
 {
-	return !Tag.IsValid() || UPWGASCoreSettings::Get()->GetAbilityByTag(Tag).IsValid();
+	return !Tag.IsValid() || UPWAbilityRegistry::IsInAnyRegistry(Tag);
 }

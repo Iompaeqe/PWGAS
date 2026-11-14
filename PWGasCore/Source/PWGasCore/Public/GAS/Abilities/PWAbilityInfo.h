@@ -8,6 +8,7 @@
 
 class UGameplayAbility;
 
+// What an ability is, the same for every owner. Kept in an ability data asset and looked up through the registry; an owner's own level and input come with FPWOwnedAbility.
 USTRUCT(BlueprintType)
 struct FPWAbilityInfo
 {
@@ -21,9 +22,7 @@ public:
 	// The gameplay ability class granted for this tag.
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability")
 	TSubclassOf<UGameplayAbility> AbilityClass = nullptr;
-	
-	UPROPERTY(BlueprintReadOnly)
-	int32 CurrentLevel = 0;
+
 	// Highest level the ability can be upgraded to.
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability")
 	int32 MaxLevel = 1;
@@ -40,15 +39,32 @@ public:
 	// Material used as the ability's icon in UI.
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "UI")
 	TObjectPtr<const UMaterialInstance> IconMaterial = nullptr;
-	
-	UPROPERTY(BlueprintReadOnly)
-	FGameplayTag InputTag = FGameplayTag();
-	UPROPERTY(BlueprintReadOnly)
-	bool bToBeRemoved = false;
-	
+
 public:
 	bool IsValid() const
 	{
 		return Tag.IsValid();
 	}
+};
+
+// One ability as one owner has it, for UI: the registry's definition plus the owner's own values.
+USTRUCT(BlueprintType)
+struct FPWOwnedAbility
+{
+	GENERATED_BODY()
+
+	// The definition; filled whenever the registry knows the tag, owned or not.
+	UPROPERTY(BlueprintReadOnly, Category = "Ability")
+	FPWAbilityInfo Info;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Ability")
+	bool bOwned = false;
+
+	// The owner's level of it; 0 when not owned.
+	UPROPERTY(BlueprintReadOnly, Category = "Ability")
+	int32 Level = 0;
+
+	// The input it is bound to, if any.
+	UPROPERTY(BlueprintReadOnly, Category = "Ability")
+	FGameplayTag InputTag;
 };

@@ -4,8 +4,17 @@
 #include "GAS/Abilities/PWAbilityRegistry.h"
 
 #include "GameplayAbilitySpec.h"
+#include "Engine/Engine.h"
+#include "Engine/World.h"
+#include "GameFramework/GameModeBase.h"
+#include "GameFramework/GameStateBase.h"
 #include "GAS/Abilities/PWAbilityDataAsset.h"
 #include "GAS/Abilities/PWAbilityInfo.h"
+#include "GAS/Abilities/PWAbilityRegistryProvider.h"
+#include "Settings/PWGASCoreSettings.h"
+#if WITH_EDITOR
+#include "AssetRegistry/IAssetRegistry.h"
+#endif
 #include "GAS/ASC/PWAbilitySystemComponent.h"
 #include "Misc/DataValidation.h"
 
@@ -19,20 +28,70 @@ struct FDescriptionNamedArguments
 	FString _Cost1 = FString::Printf(TEXT("_Cost1"));
 };
 
+UPWAbilityRegistry* UPWAbilityRegistry::Get(const UObject* WorldContextObject)
+{
+	// Clients have no game mode, but the game state carries its class, so its defaults are readable everywhere.
+	const UWorld* World = GEngine ? GEngine->GetWorldFromContextObject(WorldContextObject, EGetWorldErrorMode::ReturnNull) : nullptr;
+	const AGameStateBase* GameState = World ? World->GetGameState() : nullptr;
+	const AGameModeBase* GameMode = GameState ? GameState->GetDefaultGameMode() : World ? World->GetAuthGameMode() : nullptr;
+	if (GameMode && GameMode->Implements<UPWAbilityRegistryProvider>())
+		if (UPWAbilityRegistry* Registry = IPWAbilityRegistryProvider::Execute_GetAbilityRegistry(GameMode))
+			return Registry;
+
+	return UPWGASCoreSettings::Get()->GetAbilityRegistry(FGameplayTag()).LoadSynchronous();
+}
+
+FPWAbilityInfo UPWAbilityRegistry::FindAbility(const UObject* WorldContextObject, const FGameplayTag AbilityTag)
+{
+	UPWAbilityRegistry* Registry = Get(WorldContextObject);
+	return Registry ? Registry->GetAbilityByTag(AbilityTag) : FPWAbilityInfo();
+}
+
 FPWAbilityInfo UPWAbilityRegistry::GetAbilityByTag(const FGameplayTag& AbilityTag)
 {
-	for (const auto SoftAbilityDA : Abilities)
+	const UPWAbilityDataAsset* Data = FindData(AbilityTag);
+	return Data ? Data->Ability : FPWAbilityInfo();
+}
+
+void UPWAbilityRegistry::Preload()
+{
+	Cache.Reset();
+	for (const TSoftObjectPtr<UPWAbilityDataAsset>& SoftAbilityDA : Abilities)
+		if (UPWAbilityDataAsset* AbilityDA = SoftAbilityDA.LoadSynchronous())
+			if (AbilityDA->Ability.Tag.IsValid() && !Cache.Contains(AbilityDA->Ability.Tag))
+				Cache.Add(AbilityDA->Ability.Tag, AbilityDA);
+	bCached = true;
+}
+
+UPWAbilityDataAsset* UPWAbilityRegistry::FindData(const FGameplayTag& AbilityTag)
+{
+	if (!bCached)
+		Preload();
+
+	const TObjectPtr<UPWAbilityDataAsset>* Found = Cache.Find(AbilityTag);
+#if WITH_EDITOR
+	// An ability's data asset can be edited while the cache is up, so a miss or a stale hit looks again.
+	if (!Found || !*Found || !(*Found)->Ability.Tag.MatchesTagExact(AbilityTag))
 	{
-		UPWAbilityDataAsset* AbilityDA = SoftAbilityDA.LoadSynchronous();
-		if (AbilityDA && AbilityDA->Ability.Tag.MatchesTagExact(AbilityTag))
-		{
-			return AbilityDA->Ability;
-		}
+		Preload();
+		Found = Cache.Find(AbilityTag);
 	}
-	return FPWAbilityInfo();
+#endif
+	return Found ? Found->Get() : nullptr;
 }
 
 #if WITH_EDITOR
+bool UPWAbilityRegistry::IsInAnyRegistry(const FGameplayTag& AbilityTag)
+{
+	TArray<FAssetData> RegistryAssets;
+	IAssetRegistry::GetChecked().GetAssetsByClass(StaticClass()->GetClassPathName(), RegistryAssets, true);
+	for (const FAssetData& Asset : RegistryAssets)
+		if (UPWAbilityRegistry* Registry = Cast<UPWAbilityRegistry>(Asset.GetAsset()))
+			if (Registry->FindData(AbilityTag))
+				return true;
+	return false;
+}
+
 EDataValidationResult UPWAbilityRegistry::IsDataValid(FDataValidationContext& Context) const
 {
 	TMap<FGameplayTag, FString> SeenTags;
@@ -54,6 +113,13 @@ EDataValidationResult UPWAbilityRegistry::IsDataValid(FDataValidationContext& Co
 	}
 
 	return Context.GetNumErrors() > 0 ? EDataValidationResult::Invalid : EDataValidationResult::Valid;
+}
+
+void UPWAbilityRegistry::PostEditChangeProperty(FPropertyChangedEvent& E)
+{
+	Super::PostEditChangeProperty(E);
+	Cache.Reset();
+	bCached = false;
 }
 #endif
 
