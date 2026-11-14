@@ -31,6 +31,7 @@ bool FTeamsAgentAffiliationTest::RunTest(const FString& Parameters)
 	AActor* Loose = Test.SpawnASC()->GetOwner();
 	UPWTeamAgentComponent* LooseAgent = AddAgent(Loose);
 	TestFalse("An agent can have neither owner", LooseAgent->GetOwnerParticipant().IsValid());
+	TestEqual("An agent inherits its owner's faction unless told otherwise", LooseAgent->GetFactionSource(), EPWTeamFactionSource::InheritFromOwner);
 	TestTrue("Nor faction", LooseAgent->GetFaction().IsNone());
 
 	AActor* Summon = Test.SpawnASC()->GetOwner();
@@ -54,18 +55,20 @@ bool FTeamsAgentAffiliationTest::RunTest(const FString& Parameters)
 	AActor* Turret = Test.SpawnASC()->GetOwner();
 	UPWTeamAgentComponent* TurretAgent = AddAgent(Turret);
 	TurretAgent->SetOwnerParticipant(Player);
-	TurretAgent->SetExplicitFaction("Dire");
+	TurretAgent->SetFaction("Dire");
 	TestEqual("An explicit faction wins over the owner's", TurretAgent->GetFaction(), FName("Dire"));
+	TestEqual("A faction name reads as explicit", TurretAgent->GetFactionSource(), EPWTeamFactionSource::Explicit);
 
 	Teams->AssignParticipantToFaction(Player, "Dire");
 	TestEqual("An inherited faction follows the owner", SummonAgent->GetFaction(), FName("Dire"));
 	Teams->AssignParticipantToFaction(Player, "Radiant");
 	TestEqual("An explicit faction does not", TurretAgent->GetFaction(), FName("Dire"));
 
-	SummonAgent->SetFactionSource(EPWTeamFactionSource::None);
+	SummonAgent->SetFaction(NAME_None);
 	TestTrue("A faction source of None gives no faction", SummonAgent->GetFaction().IsNone());
+	TestEqual("None reads as no faction source", SummonAgent->GetFactionSource(), EPWTeamFactionSource::None);
 	TestEqual("Ownership is untouched by that", SummonAgent->GetOwnerParticipant(), Player);
-	SummonAgent->SetFactionSource(EPWTeamFactionSource::InheritFromOwner);
+	SummonAgent->InheritFactionFromOwner();
 
 	TestEqual("A participant's agents can be listed", Teams->GetAgentsOwnedBy(Player).Num(), 2);
 	TestEqual("So can a faction's", Teams->GetAgentsInFaction("Dire").Num(), 2);
@@ -100,7 +103,7 @@ bool FTeamsAgentEventsTest::RunTest(const FString& Parameters)
 	TestEqual("The agent hears when its owner changes sides", Listener->LastAgentFaction, FName("Dire"));
 	TestEqual("Once per change", Listener->AgentFactionChanges, 2);
 
-	Agent->SetExplicitFaction("Dire");
+	Agent->SetFaction("Dire");
 	TestEqual("Changing where the faction comes from says nothing while the faction is the same", Listener->AgentFactionChanges, 2);
 
 	return true;

@@ -34,7 +34,7 @@ namespace
 			Agent->RegisterComponent();
 			Agent->SetOwnerParticipant(Owner);
 			if (!ExplicitFaction.IsNone())
-				Agent->SetExplicitFaction(ExplicitFaction);
+				Agent->SetFaction(ExplicitFaction);
 			Agent->SetPrimary(bPrimary);
 			return Actor;
 		}
