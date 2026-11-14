@@ -12,11 +12,11 @@
 #include "GameplayTagsSettings.h"
 #include "PWGASCoreLogChannels.h"
 #include "Ability/PWSpellParams.h"
-#include "GameFramework/Character.h"
+#include "GameFramework/Pawn.h"
 #include "GameFramework/PlayerState.h"
 #include "GAS/ASC/PWAbilitySystemComponent.h"
 #include "GAS/Tags/GASCoreTags.h"
-#include "VisualAndAudio/PWAnimSetProvider.h"
+#include "VisualAndAudio/PWMontageProvider.h"
 
 
 
@@ -56,32 +56,37 @@ void UPWGameplayAbilityBase::GetCost(int32 Level, TArray<FPWCostData>& CostData)
 
 void UPWGameplayAbilityBase::GetAnimMontageFromActor(UAnimMontage*& OutMontage, float& OutAnimRate, int Index) const
 {
-	const AActor* AvatarActor = GetAvatarActorFromActorInfo();
-	if (!AvatarActor || !AnimationTags.IsValidIndex(Index) || !AnimationTags[Index].IsValid())
-		return;
-
-	if (AvatarActor->GetClass()->ImplementsInterface(UPWAnimSetProvider::StaticClass()))
+	if (AnimationTags.IsValidIndex(Index))
 	{
-		OutMontage = IPWAnimSetProvider::Execute_GetMontageForTag(AvatarActor, AnimationTags[Index], OutAnimRate);
+		GetAnimMontageForTag(AnimationTags[Index], OutMontage, OutAnimRate);
 		return;
 	}
+	OutMontage = nullptr;
+	OutAnimRate = 1.f;
+}
 
-	UE_LOG(LogPWGASCoreAbility, Warning, TEXT("UPWGameplayAbilityBase::GetAnimMontageFromActor: AvatarActor: %s does not use the IPWAnimSetProvider, See UPWGameplayAbilityBase::GetAnimationMontageFromActor"), *AvatarActor->GetName())
+void UPWGameplayAbilityBase::GetAnimMontageForTag(const FGameplayTag AnimTag, UAnimMontage*& OutMontage, float& OutAnimRate) const
+{
+	OutMontage = nullptr;
+	OutAnimRate = 1.f;
+	const AActor* AvatarActor = GetAvatarActorFromActorInfo();
+	if (!AvatarActor || !AnimTag.IsValid())
+		return;
+
+	if (const UObject* Provider = IPWMontageProvider::Find(AvatarActor))
+	{
+		OutMontage = IPWMontageProvider::Execute_GetMontageForTag(Provider, AnimTag, OutAnimRate);
+		return;
+	}
+	UE_LOG(LogPWGASCoreAbility, Warning, TEXT("%s: %s has no montage provider. Add a PW Montage Set component, or implement PW Montage Provider."), *GetName(), *AvatarActor->GetName())
 }
 
 UAnimInstance* UPWGameplayAbilityBase::GetAnimInstanceFromActor() const
 {
-	const ACharacter* Character = Cast<ACharacter>(GetAvatarActorFromActorInfo());
-	if (!Character)
-	{
-		UE_LOG(LogPWGASCoreAbility, Log, TEXT("UPWGameplayAbilityBase::GetAnimInstanceFromActor: Actor is not Character, overwrite this function "));
-		return nullptr;
-	}
-	if (UAnimInstance* AI = Character->GetMesh()->GetAnimInstance())
-	{
-		return AI;
-	}
-	UE_LOG(LogPWGASCoreAbility, Log, TEXT("UPWGameplayAbilityBase::GetAnimInstanceFromActor: Could not get UAnimInstance from Character"));
+	const FGameplayAbilityActorInfo* Info = GetCurrentActorInfo();
+	if (UAnimInstance* AnimInstance = Info ? Info->GetAnimInstance() : nullptr)
+		return AnimInstance;
+	UE_LOG(LogPWGASCoreAbility, Log, TEXT("%s: the avatar has no animated skeletal mesh."), *GetName());
 	return nullptr;
 }
 

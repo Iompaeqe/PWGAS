@@ -53,7 +53,7 @@ public:
 	// The ability's identity tag; its cooldown tag is this tag plus .Cooldown.
 	UPROPERTY(EditDefaultsOnly, Category="Ability", meta=(GameplayTagFilter = "Ability.Skill"))
 	FGameplayTag AbilityTag;
-	// Montage tags the avatar resolves through its anim set provider; Get Anim Montage From Actor picks one by index.
+	// Montage tags the avatar resolves through its montage provider; Get Anim Montage From Actor picks one by index.
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Animation", meta=(GameplayTagFilter = "AnimMontage"))
 	TArray<FGameplayTag> AnimationTags;
 	
@@ -109,8 +109,13 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Cost")
 	virtual void GetCost(int32 Level, TArray<FPWCostData>& CostData) const;
 	
+	// The avatar's montage for this ability's Animation Tags entry at Index.
 	UFUNCTION(BlueprintPure, Category="Animation")
 	void GetAnimMontageFromActor(UAnimMontage*& OutMontage, float& OutAnimRate, int Index = 0) const;
+	// The avatar's montage for any animation tag.
+	UFUNCTION(BlueprintPure, Category="Animation", meta=(GameplayTagFilter="AnimMontage"))
+	void GetAnimMontageForTag(FGameplayTag AnimTag, UAnimMontage*& OutMontage, float& OutAnimRate) const;
+	// The anim instance the ability system plays montages on, for characters and pawns alike.
 	UFUNCTION(BlueprintPure, Category="Animation")
 	UAnimInstance* GetAnimInstanceFromActor() const;
 
