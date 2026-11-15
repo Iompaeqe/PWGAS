@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "ScalableFloat.h"
 #include "PWTargetingData.generated.h"
 
 USTRUCT(BlueprintType)
@@ -27,8 +28,8 @@ USTRUCT(BlueprintType)
 struct FPWProjectileSimConfig
 {
 	GENERATED_BODY()
-	// Launch speed in units per second.
-	UPROPERTY(EditAnywhere, BlueprintReadWrite) float InitialSpeed = 1200.f;
+	// Launch speed in units per second, by ability level.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite) FScalableFloat InitialSpeed = 1200.f;
 	// Gravity used for the preview path; 0 uses world gravity times the projectile actor's gravity scale.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite) float GravityZOverride = 0.f;
 	// Seconds of flight the precast preview simulates.

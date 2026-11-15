@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Engine/TimerHandle.h"
 #include "PWControlModule.h"
 #include "Targeting/Data/PWTargetingData.h"
 #include "PWAbilityModule_Precast.generated.h"
@@ -51,4 +52,9 @@ protected:
 
 private:
 	UPWPrecastControllerComponent* GetPrecastController() const;
+
+	// Redraws what the precast controller aims at while Show Debug is on.
+	FTimerHandle DebugTimer;
+	void DebugTick();
+	void ClearDebugTimer();
 };

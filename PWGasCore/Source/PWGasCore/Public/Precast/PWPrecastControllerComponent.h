@@ -25,6 +25,7 @@ class PWGASCORE_API UPWPrecastControllerComponent : public UActorComponent
 public:
 	UPWPrecastControllerComponent();
 
+	// The projectile speed is read at level 1, so pass it worked out for the ability's level, as the precast module does.
 	UFUNCTION(BlueprintCallable, Category="GASCore|Precast")
 	void StartPrecast(UPWTargetingSource* InTargetingSource, UPWRangePolicy* InRangePolicy, UPWTargetResolver* InTargetResolver, UPWPrecastVisualizer* InVisualizer, float InPreviewRadius, float InPreviewRange, FName InOriginSocket, FPWProjectileSimConfig InProjectileConfig);
 
@@ -67,6 +68,7 @@ private:
 	FVector ReleaseOrigin = FVector::ZeroVector;
 	FName OriginSocket = NAME_None;
 	FPWProjectileSimConfig ProjCfg;
+	float ProjSpeed = 0.f;
 
 	// live
 	FPWTargetingResult Result;

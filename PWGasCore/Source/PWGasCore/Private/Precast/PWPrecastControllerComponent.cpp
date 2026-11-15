@@ -49,6 +49,7 @@ void UPWPrecastControllerComponent::StartPrecast(UPWTargetingSource* InTargeting
 	PreviewRange = InPreviewRange;
 	OriginSocket = InOriginSocket;
 	ProjCfg = InProjectileConfig;
+	ProjSpeed = ProjCfg.InitialSpeed.GetValueAtLevel(1);
 
 	if (Visualizer)
 		Visualizer->Ensure(PC, PreviewRadius, OriginSocket);
@@ -145,6 +146,7 @@ void UPWPrecastControllerComponent::SetReleasePose(const UAnimMontage* Montage, 
 void UPWPrecastControllerComponent::UpdateProjectileSimConfig(const FPWProjectileSimConfig& Cfg)
 {
 	ProjCfg = Cfg;
+	ProjSpeed = ProjCfg.InitialSpeed.GetValueAtLevel(1);
 }
 
 void UPWPrecastControllerComponent::BeginPlay()
@@ -176,7 +178,7 @@ void UPWPrecastControllerComponent::TickComponent(float DeltaTime, ELevelTick Ti
 
 		TArray<FPWTargetingResult> Impacts;
 		// projectile path computation
-		if (ProjCfg.InitialSpeed > 0.f)
+		if (ProjSpeed > 0.f)
 			BuildProjectileVisual(VisualUpdate, Impacts);
 		if (Impacts.IsEmpty())
 			Impacts.Add(Result);
@@ -320,7 +322,7 @@ FPWPrecastPath UPWPrecastControllerComponent::SimulatePath(const FVector& Start,
 	};
 
 	FVector Position = Start;
-	FVector Velocity = (AimPoint - Start).GetSafeNormal() * ProjCfg.InitialSpeed;
+	FVector Velocity = (AimPoint - Start).GetSafeNormal() * ProjSpeed;
 	Path.Points.Add(Position);
 
 	for (float Time = 0.f; Time < ProjCfg.MaxSimTime && !Path.bHit; Time += Step)
