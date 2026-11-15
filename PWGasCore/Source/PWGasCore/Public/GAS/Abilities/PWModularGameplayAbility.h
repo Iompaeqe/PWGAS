@@ -12,7 +12,7 @@
 #include "Modules/ActionModules/PWAbilityModule_InstantEffect.h"
 #include "Modules/ActionModules/PWAbilityModule_MultiActor.h"
 #include "Modules/ActionModules/PWAbilityModule_MultiProjectile.h"
-#include "Modules/ControlModules/PWAbilityModule_Niagara.h"
+#include "Modules/ControlModules/PWAbilityModule_VFX.h"
 #include "Modules/ControlModules/PWAbilityModule_Precast.h"
 #include "Modules/ControlModules/PWAbilityModule_Targeting.h"
 #include "Modules/ControlModules/PWAbilityModule_Resolver.h"
@@ -32,13 +32,18 @@ enum class EPWEndReason : uint8
 	Interrupted
 };
 
-// When an ability pays its cost and starts its cooldown.
+// When a charge or channel pays its cost, or starts its cooldown.
 UENUM(BlueprintType)
 enum class EPWCommitPolicy : uint8
 {
+	// The graph does it with Commit Ability Cost or Commit Ability Cooldown.
 	Manual,
+	// When the charge or channel starts.
 	OnStart,
-	OnEnd
+	// When the charge or channel stops, finished or cancelled.
+	OnEnd,
+	// Only when the charge or channel finishes; a cancel is free.
+	OnComplete
 };
 
 UCLASS(Blueprintable)
@@ -90,6 +95,8 @@ public:
 	}
 
 	void ForEachModule(TFunctionRef<void(UPWAbilityModule*)> Callback);
+	// Tells every module about a charge or channel moment.
+	void NotifyModulesOfPhase(EPWAbilityPhase Phase);
 
 	virtual bool DefersAction() const { return false; }
 
@@ -108,7 +115,7 @@ public:
 	UPWAbilityModule_Projectile* GetProjectileModule() const;
 	//Control Modules
 	UFUNCTION(BlueprintPure, Category="Modules")
-	UPWAbilityModule_Niagara* GetNiagaraModule() const;
+	UPWAbilityModule_VFX* GetVFXModule() const;
 	UFUNCTION(BlueprintPure, Category="Modules")
 	UPWAbilityModule_Precast* GetPrecastModule() const;
 	UFUNCTION(BlueprintPure, Category="Modules")
@@ -140,6 +147,11 @@ protected:
 	virtual void CancelAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateCancelAbility) override;
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 	virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
+
+	// Pays the cost and starts the cooldown their policies put at the start. False when the cost can't be paid.
+	bool CommitAtStart(EPWCommitPolicy CostPolicy, EPWCommitPolicy CooldownPolicy);
+	// Pays the cost and starts the cooldown their policies put at the end. False when it ends cancelled, including a cost it can't pay.
+	bool CommitAtEnd(EPWCommitPolicy CostPolicy, EPWCommitPolicy CooldownPolicy, bool bWasCancelled);
 
 	// == Modules  == //
 	// ============== //

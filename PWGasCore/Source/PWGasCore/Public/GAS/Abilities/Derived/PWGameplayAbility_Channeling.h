@@ -26,6 +26,10 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Channel")
 	float MaxChannelDuration = 0.f; // 0 = infinite
 
+	// Also ticks the moment the channel starts, at time 0, before the timed ticks.
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Channel")
+	bool bTickAtStart = false;
+
 	UPROPERTY(BlueprintReadOnly, Category="Channel")
 	bool bIsChanneling = false;
 
@@ -35,9 +39,13 @@ protected:
 	FTimerHandle ChannelTickTimer;
 
 public:
-	// On End commits when the channel finishes, a cancelled channel is free.
+	// When the cost is paid. A cost due at the end that can't be paid ends the channel cancelled.
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Ability|Commit")
-	EPWCommitPolicy CommitPolicy = EPWCommitPolicy::Manual;
+	EPWCommitPolicy CostPolicy = EPWCommitPolicy::OnStart;
+
+	// When the cooldown starts.
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Ability|Commit")
+	EPWCommitPolicy CooldownPolicy = EPWCommitPolicy::OnEnd;
 
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 	virtual void CancelAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateCancelAbility) override;
@@ -55,17 +63,22 @@ public:
 	float GetChannelPercentage() const;
 
 protected:
+	// Runs before the modules hear Started, so they use what it sets.
 	UFUNCTION(BlueprintImplementableEvent, Category="Channel")
 	void OnChannelStart();
 
+	// Runs before the modules hear Pulse, so they use what it sets.
 	UFUNCTION(BlueprintImplementableEvent, Category="Channel")
 	void OnChannelTick(float ElapsedTime);
 
+	// Runs after the modules hear Completed, which they get while the ability still runs.
 	UFUNCTION(BlueprintImplementableEvent, Category="Channel")
 	void OnChannelEnd();
 
+	// Runs after the modules hear Cancelled, which they get while the ability still runs.
 	UFUNCTION(BlueprintImplementableEvent, Category="Channel")
 	void OnChannelCancelled();
 
 	void HandleChannelTick();
+	void RunChannelTick();
 };

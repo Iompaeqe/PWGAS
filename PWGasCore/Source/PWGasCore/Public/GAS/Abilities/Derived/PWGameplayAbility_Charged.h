@@ -24,6 +24,10 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Charge")
 	float ChargeTickInterval = 0.1f;
 
+	// Also ticks the moment the charge starts, at no charge, before the timed ticks.
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Charge")
+	bool bTickAtStart = false;
+
 	UPROPERTY(BlueprintReadOnly, Category="Charge")
 	float CurrentChargeTime = 0.f;
 
@@ -33,9 +37,13 @@ protected:
 	FTimerHandle ChargeTickTimer;
 	
 public:
-	// On End commits when the charge completes, a cancelled charge is free.
+	// When the cost is paid. A cost due at the end that can't be paid ends the charge cancelled.
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Ability|Commit")
-	EPWCommitPolicy CommitPolicy = EPWCommitPolicy::Manual;
+	EPWCommitPolicy CostPolicy = EPWCommitPolicy::OnComplete;
+
+	// When the cooldown starts.
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Ability|Commit")
+	EPWCommitPolicy CooldownPolicy = EPWCommitPolicy::OnComplete;
 
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 								 const FGameplayAbilityActorInfo* ActorInfo,
@@ -56,17 +64,22 @@ public:
 	float GetChargePercentage() const;
 
 protected:
+	// Runs before the modules hear Started, so they use what it sets.
 	UFUNCTION(BlueprintImplementableEvent, Category="Charge")
 	void OnChargeStart();
 
+	// Runs before the modules hear Pulse, so they use what it sets.
 	UFUNCTION(BlueprintImplementableEvent, Category="Charge")
 	void OnChargeTick(float NormalizedCharge);
 
+	// Runs after the modules hear Completed, which they get while the ability still runs.
 	UFUNCTION(BlueprintImplementableEvent, Category="Charge")
 	void OnChargeComplete();
 
+	// Runs after the modules hear Cancelled, which they get while the ability still runs.
 	UFUNCTION(BlueprintImplementableEvent, Category="Charge")
 	void OnChargeCanceled();
 
 	void HandleChargeTick();
+	void RunChargeTick();
 };

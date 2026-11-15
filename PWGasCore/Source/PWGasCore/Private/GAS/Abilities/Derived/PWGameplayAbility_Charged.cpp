@@ -22,7 +22,7 @@ void UPWGameplayAbility_Charged::StartCharging()
 {
 	if (bIsCharging || !GetWorld()) return;
 
-	if (CommitPolicy == EPWCommitPolicy::OnStart && !CommitAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo))
+	if (!CommitAtStart(CostPolicy, CooldownPolicy))
 	{
 		K2_CancelAbility();
 		return;
@@ -32,6 +32,16 @@ void UPWGameplayAbility_Charged::StartCharging()
 	CurrentChargeTime = 0.f;
 
 	OnChargeStart();
+	if (!bIsCharging || !IsActive())
+		return;
+	NotifyModulesOfPhase(EPWAbilityPhase::Started);
+
+	if (bTickAtStart)
+	{
+		RunChargeTick();
+		if (!bIsCharging || !IsActive())
+			return;
+	}
 
 	GetWorld()->GetTimerManager().SetTimer(
 		ChargeTickTimer,
@@ -55,17 +65,17 @@ void UPWGameplayAbility_Charged::StopCharging(bool bWasCanceled)
 
 	GetWorld()->GetTimerManager().ClearTimer(ChargeTickTimer);
 
-	if (!bWasCanceled && CommitPolicy == EPWCommitPolicy::OnEnd && !CommitAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo))
+	if (CommitAtEnd(CostPolicy, CooldownPolicy, bWasCanceled))
 	{
-		OnChargeCanceled();
-		K2_CancelAbility();
+		NotifyModulesOfPhase(EPWAbilityPhase::Completed);
+		OnChargeComplete();
 		return;
 	}
 
-	if (bWasCanceled)
-		OnChargeCanceled();
-	else
-		OnChargeComplete();
+	NotifyModulesOfPhase(EPWAbilityPhase::Cancelled);
+	OnChargeCanceled();
+	if (!bWasCanceled)
+		K2_CancelAbility();
 
 	//EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), true, bWasCanceled);
 }
@@ -83,9 +93,15 @@ void UPWGameplayAbility_Charged::HandleChargeTick()
 	if (!bIsCharging) return;
 
 	CurrentChargeTime += ChargeTickInterval;
-	const float Normalized = FMath::Clamp(CurrentChargeTime / ChargeDuration, 0.f, 1.f);
+	RunChargeTick();
+}
 
-	OnChargeTick(Normalized);
+void UPWGameplayAbility_Charged::RunChargeTick()
+{
+	OnChargeTick(GetChargePercentage());
+	if (!bIsCharging || !IsActive())
+		return;
+	NotifyModulesOfPhase(EPWAbilityPhase::Pulse);
 
 	if (CurrentChargeTime >= ChargeDuration)
 	{

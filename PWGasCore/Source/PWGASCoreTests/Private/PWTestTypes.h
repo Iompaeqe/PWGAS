@@ -15,6 +15,7 @@
 #include "PWGasCore/Public/Targeting/Types/PWTargetPolicyBase.h"
 #include "GAS/Abilities/Derived/PWGameplayAbility_Channeling.h"
 #include "GAS/Abilities/Derived/PWGameplayAbility_Charged.h"
+#include "GAS/Abilities/Modules/DataModules/PWDataModule.h"
 #include "PWAttributeSetBase.h"
 #include "Core/PWTeamsSubsystem.h"
 #include "Agents/PWTeamAgent.h"
@@ -65,6 +66,10 @@ class UPWTestModularAbility : public UPWModularGameplayAbility
 
 public:
 	UPWTestModularAbility();
+
+	// A number variable for the Blueprint Variable value to read.
+	UPROPERTY()
+	int32 KillCount = 0;
 };
 
 UCLASS(NotBlueprintable, NotPlaceable)
@@ -99,25 +104,15 @@ public:
 	UPWTestDurationEffect();
 };
 
-// Lasts as long as the ability's Cooldown says, like a project's GE_Cooldown.
-UCLASS(NotBlueprintable, HideDropdown)
-class UPWTestCooldownEffect : public UGameplayEffect
-{
-	GENERATED_BODY()
-
-public:
-	UPWTestCooldownEffect();
-};
-
+// Keeps the default cooldown effect.
 UCLASS(NotBlueprintable, HideDropdown)
 class UPWTestCooldownAbility : public UPWTestModularAbility
 {
 	GENERATED_BODY()
 
 public:
-	UPWTestCooldownAbility();
-
 	void SetCooldown(const float Seconds) { Cooldown = FScalableFloat(Seconds); }
+	void SetAbilityTag(const FGameplayTag Tag) { AbilityTag = Tag; }
 };
 
 UCLASS(NotBlueprintable, HideDropdown)
@@ -174,6 +169,21 @@ class UPWTestChargedAbility : public UPWGameplayAbility_Charged
 
 public:
 	UPWTestChargedAbility();
+
+	void SetTickAtStart(const bool bTick) { bTickAtStart = bTick; }
+};
+
+// Records the charge and channel moments it hears about.
+UCLASS(NotBlueprintable, HideDropdown)
+class UPWTestPhaseModule : public UPWDataModule
+{
+	GENERATED_BODY()
+
+public:
+	TArray<EPWAbilityPhase> Phases;
+
+	virtual void ExtendParams(UPWSpellParams* Params) const override {}
+	virtual void OnAbilityPhase_Implementation(const EPWAbilityPhase Phase) override { Phases.Add(Phase); }
 };
 
 UCLASS(NotBlueprintable, HideDropdown)
@@ -183,6 +193,9 @@ class UPWTestChannelingAbility : public UPWGameplayAbility_Channeling
 
 public:
 	UPWTestChannelingAbility();
+
+	void SetTickAtStart(const bool bTick) { bTickAtStart = bTick; }
+	float GetChannelTime() const { return CurrentChannelTime; }
 };
 
 UCLASS(NotBlueprintable)

@@ -27,7 +27,7 @@ void UPWGameplayAbility_Channeling::StartChanneling()
 {
 	if (bIsChanneling || !GetWorld()) return;
 
-	if (CommitPolicy == EPWCommitPolicy::OnStart && !CommitAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo))
+	if (!CommitAtStart(CostPolicy, CooldownPolicy))
 	{
 		K2_CancelAbility();
 		return;
@@ -37,8 +37,16 @@ void UPWGameplayAbility_Channeling::StartChanneling()
 	CurrentChannelTime = 0.f;
 
 	OnChannelStart();
+	if (!bIsChanneling || !IsActive())
+		return;
+	NotifyModulesOfPhase(EPWAbilityPhase::Started);
 
-	
+	if (bTickAtStart)
+	{
+		RunChannelTick();
+		if (!bIsChanneling || !IsActive())
+			return;
+	}
 
 	GetWorld()->GetTimerManager().SetTimer(
 		ChannelTickTimer,
@@ -54,7 +62,15 @@ void UPWGameplayAbility_Channeling::HandleChannelTick()
 	if (!bIsChanneling) return;
 
 	CurrentChannelTime += ChannelTickInterval;
+	RunChannelTick();
+}
+
+void UPWGameplayAbility_Channeling::RunChannelTick()
+{
 	OnChannelTick(CurrentChannelTime);
+	if (!bIsChanneling || !IsActive())
+		return;
+	NotifyModulesOfPhase(EPWAbilityPhase::Pulse);
 
 	if (MaxChannelDuration > 0.f && CurrentChannelTime >= MaxChannelDuration)
 	{
@@ -75,17 +91,17 @@ void UPWGameplayAbility_Channeling::StopChanneling(const bool bWasCanceled)
 	bIsChanneling = false;
 	GetWorld()->GetTimerManager().ClearTimer(ChannelTickTimer);
 
-	if (!bWasCanceled && CommitPolicy == EPWCommitPolicy::OnEnd && !CommitAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo))
+	if (CommitAtEnd(CostPolicy, CooldownPolicy, bWasCanceled))
 	{
-		OnChannelCancelled();
-		K2_CancelAbility();
+		NotifyModulesOfPhase(EPWAbilityPhase::Completed);
+		OnChannelEnd();
 		return;
 	}
 
-	if (bWasCanceled)
-		OnChannelCancelled();
-	else
-		OnChannelEnd();
+	NotifyModulesOfPhase(EPWAbilityPhase::Cancelled);
+	OnChannelCancelled();
+	if (!bWasCanceled)
+		K2_CancelAbility();
 
 	//EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), true, bWasCanceled);
 }

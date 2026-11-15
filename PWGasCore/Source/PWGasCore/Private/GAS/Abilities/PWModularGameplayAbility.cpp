@@ -20,6 +20,7 @@ void UPWModularGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHandle
 	ForEachModule([this](UPWAbilityModule* Mod)
 	{
 		Mod->Initialize(this);
+		Mod->ResetCurrentValues();
 	});
 	ForEachModule([](UPWAbilityModule* Mod)
 	{
@@ -27,6 +28,14 @@ void UPWModularGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHandle
 	});
 	
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
+}
+
+void UPWModularGameplayAbility::NotifyModulesOfPhase(const EPWAbilityPhase Phase)
+{
+	ForEachModule([Phase](UPWAbilityModule* Mod)
+	{
+		Mod->OnAbilityPhase(Phase);
+	});
 }
 
 UPWAbilityModule* UPWModularGameplayAbility::GetModule(const TSubclassOf<UPWAbilityModule> ModuleClass) const
@@ -99,6 +108,28 @@ void UPWModularGameplayAbility::EndAbility(const FGameplayAbilitySpecHandle Hand
 	{
 		Mod->OnAbilityEnded();
 	});
+}
+
+bool UPWModularGameplayAbility::CommitAtStart(const EPWCommitPolicy CostPolicy, const EPWCommitPolicy CooldownPolicy)
+{
+	if (CostPolicy == EPWCommitPolicy::OnStart && !CommitAbilityCost(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo))
+		return false;
+	if (CooldownPolicy == EPWCommitPolicy::OnStart)
+		CommitAbilityCooldown(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true);
+	return true;
+}
+
+bool UPWModularGameplayAbility::CommitAtEnd(const EPWCommitPolicy CostPolicy, const EPWCommitPolicy CooldownPolicy, const bool bWasCancelled)
+{
+	bool bCompleted = !bWasCancelled;
+	const auto IsDue = [&bCompleted](const EPWCommitPolicy Policy) { return Policy == EPWCommitPolicy::OnEnd || (Policy == EPWCommitPolicy::OnComplete && bCompleted); };
+
+	if (IsDue(CostPolicy) && !CommitAbilityCost(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo))
+		bCompleted = false;
+	// Forced: the ability passed its cooldown check when it activated, so it always gets its own cooldown.
+	if (IsDue(CooldownPolicy))
+		CommitAbilityCooldown(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true);
+	return bCompleted;
 }
 
 void UPWModularGameplayAbility::EnsureRequiredDataModules()
@@ -176,9 +207,9 @@ UPWAbilityModule_Projectile* UPWModularGameplayAbility::GetProjectileModule() co
 	return GetActionModule<UPWAbilityModule_Projectile>();
 }
 
-UPWAbilityModule_Niagara* UPWModularGameplayAbility::GetNiagaraModule() const
+UPWAbilityModule_VFX* UPWModularGameplayAbility::GetVFXModule() const
 {
-	return GetControlModule<UPWAbilityModule_Niagara>();
+	return GetControlModule<UPWAbilityModule_VFX>();
 }
 
 UPWAbilityModule_Precast* UPWModularGameplayAbility::GetPrecastModule() const

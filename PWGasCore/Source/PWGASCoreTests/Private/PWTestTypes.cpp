@@ -61,19 +61,6 @@ UPWTestDurationEffect::UPWTestDurationEffect()
 	DurationMagnitude = FScalableFloat(10.f);
 }
 
-UPWTestCooldownEffect::UPWTestCooldownEffect()
-{
-	DurationPolicy = EGameplayEffectDurationType::HasDuration;
-	FSetByCallerFloat Duration;
-	Duration.DataTag = PWTags::Ability::SetByCaller::Cooldown;
-	DurationMagnitude = FGameplayEffectModifierMagnitude(Duration);
-}
-
-UPWTestCooldownAbility::UPWTestCooldownAbility()
-{
-	CooldownGameplayEffectClass = UPWTestCooldownEffect::StaticClass();
-}
-
 UPWTestInstantBuffAbility::UPWTestInstantBuffAbility()
 {
 	UPWAbilityModule_InstantEffect* InstantEffect = CreateDefaultSubobject<UPWAbilityModule_InstantEffect>("InstantEffect");
@@ -101,6 +88,7 @@ UPWTestConfirmedAbility::UPWTestConfirmedAbility()
 
 UPWTestChargedAbility::UPWTestChargedAbility()
 {
+	CostGameplayEffectClass = UPWTestEffect::StaticClass();
 	CooldownGameplayEffectClass = UPWTestDurationEffect::StaticClass();
 	ChargeDuration = 1.f;
 	ChargeTickInterval = 0.25f;
@@ -108,6 +96,7 @@ UPWTestChargedAbility::UPWTestChargedAbility()
 
 UPWTestChannelingAbility::UPWTestChannelingAbility()
 {
+	CostGameplayEffectClass = UPWTestEffect::StaticClass();
 	CooldownGameplayEffectClass = UPWTestDurationEffect::StaticClass();
 	MaxChannelDuration = 1.f;
 	ChannelTickInterval = 0.25f;
@@ -177,5 +166,5 @@ UPWTestLeveledAbility::UPWTestLeveledAbility()
 
 UPWTestInterruptibleAbility::UPWTestInterruptibleAbility()
 {
-	CancellationTags.AddTag(PWTags::Ability::Activation::Failed);
+	InterruptionTags.AddTag(PWTags::Ability::Activation::Failed);
 }
