@@ -3,10 +3,12 @@
 
 #include "GAS/ASC/PWASC_VfxLifecycle.h"
 
+#include "Components/MeshComponent.h"
 #include "NiagaraComponent.h"
 #include "NiagaraFunctionLibrary.h"
 #include "GAS/ASC/PWAbilitySystemComponent.h"
 #include "GAS/Data/PWNiagaraEntry.h"
+#include "Libraries/PWGasFunctions.h"
 #include "PWGASCoreLogChannels.h"
 #include "Engine/Engine.h"
 
@@ -39,41 +41,36 @@ UNiagaraComponent* FPWASC_VfxLifecycle::PlayNiagara_Local(const FPWNiagaraEntry&
 
 	UNiagaraComponent* Comp = nullptr;
 
+	// Spawned inactive, so the size and parameters are in place before the first frame.
 	if (Entry.bAttachToActor)
 	{
+		// Sockets live on the meshes, not on the root.
 		USceneComponent* AttachComp = Avatar->GetRootComponent();
-		if (!AttachComp)
+		FName Socket = NAME_None;
+		if (UMeshComponent* Mesh = UPWGasFunctions::FindSocketMesh(Avatar, Entry.AttachSocketName))
 		{
-			return nullptr;
+			AttachComp = Mesh;
+			Socket = Entry.AttachSocketName;
 		}
+		if (!AttachComp)
+			return nullptr;
 
-		const FVector LocOffset = Entry.RelativeOffset;
-		const FRotator Rot = AttachComp->GetComponentRotation();
-
-		Comp = UNiagaraFunctionLibrary::SpawnSystemAttached(
-			Entry.NiagaraSystem,
-			AttachComp,
-			Entry.AttachSocketName,
-			LocOffset,
-			Rot,
-			EAttachLocation::KeepRelativeOffset,
-			/*bAutoDestroy=*/!Entry.bLooping);
+		Comp = UNiagaraFunctionLibrary::SpawnSystemAttached(Entry.NiagaraSystem, AttachComp, Socket, Entry.RelativeOffset, Entry.RelativeRotation, Entry.Scale,
+			EAttachLocation::KeepRelativeOffset, /*bAutoDestroy=*/!Entry.bLooping, ENCPoolMethod::None, /*bAutoActivate=*/false);
 	}
 	else
 	{
 		const FTransform& T = Entry.WorldTransform;
-
-		Comp = UNiagaraFunctionLibrary::SpawnSystemAtLocation(
-			World,
-			Entry.NiagaraSystem,
-			T.GetLocation(),
-			T.Rotator(),
-			T.GetScale3D(),
-			/*bAutoDestroy=*/!Entry.bLooping);
+		Comp = UNiagaraFunctionLibrary::SpawnSystemAtLocation(World, Entry.NiagaraSystem, T.GetLocation(), T.Rotator(), Entry.Scale,
+			/*bAutoDestroy=*/!Entry.bLooping, /*bAutoActivate=*/false);
 	}
 
 	if (!Comp)
 		return nullptr;
+
+	for (const FPWNiagaraFloat& Parameter : Entry.FloatParameters)
+		Comp->SetVariableFloat(Parameter.Name, Parameter.Value);
+	Comp->Activate();
 
 	DebugVfx(ASC, TEXT("Play"), FString::Printf(TEXT("%s (id %d)"), *GetNameSafe(Entry.NiagaraSystem), Entry.UniqueId));
 	
