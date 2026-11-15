@@ -3,6 +3,7 @@
 #include "PWGASCoreEditor.h"
 
 #include "PWAbilitySetEntryCustomization.h"
+#include "PWAbilityValueCustomization.h"
 #include "PWGameplayAbility_DetailCustomization.h"
 
 #define LOCTEXT_NAMESPACE "FPWGASCoreEditorModule"
@@ -14,6 +15,8 @@ void FPWGASCoreEditorModule::StartupModule()
 		FOnGetDetailCustomizationInstance::CreateStatic(&FPWGameplayAbility_DetailCustomization::MakeInstance));
 	Prop.RegisterCustomPropertyTypeLayout(TEXT("PWAbilitySetEntry"),
 		FOnGetPropertyTypeCustomizationInstance::CreateStatic(&FPWAbilitySetEntryCustomization::MakeInstance));
+	Prop.RegisterCustomPropertyTypeLayout(TEXT("PWAbilityValue"),
+		FOnGetPropertyTypeCustomizationInstance::CreateStatic(&FPWAbilityValueCustomization::MakeInstance));
 }
 
 void FPWGASCoreEditorModule::ShutdownModule()
