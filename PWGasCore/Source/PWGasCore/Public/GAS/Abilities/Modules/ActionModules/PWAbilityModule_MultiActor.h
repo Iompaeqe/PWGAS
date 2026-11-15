@@ -91,10 +91,11 @@ public:
     virtual void GetRequiredDataModules_Implementation(TArray<TSubclassOf<UPWDataModule>>& OutRequiredModules) override;
 
 private:
-    void BuildSpawnTransforms(const FPWTargetingResult& Target, TArray<FTransform>& OutTransforms) const;
+    // bSpawning marks a real spawn rather than a preview, which is when the debug drawing happens.
+    void BuildSpawnTransforms(const FPWTargetingResult& Target, TArray<FTransform>& OutTransforms, bool bSpawning = false) const;
     float GetEffectiveRadius() const;
     FQuat GetPatternBasis(const FPWTargetingResult& Target) const;
-    FVector SnapToGround(const FVector& Location) const;
+    FVector SnapToGround(const FVector& Location, bool bDebug = false) const;
 
     int32 CurrentSpawnIndex = 0;
     TArray<FTransform> CachedSpawnTransforms;

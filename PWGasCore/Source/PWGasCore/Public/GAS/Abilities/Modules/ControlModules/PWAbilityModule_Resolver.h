@@ -30,4 +30,9 @@ public:
 
 	virtual void ExtendParams(UPWSpellParams* Params) const override;
 	virtual void GetRequiredDataModules_Implementation(TArray<TSubclassOf<UPWDataModule>>& OutRequiredModules) override;
+
+private:
+	// Where says how the point was chosen, for the debug print.
+	void ResolveAt(FPWTargetingResult& InOut, const TCHAR* Where) const;
+	void DebugResolve(const FPWTargetingResult& Result, const TCHAR* Where) const;
 };

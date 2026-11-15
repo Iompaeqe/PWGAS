@@ -10,9 +10,11 @@ AActor* UPWAbilityModule_MultiProjectile::SpawnActorWithTargetingResult(const FP
 {
 	if (ProjectileCount <= 1)
 	{
+		if (IsDebugging())
+			DebugPrint(TEXT("projectile count is 1, firing one projectile without the spread"));
 		return Super::SpawnActorWithTargetingResult(Target);
 	}
-	
+
 	SpreadSpawnProjectiles(Target);
 	return nullptr;
 }
@@ -28,6 +30,33 @@ void UPWAbilityModule_MultiProjectile::SpreadSpawnProjectiles(const FPWTargeting
 	BuildSpreadSteps();
 	CurrentSpreadStep = 0;
 	CastId = FGuid::NewGuid();
+
+	if (IsDebugging())
+	{
+		FString PatternName = Pattern ? Pattern->GetClass()->GetName() : TEXT("Fan (default)");
+		PatternName.RemoveFromStart(TEXT("PWSpreadPattern_"));
+		PatternName.RemoveFromEnd(TEXT("_C"));
+		const FString Timing = SpreadDelay > 0.f && SpreadSteps.Num() > 1 ? FString::Printf(TEXT("%.2fs apart"), SpreadDelay) : FString(TEXT("all at once"));
+		DebugPrint(FString::Printf(TEXT("%d projectiles across %.1f degrees, %s pattern, %d steps %s, cast id %s"),
+			Shots.Num(), SpreadAngle, *PatternName, SpreadSteps.Num(), *Timing, *CastId.ToString()));
+
+		// Each shot's aim from the caster, the way the spread targets are made.
+		if (const AActor* Avatar = OwnerAbility->GetAvatarActorFromActorInfo())
+		{
+			const FVector Origin = Avatar->GetActorLocation();
+			DebugLine(Origin, Target.Location, PWModuleDebug::Target);
+			FString Offsets;
+			for (int32 i = 0; i < Shots.Num(); ++i)
+			{
+				const FVector Aim = MakeSpreadTarget(Target, Shots[i].Offset).Location;
+				const FVector Tip = Origin + (Aim - Origin).GetClampedToMaxSize(400.f);
+				DebugArrow(Origin, Tip, PWModuleDebug::Direction);
+				DebugText(Tip, FString::Printf(TEXT("%d (step %d)"), i, Shots[i].Step));
+				Offsets += FString::Printf(TEXT("%s%d: %.1f/%.1f @%d"), i ? TEXT(", ") : TEXT(""), i, Shots[i].Offset.Yaw, Shots[i].Offset.Pitch, Shots[i].Step);
+			}
+			DebugPrint(TEXT("shot yaw/pitch @step: ") + Offsets);
+		}
+	}
 
 	SpreadSpawnNextStep(Target);
 
@@ -51,6 +80,10 @@ void UPWAbilityModule_MultiProjectile::SpreadSpawnNextStep(const FPWTargetingRes
 {
 	if (!SpreadSteps.IsValidIndex(CurrentSpreadStep))
 		return;
+
+	if (SpreadDelay > 0.f && SpreadSteps.Num() > 1 && IsDebugging())
+		DebugPrint(FString::Printf(TEXT("step %d of %d fires shot %s"), CurrentSpreadStep + 1, SpreadSteps.Num(),
+			*FString::JoinBy(SpreadSteps[CurrentSpreadStep], TEXT(", "), [](const int32 Index) { return FString::FromInt(Index); })));
 
 	for (const int32 SpreadIndex : SpreadSteps[CurrentSpreadStep])
 		Super::SpawnActorWithTargetingResult(MakeSpreadTarget(Target, Shots[SpreadIndex].Offset));

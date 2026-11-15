@@ -4,12 +4,34 @@
 #include "PWGasCore/Public/GAS/Abilities/Modules/ActionModules/PWAbilityModule_Aura.h"
 
 #include "AbilitySystemGlobals.h"
+#include "Engine/CollisionProfile.h"
+#include "Engine/World.h"
+#include "TimerManager.h"
 #include "GAS/Abilities/Modules/ActionModules/PWAuraSphereComponent.h"
 #include "GAS/Abilities/PWModularGameplayAbility.h"
 #include "GAS/Abilities/Modules/DataModules/PWAbilityModule_Effect.h"
 #include "GAS/Abilities/Modules/DataModules/PWAbilityModule_Range.h"
 #include "PWGASCoreLogChannels.h"
 
+namespace PWAuraModuleDebug
+{
+	// Each drawing outlives the redraw interval a little so the aura doesn't flicker.
+	constexpr float RedrawInterval = 0.1f;
+	constexpr float RedrawLifetime = RedrawInterval * 1.5f;
+
+	static FString ActorName(const AActor* Actor)
+	{
+		return Actor ? Actor->GetActorNameOrLabel() : FString(TEXT("none"));
+	}
+
+	static FString ActorNames(const TArray<AActor*>& Actors)
+	{
+		TArray<FString> Names;
+		for (const AActor* Actor : Actors)
+			Names.Add(ActorName(Actor));
+		return FString::Join(Names, TEXT(", "));
+	}
+}
 
 void UPWAbilityModule_Aura::OnAbilityActivated_Implementation()
 {
@@ -18,7 +40,12 @@ void UPWAbilityModule_Aura::OnAbilityActivated_Implementation()
 		return;
 
 	const FGameplayAbilityActorInfo* Info = OwnerAbility->GetCurrentActorInfo();
-	if (!Info || !Info->IsNetAuthority()) return;
+	if (!Info || !Info->IsNetAuthority())
+	{
+		if (IsDebugging())
+			DebugPrint(TEXT("the aura only runs on the authority, nothing here"), FLinearColor::Gray);
+		return;
+	}
 	
 	UWorld* World = OwnerPawn->GetWorld();
 	if (!World)
@@ -34,7 +61,10 @@ void UPWAbilityModule_Aura::OnAbilityActivated_Implementation()
 
 	float Radius = 500.f;
 	if (const auto* Range = OwnerAbility->GetRangeModule())
-		Radius = Range->GetRangeValue();
+	{
+		Radius = Range->GetRange();
+		Range->DebugDrawFrom(OwnerPawn->GetActorLocation(), TEXT("aura"));
+	}
 	
 	AuraSphere->SetSphereRadius(Radius);
 	// Only detects the listed object types and ignores everything else, so projectiles and traces pass through it.
@@ -56,19 +86,33 @@ void UPWAbilityModule_Aura::OnAbilityActivated_Implementation()
 	for (AActor* Actor : AlreadyInside)
 		EnterAura(Actor);
 
-	if (bDrawDebug)
-		DrawDebugSphere(World, OwnerPawn->GetActorLocation(), Radius, 16, FColor::Green, false, 10.f);
+	if (!IsDebugging())
+		return;
 
-	UE_LOG(LogPWGASCoreAbilityModule, Log, TEXT("[AuraModule] Aura activated with radius %.1f"), Radius);
+	TArray<FString> Channels;
+	for (const TEnumAsByte<ECollisionChannel> Channel : ObjectChannels)
+		Channels.Add(UCollisionProfile::Get()->ReturnChannelNameFromContainerIndex(Channel.GetValue()).ToString());
+	DebugPrint(FString::Printf(TEXT("started on the authority: radius %.0f (%s), overlaps %s, %d already inside%s%s"), Radius,
+		OwnerAbility->GetRangeModule() ? TEXT("from the Range module") : TEXT("default, no Range module"), *FString::Join(Channels, TEXT(", ")),
+		OverlappingActors.Num(), OverlappingActors.IsEmpty() ? TEXT("") : TEXT(": "), *PWAuraModuleDebug::ActorNames(OverlappingActors)));
+
+	DrawDebugAura();
+	if (UWorld* DebugWorld = OwnerAbility->GetWorld())
+		DebugWorld->GetTimerManager().SetTimer(DebugTimer, this, &UPWAbilityModule_Aura::DrawDebugAura, PWAuraModuleDebug::RedrawInterval, true);
 }
 
 void UPWAbilityModule_Aura::OnAbilityEnded_Implementation()
 {
+	UWorld* World = OwnerAbility ? OwnerAbility->GetWorld() : nullptr;
+	if (World && DebugTimer.IsValid())
+		World->GetTimerManager().ClearTimer(DebugTimer);
+
 	if (AuraSphere)
 	{
+		if (IsDebugging())
+			DebugPrint(FString::Printf(TEXT("ended with %d inside%s%s"), OverlappingActors.Num(), OverlappingActors.IsEmpty() ? TEXT("") : TEXT(": "), *PWAuraModuleDebug::ActorNames(OverlappingActors)));
 		AuraSphere->DestroyComponent();
 		AuraSphere = nullptr;
-		UE_LOG(LogPWGASCoreAbilityModule, Log, TEXT("[AuraModule] Aura ended, component destroyed."));
 	}
 }
 
@@ -88,6 +132,11 @@ void UPWAbilityModule_Aura::HandleEndOverlap(UPrimitiveComponent* OverlappedComp
 	if (!OverlappingActors.Contains(OtherActor) || (AuraSphere && AuraSphere->IsOverlappingActor(OtherActor)))
 		return;
 
+	if (IsDebugging())
+	{
+		DebugPrint(FString::Printf(TEXT("%s left, %d inside"), *PWAuraModuleDebug::ActorName(OtherActor), OverlappingActors.Num() - 1));
+		DebugPoint(OtherActor->GetActorLocation(), PWModuleDebug::Position);
+	}
 	ApplyAuraEffect(OtherActor, false);
 	OverlappingActors.Remove(OtherActor);
 }
@@ -98,6 +147,12 @@ void UPWAbilityModule_Aura::EnterAura(AActor* Actor)
 		return;
 
 	OverlappingActors.Add(Actor);
+	// The debug timer starts after the first overlap check; actors found by it are in the start print.
+	if (IsDebugging() && DebugTimer.IsValid())
+	{
+		DebugPrint(FString::Printf(TEXT("%s entered, %d inside"), *PWAuraModuleDebug::ActorName(Actor), OverlappingActors.Num()));
+		DebugPoint(Actor->GetActorLocation(), PWModuleDebug::Target);
+	}
 	ApplyAuraEffect(Actor, true);
 }
 
@@ -118,4 +173,20 @@ void UPWAbilityModule_Aura::ApplyAuraEffect(const AActor* Target, const bool bAp
 		EffectModule->RemoveEffectsFromActor(SourceASC, TargetActor);
 
 	UE_LOG(LogPWGASCoreAbilityModule, Verbose, TEXT("[AuraModule] %s aura effect: %s"), bApply ? TEXT("Applied") : TEXT("Removed"), *Target->GetName());
+}
+
+void UPWAbilityModule_Aura::DrawDebugAura()
+{
+	const APawn* Pawn = GetPawn();
+	if (!AuraSphere || !Pawn)
+		return;
+
+	const FVector Center = AuraSphere->GetComponentLocation();
+	const float Radius = AuraSphere->GetScaledSphereRadius();
+	DebugSphere(Center, Radius, PWModuleDebug::Radius, PWAuraModuleDebug::RedrawLifetime);
+	DebugCircle(Center - FVector(0.f, 0.f, Pawn->GetSimpleCollisionHalfHeight()), Radius, PWModuleDebug::Radius, PWAuraModuleDebug::RedrawLifetime);
+	DebugText(Center + FVector(0.f, 0.f, Radius), FString::Printf(TEXT("Aura %.0f, %d inside"), Radius, OverlappingActors.Num()), PWModuleDebug::Radius, PWAuraModuleDebug::RedrawLifetime);
+	for (const AActor* Actor : OverlappingActors)
+		if (Actor)
+			DebugLine(Center, Actor->GetActorLocation(), PWModuleDebug::Target, PWAuraModuleDebug::RedrawLifetime);
 }

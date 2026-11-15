@@ -3,7 +3,11 @@
 
 #include "GAS/Abilities/Modules/ControlModules/PWAbilityModule_Targeting.h"
 
+#include "Components/PrimitiveComponent.h"
 #include "Debug/Logging.h"
+#include "GameFramework/Actor.h"
+#include "GameFramework/Pawn.h"
+#include "GameFramework/PlayerController.h"
 #include "GAS/Abilities/PWModularGameplayAbility.h"
 #include "GAS/Abilities/Modules/DataModules/PWAbilityModule_Range.h"
 #include "GAS/Abilities/Modules/ControlModules/PWAbilityModule_Resolver.h"
@@ -72,6 +76,13 @@ static FPWTargetingResult BuildResultFromHandle(const FGameplayAbilityTargetData
 	return Result;
 }
 
+static FString DescribeTargetingHit(const FHitResult& Hit)
+{
+	if (!Hit.bBlockingHit)
+		return TEXT("no blocking hit");
+	return FString::Printf(TEXT("blocking hit %s / %s at %s"), *GetNameSafe(Hit.GetActor()), *GetNameSafe(Hit.GetComponent()), *Hit.ImpactPoint.ToCompactString());
+}
+
 bool UPWAbilityModule_Targeting::ComputeTarget(FPWTargetingResult& Out)
 {
 	if (!OwnerAbility)
@@ -87,6 +98,16 @@ bool UPWAbilityModule_Targeting::ComputeTarget(FPWTargetingResult& Out)
 		// A player aims with its camera or cursor, any other caster through its pawn and AI controller.
 		APlayerController* PC = OwnerAbility->GetPC();
 		const bool bSampled = PC ? TargetingSource->Sample(PC, Out) : TargetingSource->SampleForPawn(OwnerAbility->GetPawn(), Out);
+		if (IsDebugging())
+		{
+			const FString Through = PC
+				? FString::Printf(TEXT("the player controller %s"), *GetNameSafe(PC))
+				: FString::Printf(TEXT("the pawn %s (no player controller, AI path)"), *GetNameSafe(OwnerAbility->GetPawn()));
+			if (bSampled)
+				DebugPrint(FString::Printf(TEXT("%s aimed through %s at %s"), *GetNameSafe(TargetingSource->GetClass()), *Through, *Out.Location.ToCompactString()));
+			else
+				DebugPrint(FString::Printf(TEXT("%s found no target through %s"), *GetNameSafe(TargetingSource->GetClass()), *Through), FLinearColor::Yellow);
+		}
 		if (!bSampled)
 			return false;
 	}
@@ -98,6 +119,8 @@ bool UPWAbilityModule_Targeting::ComputeTarget(FPWTargetingResult& Out)
 			return false;
 		Out.Location = Avatar->GetActorLocation();
 		Out.Rotation = Avatar->GetActorRotation();
+		if (IsDebugging())
+			DebugPrint(FString::Printf(TEXT("no targeting source, aimed at the caster %s"), *GetNameSafe(Avatar)));
 	}
 
 	FinalizeTargetingResult(Out);
@@ -140,6 +163,23 @@ void UPWAbilityModule_Targeting::FinalizeTargetingResult(FPWTargetingResult& InO
 	{
 		InOut.Rotation = (InOut.Location - Origin).Rotation();
 	}
+
+	if (!IsDebugging())
+		return;
+	const FHitResult& Hit = InOut.Hit;
+	if (!Hit.TraceStart.IsNearlyZero() && !Hit.TraceStart.Equals(Hit.TraceEnd))
+		DebugLine(Hit.TraceStart, Hit.bBlockingHit ? Hit.ImpactPoint : Hit.TraceEnd, PWModuleDebug::Direction);
+	if (Hit.bBlockingHit)
+	{
+		DebugPoint(Hit.ImpactPoint, PWModuleDebug::Target);
+		DebugText(Hit.ImpactPoint + FVector(0.f, 0.f, 40.f), FString::Printf(TEXT("hit %s"), *GetNameSafe(Hit.GetActor())), PWModuleDebug::Target);
+	}
+	DebugPoint(InOut.Location, PWModuleDebug::Position);
+	DebugText(InOut.Location + FVector(0.f, 0.f, 70.f), TEXT("target"), PWModuleDebug::Position);
+	if (AvatarActor)
+		DebugArrow(Origin, InOut.Location, PWModuleDebug::Direction);
+	DebugPrint(FString::Printf(TEXT("target %s, %.0f from the caster, rotation %s, %d hit actors, %s"),
+		*InOut.Location.ToCompactString(), FVector::Dist(Origin, InOut.Location), *InOut.Rotation.ToCompactString(), InOut.HitActors.Num(), *DescribeTargetingHit(Hit)));
 }
 
 void UPWAbilityModule_Targeting::MakeTargetingResultFromTargetData(const FGameplayAbilityTargetDataHandle DataHandle, FPWTargetingResult& Out)
@@ -154,6 +194,15 @@ void UPWAbilityModule_Targeting::MakeTargetingResultFromTargetData(const FGamepl
 	const FGameplayAbilityActorInfo& ActorInfo = OwnerAbility->GetActorInfo();
 
 	Out = BuildResultFromHandle(DataHandle, ActorInfo);
+
+	if (IsDebugging())
+	{
+		FHitResult Hit;
+		if (GetSingleHitFromHandle(DataHandle, Hit))
+			DebugPrint(FString::Printf(TEXT("from target data (%d entries): trace %s -> %s, %s"), DataHandle.Num(), *Hit.TraceStart.ToCompactString(), *Hit.TraceEnd.ToCompactString(), *DescribeTargetingHit(Hit)));
+		else
+			DebugPrint(FString::Printf(TEXT("from target data (%d entries): no hit result, aimed at the caster"), DataHandle.Num()), FLinearColor::Yellow);
+	}
 
 	// Now run the **same** post-processing as the local path
 	FinalizeTargetingResult(Out);

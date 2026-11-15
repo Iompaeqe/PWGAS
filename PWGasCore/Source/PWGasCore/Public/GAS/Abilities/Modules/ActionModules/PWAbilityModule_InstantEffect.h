@@ -42,6 +42,7 @@ protected:
 	
 	virtual void ApplyEffectsToTargets(const FPWTargetingResult& Result);
 	void RemoveTargetEffects(bool bInfiniteOnly);
+	void DebugTargets(const FPWTargetingResult& Result) const;
 
 	TArray<TWeakObjectPtr<AActor>> Targets;
 };

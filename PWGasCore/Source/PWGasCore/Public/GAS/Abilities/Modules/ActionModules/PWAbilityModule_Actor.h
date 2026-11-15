@@ -76,11 +76,8 @@ public:
 	/** If true, pitch will be flattened (useful for ground spawns). */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	bool bZeroPitch = false;
-	// Draws a red sphere at the spawn position for three seconds.
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	bool bDebugSpawnPosition = false;
 
-	
+
 	virtual UPWSpellParams* MakeSpellParams_Implementation(const FPWTargetingResult& Target) override;
 
 	UFUNCTION(BlueprintCallable, Category="Module")
@@ -93,7 +90,9 @@ public:
 
 protected:
 	virtual FTransform BuildSpawnTransform(const FPWTargetingResult& Target) const;
-	
+	// Show Debug drawing of one spawn, printed only where it really spawned. Spawned is null on a machine that leaves spawning to the server.
+	virtual void DebugSpawn(const FPWTargetingResult& Target, const FTransform& SpawnTM, AActor* Spawned) const;
+
 	TArray<TWeakObjectPtr<AActor>> SpawnedActors = {};
 
 	virtual void ExecuteAction() override { SpawnActor(); }

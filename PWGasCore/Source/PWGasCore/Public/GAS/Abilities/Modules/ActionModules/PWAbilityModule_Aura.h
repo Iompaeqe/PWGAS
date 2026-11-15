@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "PWActionModule.h"
 #include "Ability/PWSpellParams.h"
+#include "Engine/TimerHandle.h"
 #include "PWAbilityModule_Aura.generated.h"
 
 struct FPWEffectEntry;
@@ -31,9 +32,7 @@ protected:
 	UPROPERTY(EditAnywhere)
 	TArray<TEnumAsByte<ECollisionChannel>> ObjectChannels = {ECC_Pawn, ECC_WorldDynamic, ECC_PhysicsBody, ECC_Destructible};
 
-	// Draws the aura's sphere when it starts.
-	UPROPERTY(EditAnywhere)
-	bool bDrawDebug = false;
+	FTimerHandle DebugTimer;
 
 	UFUNCTION()
 	void HandleBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
@@ -48,4 +47,7 @@ protected:
 
 	// Applies or removes gameplay effects to overlapping actors
 	void ApplyAuraEffect(const AActor* Target, bool bApply) const;
+
+	// Redraws the aura where the caster is now, on a timer while Show Debug is on.
+	void DrawDebugAura();
 };

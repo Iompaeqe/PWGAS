@@ -81,6 +81,7 @@ public:
 	// Whether at least one group's filter accepts the target.
 	bool AppliesTo(const AActor* Source, const AActor* Target) const;
 
+	virtual void OnAbilityActivated_Implementation() override;
 	virtual void ExtendParams(UPWSpellParams* Params) const override;
 	virtual void PostLoad() override;
 };
