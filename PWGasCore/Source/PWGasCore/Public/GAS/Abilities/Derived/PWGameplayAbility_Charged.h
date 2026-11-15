@@ -68,7 +68,7 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent, Category="Charge")
 	void OnChargeStart();
 
-	// Runs before the modules hear Pulse, so they use what it sets.
+	// Runs before the modules hear Tick, so they use what it sets.
 	UFUNCTION(BlueprintImplementableEvent, Category="Charge")
 	void OnChargeTick(float NormalizedCharge);
 

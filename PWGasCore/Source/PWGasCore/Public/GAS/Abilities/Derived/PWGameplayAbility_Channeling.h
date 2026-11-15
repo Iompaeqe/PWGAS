@@ -67,7 +67,7 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent, Category="Channel")
 	void OnChannelStart();
 
-	// Runs before the modules hear Pulse, so they use what it sets.
+	// Runs before the modules hear Tick, so they use what it sets.
 	UFUNCTION(BlueprintImplementableEvent, Category="Channel")
 	void OnChannelTick(float ElapsedTime);
 

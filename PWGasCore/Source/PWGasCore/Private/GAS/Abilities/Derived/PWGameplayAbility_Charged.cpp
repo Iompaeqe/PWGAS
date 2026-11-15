@@ -101,7 +101,7 @@ void UPWGameplayAbility_Charged::RunChargeTick()
 	OnChargeTick(GetChargePercentage());
 	if (!bIsCharging || !IsActive())
 		return;
-	NotifyModulesOfPhase(EPWAbilityPhase::Pulse);
+	NotifyModulesOfPhase(EPWAbilityPhase::Tick);
 
 	if (CurrentChargeTime >= ChargeDuration)
 	{

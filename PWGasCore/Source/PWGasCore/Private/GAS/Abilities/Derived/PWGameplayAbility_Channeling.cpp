@@ -70,7 +70,7 @@ void UPWGameplayAbility_Channeling::RunChannelTick()
 	OnChannelTick(CurrentChannelTime);
 	if (!bIsChanneling || !IsActive())
 		return;
-	NotifyModulesOfPhase(EPWAbilityPhase::Pulse);
+	NotifyModulesOfPhase(EPWAbilityPhase::Tick);
 
 	if (MaxChannelDuration > 0.f && CurrentChannelTime >= MaxChannelDuration)
 	{

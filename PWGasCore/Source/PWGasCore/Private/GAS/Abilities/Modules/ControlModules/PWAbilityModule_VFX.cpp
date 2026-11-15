@@ -192,8 +192,8 @@ void UPWAbilityModule_VFX::OnAbilityPhase_Implementation(const EPWAbilityPhase P
 	case EPWAbilityPhase::Started:
 		PlayTimed(EPWVFXTiming::Started);
 		break;
-	case EPWAbilityPhase::Pulse:
-		PlayTimed(EPWVFXTiming::Pulse);
+	case EPWAbilityPhase::Tick:
+		PlayTimed(EPWVFXTiming::Tick);
 		break;
 	case EPWAbilityPhase::Completed:
 		PlayTimed(EPWVFXTiming::Completed);

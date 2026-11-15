@@ -22,7 +22,7 @@ enum class EPWVFXTiming : uint8
 	// When its charge or channel starts.
 	Started,
 	// On every channel or charge tick.
-	Pulse,
+	Tick,
 	// When the charge is released or the channel finishes.
 	Completed,
 	// When the charge or channel is cancelled.

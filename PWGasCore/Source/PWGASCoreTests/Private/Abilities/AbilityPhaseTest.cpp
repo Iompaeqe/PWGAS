@@ -38,7 +38,7 @@ bool FChannelingPhaseTest::RunTest(const FString& Parameters)
 		Case.Activate();
 		TestEqual("Modules hear the channel start", Case.Count(EPWAbilityPhase::Started), 1);
 		Case.Finish();
-		TestEqual("every tick as a pulse", Case.Count(EPWAbilityPhase::Pulse), 4);
+		TestEqual("every tick", Case.Count(EPWAbilityPhase::Tick), 4);
 		TestEqual("and the finish", Case.Count(EPWAbilityPhase::Completed), 1);
 		TestEqual("with no cancel", Case.Count(EPWAbilityPhase::Cancelled), 0);
 	}
@@ -52,10 +52,10 @@ bool FChannelingPhaseTest::RunTest(const FString& Parameters)
 	{
 		const TPhaseCase<UPWTestChannelingAbility> Case(true);
 		Case.Activate();
-		TestEqual("Tick At Start pulses as the channel starts", Case.Count(EPWAbilityPhase::Pulse), 1);
+		TestEqual("Tick At Start ticks as the channel starts", Case.Count(EPWAbilityPhase::Tick), 1);
 		TestEqual("at time 0", Case.Ability->GetChannelTime(), 0.f);
 		Case.Finish();
-		TestEqual("then every timed tick", Case.Count(EPWAbilityPhase::Pulse), 5);
+		TestEqual("then every timed tick", Case.Count(EPWAbilityPhase::Tick), 5);
 		TestEqual("and still finishes once", Case.Count(EPWAbilityPhase::Completed), 1);
 	}
 	return true;
@@ -71,7 +71,7 @@ bool FChargedPhaseTest::RunTest(const FString& Parameters)
 		TestEqual("Modules hear the charge start", Case.Count(EPWAbilityPhase::Started), 1);
 		Case.Finish();
 		TestEqual("and the release", Case.Count(EPWAbilityPhase::Completed), 1);
-		TestEqual("every charge tick as a pulse", Case.Count(EPWAbilityPhase::Pulse), 4);
+		TestEqual("every charge tick", Case.Count(EPWAbilityPhase::Tick), 4);
 	}
 	{
 		const TPhaseCase<UPWTestChargedAbility> Case;
@@ -82,9 +82,9 @@ bool FChargedPhaseTest::RunTest(const FString& Parameters)
 	{
 		const TPhaseCase<UPWTestChargedAbility> Case(true);
 		Case.Activate();
-		TestEqual("Tick At Start pulses as the charge starts", Case.Count(EPWAbilityPhase::Pulse), 1);
+		TestEqual("Tick At Start ticks as the charge starts", Case.Count(EPWAbilityPhase::Tick), 1);
 		Case.Finish();
-		TestEqual("then every timed tick", Case.Count(EPWAbilityPhase::Pulse), 5);
+		TestEqual("then every timed tick", Case.Count(EPWAbilityPhase::Tick), 5);
 		TestEqual("and still releases once", Case.Count(EPWAbilityPhase::Completed), 1);
 	}
 	return true;

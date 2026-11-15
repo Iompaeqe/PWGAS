@@ -29,7 +29,7 @@ enum class EPWAbilityPhase : uint8
 	// The charge or channel started.
 	Started,
 	// One channel or charge tick passed.
-	Pulse,
+	Tick,
 	// The charge was released or the channel finished.
 	Completed,
 	// The charge or channel was cancelled.
@@ -59,7 +59,7 @@ public:
 	UFUNCTION(BlueprintNativeEvent, Category="Ability")
 	void OnAbilityEnded();
 
-	// Started and Pulse come after the ability's own charge or channel event, so they see what its graph set, and only while it still runs.
+	// Started and Tick come after the ability's own charge or channel event, so they see what its graph set, and only while it still runs.
 	// Completed and Cancelled come before it, while the ability still runs, since that event usually ends it.
 	UFUNCTION(BlueprintNativeEvent, Category="Ability")
 	void OnAbilityPhase(EPWAbilityPhase Phase);
