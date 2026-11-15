@@ -90,7 +90,7 @@ struct PWGASCORE_API FPWVFXEntry
 };
 
 // The ability's visual effects: when they play, where, at what scale, and with which parameter values.
-UCLASS(Blueprintable, BlueprintType, EditInlineNew, DefaultToInstanced)
+UCLASS(Blueprintable, BlueprintType, EditInlineNew, DefaultToInstanced, meta=(DisplayName="PWM VFX"))
 class PWGASCORE_API UPWAbilityModule_VFX : public UPWControlModule
 {
 	GENERATED_BODY()

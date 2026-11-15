@@ -18,7 +18,7 @@ enum class EPWActorPatternOrientation : uint8
     Camera UMETA(DisplayName="Relative To Camera")
 };
 
-UCLASS(Blueprintable, BlueprintType, EditInlineNew, DefaultToInstanced)
+UCLASS(Blueprintable, BlueprintType, EditInlineNew, DefaultToInstanced, meta=(DisplayName="PWM Multi Actor"))
 class PWGASCORE_API UPWAbilityModule_MultiActor : public UPWAbilityModule_Actor
 {
     GENERATED_BODY()
@@ -27,15 +27,15 @@ public:
     UPWAbilityModule_MultiActor() { bSpawnAtTarget = true; }
 
     // How many actors are spawned per cast.
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(ClampMin=1))
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Multi Actor", meta=(ClampMin=1))
     int32 ActorCount = 3;
 
     // Added to Actor Count, by ability level.
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Multi Actor")
     FScalableFloat BonusActors = 0.f;
 
     // Seconds between each actor; 0 spawns them all at once.
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(ClampMin=0.0f))
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Multi Actor", meta=(ClampMin=0.0f))
     float SpawnDelay = 0.f;
 
     // Shape the actors are arranged in around the target point.

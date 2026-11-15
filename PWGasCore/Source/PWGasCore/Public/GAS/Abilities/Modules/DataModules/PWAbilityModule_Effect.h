@@ -54,14 +54,14 @@ public:
 	void ApplyEffectsToTarget(UAbilitySystemComponent* SourceASC, UAbilitySystemComponent* TargetASC, int32 AbilityLevel = 1) const;
 };
 
-UCLASS(Blueprintable, BlueprintType, EditInlineNew, DefaultToInstanced)
+UCLASS(Blueprintable, BlueprintType, EditInlineNew, DefaultToInstanced, meta=(DisplayName="PWM Effect"))
 class PWGASCORE_API UPWAbilityModule_Effect : public UPWDataModule
 {
 	GENERATED_BODY()
 
 public:
 	// Effects this ability applies, grouped by who receives them: for example damage for enemies and neutrals, burn for enemies only.
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Effect")
 	TArray<FPWEffectGroup> EffectGroups;
 
 	UPROPERTY()

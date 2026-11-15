@@ -7,14 +7,14 @@
 #include "PWAbilityModule_InstantEffect.generated.h"
 
 struct FGameplayAbilityTargetDataHandle;
-UCLASS(Blueprintable, BlueprintType, EditInlineNew, DefaultToInstanced)
+UCLASS(Blueprintable, BlueprintType, EditInlineNew, DefaultToInstanced, meta=(DisplayName="PWM Instant Effect"))
 class PWGASCORE_API UPWAbilityModule_InstantEffect : public UPWActionModule
 {
 	GENERATED_BODY()
 
 public:
 	// Applies the effects as soon as the ability activates and removes the infinite ones when it ends.
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Module")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Instant Effect")
 	bool bApplyOnActivated = false;
 
 	UFUNCTION(BlueprintCallable, Category="Module")

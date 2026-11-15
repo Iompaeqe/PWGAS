@@ -29,14 +29,14 @@ public:
 
 // Spawns a projectile launched with the speed and gravity of its config, which also draw the precast path.
 // Graphs change them for one cast with Set Projectile Config or Set Projectile Speed; every activation goes back to the configured ones.
-UCLASS(Blueprintable, BlueprintType, EditInlineNew, DefaultToInstanced)
+UCLASS(Blueprintable, BlueprintType, EditInlineNew, DefaultToInstanced, meta=(DisplayName="PWM Projectile"))
 class PWGASCORE_API UPWAbilityModule_Projectile : public UPWAbilityModule_Actor
 {
 	GENERATED_BODY()
 
 public:
 	// The configured speed and gravity of the projectile, also used to draw its precast path. Every activation starts from it.
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Projectile")
 	FPWProjectileSimConfig ProjectileConfig;
 
 	UFUNCTION(BlueprintCallable, Category="Module")

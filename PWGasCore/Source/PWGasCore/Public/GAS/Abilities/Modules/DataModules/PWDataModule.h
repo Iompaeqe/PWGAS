@@ -26,7 +26,7 @@ private:
 	bool bSet = false;
 };
 
-UCLASS(Blueprintable, BlueprintType, EditInlineNew, DefaultToInstanced)
+UCLASS(Abstract, Blueprintable, BlueprintType, EditInlineNew, DefaultToInstanced)
 class PWGASCORE_API UPWDataModule : public UPWAbilityModule
 {
 	GENERATED_BODY()

@@ -12,18 +12,18 @@ struct FPWTargetingResult;
 
 // Maximum cast distance by ability level, and how a target beyond it is handled.
 // Graphs change the range for one cast with Set Range; every activation goes back to the configured range.
-UCLASS(Blueprintable, BlueprintType, EditInlineNew, DefaultToInstanced)
+UCLASS(Blueprintable, BlueprintType, EditInlineNew, DefaultToInstanced, meta=(DisplayName="PWM Range"))
 class PWGASCORE_API UPWAbilityModule_Range : public UPWDataModule
 {
 	GENERATED_BODY()
 
 public:
 	// How a target point beyond the range is handled, for example clamped to max range.
-	UPROPERTY(EditDefaultsOnly, Instanced, BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly, Instanced, BlueprintReadOnly, Category="Range")
 	TObjectPtr<UPWRangePolicy> RangePolicy;
 
 	// The configured maximum cast distance by ability level. Every activation starts from it.
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, Category="Range")
 	FScalableFloat Range = 1200.f;
 
 	// The range in use at the ability's level: what this cast set, otherwise the configured one.

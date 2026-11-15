@@ -46,7 +46,8 @@ public:
 	TObjectPtr<UPWModularGameplayAbility> OwnerAbility = nullptr;
 
 	// Draws what this module does in the world and prints it on screen and in the log, to line its numbers up with the visual effects. Shipping builds leave it out.
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Debug")
+	// Graphs read it with Is Debugging. Not Blueprint visible, so the details panel lists Debug after the module's own fields.
+	UPROPERTY(EditDefaultsOnly, Category="Debug")
 	bool bShowDebug = false;
 
 	UFUNCTION(BlueprintCallable, Category="Ability")

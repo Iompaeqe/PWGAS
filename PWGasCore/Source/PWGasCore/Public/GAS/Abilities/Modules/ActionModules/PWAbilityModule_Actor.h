@@ -39,17 +39,17 @@ public:
 };
 
 
-UCLASS(Blueprintable, BlueprintType, EditInlineNew, DefaultToInstanced)
+UCLASS(Blueprintable, BlueprintType, EditInlineNew, DefaultToInstanced, meta=(DisplayName="PWM Actor"))
 class PWGASCORE_API UPWAbilityModule_Actor : public UPWActionModule
 {
 	GENERATED_BODY()
 
 public:
 	/** Actor class to spawn. Must implement PWSpellParamsInterface. */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(MustImplement="/Script/PWContracts.PWSpellParamsInterface"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Actor", meta=(MustImplement="/Script/PWContracts.PWSpellParamsInterface"))
 	TSubclassOf<AActor> ActorClass;
 	// Which targets the spawned actor collides with, by the tags that describe them; the rest are passed through. Empty collides with every target. Walls and other scenery always stop it.
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Actor")
 	FPWTeamTargetFilter TargetFilter;
 
 	UPROPERTY()
@@ -57,24 +57,24 @@ public:
 
 	virtual void PostLoad() override;
 	// Spawns as soon as the ability activates, so no graph is needed.
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Actor")
 	bool bSpawnOnActivated = false;
 
 	/** If true, the actor spawns at the target location instead of at the ability owner. */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Actor")
 	bool bSpawnAtTarget = false;
 
 	/** If true, the spawned actor will be attached to the ability owner. */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Actor")
 	bool bAttachToOwner = false;
 	/** Socket name to attach to when bAttachToOwner = true. */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Actor")
 	FName SpawnSocket = NAME_None;
 	/** Optional local offset applied after forward offset. */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Actor")
 	FVector SpawnRelativeOffset = FVector::ZeroVector;
 	/** If true, pitch will be flattened (useful for ground spawns). */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Actor")
 	bool bZeroPitch = false;
 
 

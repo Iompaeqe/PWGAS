@@ -7,20 +7,20 @@
 #include "SpawnPatterns/PWSpreadPattern.h"
 #include "PWAbilityModule_MultiProjectile.generated.h"
 
-UCLASS(Blueprintable, BlueprintType, EditInlineNew, DefaultToInstanced)
+UCLASS(Blueprintable, BlueprintType, EditInlineNew, DefaultToInstanced, meta=(DisplayName="PWM Multi Projectile"))
 class PWGASCORE_API UPWAbilityModule_MultiProjectile : public UPWAbilityModule_Projectile
 {
 	GENERATED_BODY()
 
 public:
 	// How many projectiles are fired per cast.
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Multi Projectile")
 	int32 ProjectileCount = 1;
 	// Total angle in degrees the projectiles fan across.
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Multi Projectile")
 	float SpreadAngle = 20.f;
 	// Seconds between the steps of the spread pattern; 0 fires everything at once.
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Multi Projectile")
 	float SpreadDelay = 0.f;
 	// Where each projectile is aimed and when it fires; empty uses a left to right fan.
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Instanced, Category="Pattern")

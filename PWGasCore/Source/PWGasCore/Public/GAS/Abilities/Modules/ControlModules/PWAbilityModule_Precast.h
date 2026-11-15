@@ -12,14 +12,14 @@
 class UPWPrecastVisualizer;
 class UPWPrecastControllerComponent;
 
-UCLASS(Blueprintable, BlueprintType, EditInlineNew, DefaultToInstanced)
+UCLASS(Blueprintable, BlueprintType, EditInlineNew, DefaultToInstanced, meta=(DisplayName="PWM Precast"))
 class PWGASCORE_API UPWAbilityModule_Precast : public UPWControlModule
 {
 	GENERATED_BODY()
 
 public:
 	// What is drawn while aiming: a decal, a projectile path, a ghost actor or several of them.
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Precast")
 	TObjectPtr<UPWPrecastVisualizer> Visualizer;
 
 	// Which of the ability's Animation Tags is the montage that releases the projectile; -1 previews from where the hand is now.

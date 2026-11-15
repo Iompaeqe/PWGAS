@@ -9,14 +9,14 @@
 
 // Area radius by ability level, shared by targeting, previews and spawn patterns.
 // Graphs change it for one cast with Set Radius; every activation goes back to the configured radius.
-UCLASS(Blueprintable, BlueprintType, EditInlineNew, DefaultToInstanced)
+UCLASS(Blueprintable, BlueprintType, EditInlineNew, DefaultToInstanced, meta=(DisplayName="PWM Radius"))
 class PWGASCORE_API UPWAbilityModule_Radius : public UPWDataModule
 {
 	GENERATED_BODY()
 
 public:
 	// The configured radius by ability level. Every activation starts from it.
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category="Radius")
 	FScalableFloat Radius = 400.f;
 
 	// The radius in use at the ability's level: what this cast set, otherwise the configured one.

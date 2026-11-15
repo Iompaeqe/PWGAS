@@ -10,14 +10,14 @@ struct FGameplayAbilityTargetDataHandle;
 class UPWTargetingSource;
 class UPWTargetResolver;
 struct FPWTargetingResult;
-UCLASS(Blueprintable, BlueprintType, EditInlineNew, DefaultToInstanced)
+UCLASS(Blueprintable, BlueprintType, EditInlineNew, DefaultToInstanced, meta=(DisplayName="PWM Targeting"))
 class PWGASCORE_API UPWAbilityModule_Targeting : public UPWControlModule
 {
 	GENERATED_BODY()
 	
 public:
 	// Where the ability aims: the cursor, the screen center or the caster; empty targets the caster.
-	UPROPERTY(EditDefaultsOnly, Instanced, BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly, Instanced, BlueprintReadOnly, Category="Targeting")
 	TObjectPtr<UPWTargetingSource> TargetingSource;
 	// Moved to the Target Resolver module. Old abilities are converted when they load.
 	UPROPERTY(Instanced, meta=(DeprecatedProperty, DeprecationMessage="Use the Target Resolver module."))

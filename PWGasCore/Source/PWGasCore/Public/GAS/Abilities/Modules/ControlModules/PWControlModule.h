@@ -6,7 +6,7 @@
 #include "GAS/Abilities/Modules/PWAbilityModule.h"
 #include "PWControlModule.generated.h"
 
-UCLASS(Blueprintable, BlueprintType, EditInlineNew, DefaultToInstanced)
+UCLASS(Abstract, Blueprintable, BlueprintType, EditInlineNew, DefaultToInstanced)
 class PWGASCORE_API UPWControlModule : public UPWAbilityModule
 {
 	GENERATED_BODY()

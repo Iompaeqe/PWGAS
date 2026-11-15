@@ -9,7 +9,7 @@
 class UPWDataModule;
 class UPWSpellParams;
 struct FPWTargetingResult;
-UCLASS(Blueprintable, BlueprintType, EditInlineNew, DefaultToInstanced)
+UCLASS(Abstract, Blueprintable, BlueprintType, EditInlineNew, DefaultToInstanced)
 class PWGASCORE_API UPWActionModule : public UPWAbilityModule
 {
 	GENERATED_BODY()

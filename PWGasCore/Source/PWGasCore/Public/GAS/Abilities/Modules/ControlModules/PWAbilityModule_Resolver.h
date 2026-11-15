@@ -10,14 +10,14 @@
 class UPWTargetResolver;
 
 // Decides which actors become targets. With a Targeting module it resolves at the aimed point, without one it resolves around the caster.
-UCLASS(Blueprintable, BlueprintType, EditInlineNew, DefaultToInstanced, meta=(DisplayName="Target Resolver"))
+UCLASS(Blueprintable, BlueprintType, EditInlineNew, DefaultToInstanced, meta=(DisplayName="PWM Resolver"))
 class PWGASCORE_API UPWAbilityModule_Resolver : public UPWControlModule
 {
 	GENERATED_BODY()
 
 public:
 	// How targets are gathered at the target point: a single actor, a sphere, or your own rule.
-	UPROPERTY(EditDefaultsOnly, Instanced, BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly, Instanced, BlueprintReadOnly, Category="Resolver")
 	TObjectPtr<UPWTargetResolver> Resolver;
 
 	// Fills the result's hit actors with the actors resolved at its location.

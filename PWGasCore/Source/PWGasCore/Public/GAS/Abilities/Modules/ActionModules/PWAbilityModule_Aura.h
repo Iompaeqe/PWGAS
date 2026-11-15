@@ -11,7 +11,7 @@
 struct FPWEffectEntry;
 class USphereComponent;
 
-UCLASS(Blueprintable, BlueprintType, EditInlineNew, DefaultToInstanced)
+UCLASS(Blueprintable, BlueprintType, EditInlineNew, DefaultToInstanced, meta=(DisplayName="PWM Aura"))
 class PWGASCORE_API UPWAbilityModule_Aura : public UPWActionModule
 {
 	GENERATED_BODY()
@@ -29,7 +29,7 @@ protected:
 	TArray<AActor*> OverlappingActors;
 
 	// Object types the aura affects; anything else, projectiles included, passes through it.
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category="Aura")
 	TArray<TEnumAsByte<ECollisionChannel>> ObjectChannels = {ECC_Pawn, ECC_WorldDynamic, ECC_PhysicsBody, ECC_Destructible};
 
 	FTimerHandle DebugTimer;
