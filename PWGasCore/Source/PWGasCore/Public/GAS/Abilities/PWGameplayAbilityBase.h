@@ -79,11 +79,11 @@ protected:
 	// Independent abilities run alongside anything, Replaceable ones are cancelled by the next exclusive ability, Blocking ones stop other exclusive abilities from starting.
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Activation")
 	EPWActivationGroup ActivationGroup;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Cooldowns", meta=(ToolTip="Used with GE_Cooldown that handles cooldown tag and duration dynamically."))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Cooldowns", meta=(ToolTip="Seconds the ability stays on cooldown. The default cooldown effect reads it and carries the ability's cooldown tag."))
 	FScalableFloat Cooldown;
-	// The ability is cancelled as soon as its owner gains any of these tags, and cannot start while one is held; for example a stun.
+	// The ability can't start while its owner has any of these tags, and is cancelled when the owner gains one; for example a stun or moving.
 	UPROPERTY(EditDefaultsOnly, Category = Tags, meta=(Categories="AbilityTagCategory"))
-	FGameplayTagContainer CancellationTags;
+	FGameplayTagContainer InterruptionTags;
 	
 	//~UGameplayAbility interface
 	virtual void SetCanBeCanceled(bool bCanBeCanceled) override;
@@ -93,9 +93,10 @@ protected:
 	virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
 	//~End of UGameplayAbility interface
 	
-	TMap<FGameplayTag, FDelegateHandle> CancellationTagDelegateHandles;
-	void StopListeningForCancellation(UAbilitySystemComponent* ASC);
-	void OnCancellationTagChanged(FGameplayTag GameplayTag, int NewCount);
+	TMap<FGameplayTag, FDelegateHandle> InterruptionTagDelegateHandles;
+	mutable FGameplayTagContainer CooldownTagsCache;
+	void StopListeningForInterruption(UAbilitySystemComponent* ASC);
+	void OnInterruptionTagChanged(FGameplayTag GameplayTag, int NewCount);
 	
 private:
 
@@ -125,7 +126,8 @@ public:
 	FGameplayTag GetActivationInputTag() const;
 
 	EPWActivationGroup GetActivationGroup() const { return ActivationGroup; }
-	virtual FGameplayTagContainer GetCooldownGameplayTags() const;
+	// The cooldown effect's own granted tags plus the ability's cooldown tag, which the dynamic cooldown only adds when applied.
+	virtual const FGameplayTagContainer* GetCooldownTags() const override;
 
 	
 #if WITH_EDITOR

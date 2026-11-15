@@ -30,6 +30,14 @@ void FPWGameplayAbility_DetailCustomization::CustomizeDetails(IDetailLayoutBuild
 	[
 		SNew(SButton)
 		.Text(FText::FromString("Generate Ability Tags And Assign Defaults"))
+		.ToolTipText(FText::FromString(
+			"For each selected ability, where <Name> is its asset name without GA_ or BP_:\n"
+			"1. Adds Ability.Skill.<Name> and Ability.Skill.<Name>.Cooldown to the project's tag list (DefaultGameplayTags.ini), unless they already exist.\n"
+			"2. Sets Ability Tag to Ability.Skill.<Name>.\n"
+			"3. Adds the Ability Tag to Asset Tags.\n"
+			"4. Removes Ability.Skill.<Name>.Cooldown from Activation Blocked Tags; the cooldown check already blocks on it.\n"
+			"5. Finds the Ability Data asset for this ability, or creates DA_<Name> in the ability's folder, and sets its Tag and Ability Class.\n"
+			"Save the ability and the data asset afterwards."))
 		.OnClicked(FOnClicked::CreateSP(this, &FPWGameplayAbility_DetailCustomization::OnGenerateTagsClicked))
 	];
 }

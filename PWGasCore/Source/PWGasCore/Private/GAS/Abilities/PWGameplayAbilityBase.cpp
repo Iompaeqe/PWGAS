@@ -15,6 +15,7 @@
 #include "GameFramework/Pawn.h"
 #include "GameFramework/PlayerState.h"
 #include "GAS/ASC/PWAbilitySystemComponent.h"
+#include "GAS/Effects/PWGameplayEffect_DynamicCooldown.h"
 #include "GAS/Tags/GASCoreTags.h"
 #include "Libraries/PWGasFunctions.h"
 #include "VisualAndAudio/PWMontageProvider.h"
@@ -34,6 +35,7 @@ UPWGameplayAbilityBase::UPWGameplayAbilityBase()
 {
 	ActivationGroup = EPWActivationGroup::Independent;
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
+	CooldownGameplayEffectClass = UPWGameplayEffect_DynamicCooldown::StaticClass();
 }
 
 float UPWGameplayAbilityBase::GetCooldown(int32 Level) const
@@ -228,8 +230,8 @@ bool UPWGameplayAbilityBase::CanActivateAbility(const FGameplayAbilitySpecHandle
 		return false;
 	}
 
-	// A tag that would cancel the ability also stops it from starting.
-	if (ActorInfo->AbilitySystemComponent->HasAnyMatchingGameplayTags(CancellationTags))
+	// An interruption tag also stops it from starting.
+	if (ActorInfo->AbilitySystemComponent->HasAnyMatchingGameplayTags(InterruptionTags))
 	{
 		if (OptionalRelevantTags)
 			OptionalRelevantTags->AddTag(PWTags::Ability::Activation::Failed);
@@ -249,22 +251,21 @@ bool UPWGameplayAbilityBase::CanActivateAbility(const FGameplayAbilitySpecHandle
 	return true;
 }
 
-FGameplayTagContainer UPWGameplayAbilityBase::GetCooldownGameplayTags() const
+const FGameplayTagContainer* UPWGameplayAbilityBase::GetCooldownTags() const
 {
-	FGameplayTagContainer MutableTags = FGameplayTagContainer();
-	MutableTags.Reset();
+	CooldownTagsCache.Reset();
 
-	if (const FGameplayTagContainer* Parent = Super::GetCooldownTags())
-		MutableTags.AppendTags(*Parent);
+	if (const FGameplayTagContainer* Granted = Super::GetCooldownTags())
+		CooldownTagsCache.AppendTags(*Granted);
 
 	if (AbilityTag.IsValid())
 	{
 		const FGameplayTag CooldownTag = PWTags::Ability::Skill::GetCooldownTag(AbilityTag);
 		if (CooldownTag.IsValid())
-			MutableTags.AddTag(CooldownTag);
+			CooldownTagsCache.AddTag(CooldownTag);
 	}
 
-	return MutableTags;
+	return &CooldownTagsCache;
 }
 
 void UPWGameplayAbilityBase::ApplyCooldown(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo) const
@@ -300,29 +301,29 @@ void UPWGameplayAbilityBase::ActivateAbility(const FGameplayAbilitySpecHandle Ha
 {
 	// Listen before the graph runs, so an ability that ends inside its own activation still cleans up.
 	UAbilitySystemComponent* ASC = ActorInfo ? ActorInfo->AbilitySystemComponent.Get() : nullptr;
-	StopListeningForCancellation(ASC);
+	StopListeningForInterruption(ASC);
 	if (ASC)
-		for (const FGameplayTag& Tag : CancellationTags)
-			CancellationTagDelegateHandles.Add(Tag, ASC->RegisterGameplayTagEvent(Tag, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &ThisClass::OnCancellationTagChanged));
+		for (const FGameplayTag& Tag : InterruptionTags)
+			InterruptionTagDelegateHandles.Add(Tag, ASC->RegisterGameplayTagEvent(Tag, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &ThisClass::OnInterruptionTagChanged));
 
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 }
 
 void UPWGameplayAbilityBase::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
-	StopListeningForCancellation(ActorInfo ? ActorInfo->AbilitySystemComponent.Get() : nullptr);
+	StopListeningForInterruption(ActorInfo ? ActorInfo->AbilitySystemComponent.Get() : nullptr);
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 
-void UPWGameplayAbilityBase::StopListeningForCancellation(UAbilitySystemComponent* ASC)
+void UPWGameplayAbilityBase::StopListeningForInterruption(UAbilitySystemComponent* ASC)
 {
 	if (ASC)
-		for (const TPair<FGameplayTag, FDelegateHandle>& Pair : CancellationTagDelegateHandles)
+		for (const TPair<FGameplayTag, FDelegateHandle>& Pair : InterruptionTagDelegateHandles)
 			ASC->RegisterGameplayTagEvent(Pair.Key, EGameplayTagEventType::NewOrRemoved).Remove(Pair.Value);
-	CancellationTagDelegateHandles.Reset();
+	InterruptionTagDelegateHandles.Reset();
 }
 
-void UPWGameplayAbilityBase::OnCancellationTagChanged(FGameplayTag GameplayTag, int NewCount)
+void UPWGameplayAbilityBase::OnInterruptionTagChanged(FGameplayTag GameplayTag, int NewCount)
 {
 	if (NewCount > 0 && IsActive() && CanBeCanceled())
 	{
@@ -375,12 +376,10 @@ void UPWGameplayAbilityBase::SyncIdentityIntoAssetTags()
 		AbilityTags.AddTag(AbilityTag);
 		PRAGMA_ENABLE_DEPRECATION_WARNINGS
 	}
-	const FName CooldownFName(*(AbilityTag.ToString() + TEXT(".Cooldown")));
-	FGameplayTag CooldownTag = FGameplayTag::RequestGameplayTag(CooldownFName, false);
-	if (CooldownTag.IsValid() && !ActivationBlockedTags.HasTagExact(CooldownTag))
-	{
-		ActivationBlockedTags.AddTag(CooldownTag);
-	}
+	// The cooldown check blocks on the ability's cooldown tag, so older abilities that also listed it here drop it.
+	const FGameplayTag CooldownTag = PWTags::Ability::Skill::GetCooldownTag(AbilityTag);
+	if (CooldownTag.IsValid())
+		ActivationBlockedTags.RemoveTag(CooldownTag);
 }
 
 FString UPWGameplayAbilityBase::GetIdentityTagName() const
@@ -395,21 +394,13 @@ FString UPWGameplayAbilityBase::GetIdentityTagName() const
 
 void UPWGameplayAbilityBase::GenerateIdentityTag()
 {
-	const FString IdentityStr = GetIdentityTagName();
-	const FString CooldownStr = IdentityStr + TEXT(".Cooldown");
-
-	const FGameplayTag IdentityTag = UGameplayTagsManager::Get().RequestGameplayTag(*IdentityStr, false);
-	const FGameplayTag CooldownTag = UGameplayTagsManager::Get().RequestGameplayTag(*CooldownStr, false);
+	const FGameplayTag IdentityTag = UGameplayTagsManager::Get().RequestGameplayTag(*GetIdentityTagName(), false);
 
 	Modify();
 
 	if (IdentityTag.IsValid())
 	{
 		AbilityTag = IdentityTag;
-	}
-	if (CooldownTag.IsValid() && !ActivationBlockedTags.HasTagExact(CooldownTag))
-	{
-		ActivationBlockedTags.AddTag(CooldownTag);
 	}
 
 	SyncIdentityIntoAssetTags();

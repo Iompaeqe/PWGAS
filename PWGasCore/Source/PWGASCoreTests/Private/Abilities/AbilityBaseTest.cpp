@@ -2,6 +2,7 @@
 
 #include "PWTestWorld.h"
 #include "PWTestTypes.h"
+#include "GAS/Effects/PWGameplayEffect_DynamicCooldown.h"
 #include "GAS/Tags/GASCoreTags.h"
 #include "Abilities/GameplayAbilityTargetTypes.h"
 #include "Misc/AutomationTest.h"
@@ -47,9 +48,9 @@ bool FModularAbilityExtractLocationTest::RunTest(const FString& Parameters)
 	return true;
 }
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FAbilityCancellationTagsTest, "PW.Abilities.Base.CancellationTags", EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FAbilityInterruptionTagsTest, "PW.Abilities.Base.InterruptionTags", EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
 
-bool FAbilityCancellationTagsTest::RunTest(const FString& Parameters)
+bool FAbilityInterruptionTagsTest::RunTest(const FString& Parameters)
 {
 	FPWTestWorld Test;
 	const FGameplayTag Stun = PWTags::Ability::Activation::Failed;
@@ -93,7 +94,9 @@ bool FAbilityBaseZeroCooldownTest::RunTest(const FString& Parameters)
 		return false;
 
 	const auto CommitCooldown = [Ability]() { Ability->CommitAbilityCooldown(Ability->GetCurrentAbilitySpecHandle(), Ability->GetCurrentActorInfo(), Ability->GetCurrentActivationInfo(), false); };
-	const auto ActiveCooldowns = [&Test]() { return Test.ASC->GetGameplayEffectCount(UPWTestCooldownEffect::StaticClass(), nullptr); };
+	TestTrue("Abilities use the dynamic cooldown by default", Ability->GetCooldownGameplayEffect() && Ability->GetCooldownGameplayEffect()->GetClass() == UPWGameplayEffect_DynamicCooldown::StaticClass());
+
+	const auto ActiveCooldowns = [&Test]() { return Test.ASC->GetGameplayEffectCount(UPWGameplayEffect_DynamicCooldown::StaticClass(), nullptr); };
 
 	Ability->SetCooldown(0.f);
 	CommitCooldown();
@@ -105,9 +108,33 @@ bool FAbilityBaseZeroCooldownTest::RunTest(const FString& Parameters)
 
 	// The test world's clock doesn't move, so check the duration the engine times out by instead of waiting for it.
 	FGameplayEffectQuery Query;
-	Query.EffectDefinition = UPWTestCooldownEffect::StaticClass();
+	Query.EffectDefinition = UPWGameplayEffect_DynamicCooldown::StaticClass();
 	const TArray<float> Durations = Test.ASC->GetActiveEffectsDuration(Query);
 	TestTrue("with the ability's own duration", Durations.Num() == 1 && FMath::IsNearlyEqual(Durations[0], 0.5f));
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FAbilityBaseCooldownBlocksTest, "PW.Abilities.Base.CooldownBlocks", EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FAbilityBaseCooldownBlocksTest::RunTest(const FString& Parameters)
+{
+	const FPWTestWorld Test;
+	const FGameplayAbilitySpecHandle Handle = Test.ASC->GiveAbility(FGameplayAbilitySpec(UPWTestCooldownAbility::StaticClass(), 1));
+	UPWTestCooldownAbility* Ability = Cast<UPWTestCooldownAbility>(Test.ASC->FindAbilitySpecFromHandle(Handle)->GetPrimaryInstance());
+	// Tests can't add native tags, so a GASCore tag that has a Cooldown child stands in for an ability tag.
+	Ability->SetAbilityTag(PWTags::Ability::SetByCaller::Root);
+	Ability->SetCooldown(5.f);
+
+	const FGameplayTagContainer* CooldownTags = Ability->GetCooldownTags();
+	TestTrue("The ability's cooldown tag counts as a cooldown tag", CooldownTags && CooldownTags->HasTagExact(PWTags::Ability::SetByCaller::Cooldown));
+
+	if (!TestTrue("Activates", Test.ASC->TryActivateAbility(Handle)))
+		return false;
+	Ability->CommitAbilityCooldown(Handle, Ability->GetCurrentActorInfo(), Ability->GetCurrentActivationInfo(), false);
+	Test.ASC->CancelAbilityHandle(Handle);
+
+	TestFalse("Can't start again while its cooldown runs", Test.ASC->TryActivateAbility(Handle));
+	TestTrue("and the engine sees the time left", Ability->GetCooldownTimeRemaining() > 0.f);
 	return true;
 }
 
