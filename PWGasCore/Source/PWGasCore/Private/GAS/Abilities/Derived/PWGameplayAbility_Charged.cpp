@@ -13,9 +13,28 @@ void UPWGameplayAbility_Charged::ActivateAbility(const FGameplayAbilitySpecHandl
 
 void UPWGameplayAbility_Charged::CancelAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateCancelAbility)
 {
-	StopCharging(true);
-	
+	{
+		TGuardValue<bool> Ending(bEndingAbility, true);
+		StopCharging(true);
+	}
+
 	Super::CancelAbility(Handle, ActorInfo, ActivationInfo, bReplicateCancelAbility);
+}
+
+void UPWGameplayAbility_Charged::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
+{
+	if (bIsCharging)
+	{
+		TGuardValue<bool> Ending(bEndingAbility, true);
+		if (!bWasCancelled && RemoteInstanceEnded && ChargeDuration - CurrentChargeTime <= ChargeTickInterval + UE_KINDA_SMALL_NUMBER)
+			HandleChargeTick();
+		StopCharging(bWasCancelled);
+	}
+
+	if (bRanFullLength && !bWasCancelled && ActorInfo && !ActorInfo->IsNetAuthority())
+		bReplicateEndAbility = false;
+
+	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 
 void UPWGameplayAbility_Charged::StartCharging()
@@ -69,15 +88,15 @@ void UPWGameplayAbility_Charged::StopCharging(bool bWasCanceled)
 	{
 		NotifyModulesOfPhase(EPWAbilityPhase::Completed);
 		OnChargeComplete();
+		if (bAutoEndAbility && !bEndingAbility && IsActive())
+			K2_EndAbility();
 		return;
 	}
 
 	NotifyModulesOfPhase(EPWAbilityPhase::Cancelled);
 	OnChargeCanceled();
-	if (!bWasCanceled)
+	if (!bWasCanceled || (bAutoEndAbility && !bEndingAbility && IsActive()))
 		K2_CancelAbility();
-
-	//EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), true, bWasCanceled);
 }
 
 float UPWGameplayAbility_Charged::GetChargePercentage() const
@@ -105,6 +124,7 @@ void UPWGameplayAbility_Charged::RunChargeTick()
 
 	if (CurrentChargeTime >= ChargeDuration)
 	{
+		TGuardValue<bool> FullLength(bRanFullLength, true);
 		StopCharging(false);
 	}
 }

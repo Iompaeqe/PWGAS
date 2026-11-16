@@ -16,6 +16,10 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Charge")
 	bool bAutoStartCharge = true;
 
+	// Ends the ability when the charge stops, released or cancelled; turn off to end it from the graph, for example after a release animation.
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Charge")
+	bool bAutoEndAbility = true;
+
 	// Seconds needed to reach a full charge.
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Charge")
 	float ChargeDuration = 2.0f;
@@ -35,7 +39,13 @@ protected:
 	bool bIsCharging = false;
 
 	FTimerHandle ChargeTickTimer;
-	
+
+	// On while the charge stops because it reached Charge Duration, rather than being released or cancelled early.
+	bool bRanFullLength = false;
+
+	// On while the ability itself is ending or being cancelled, so the charge stopping does not end it a second time.
+	bool bEndingAbility = false;
+
 public:
 	// When the cost is paid. A cost due at the end that can't be paid ends the charge cancelled.
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Ability|Commit")
@@ -72,14 +82,20 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent, Category="Charge")
 	void OnChargeTick(float NormalizedCharge);
 
-	// Runs after the modules hear Completed, which they get while the ability still runs.
+	// Runs after the modules hear Completed, which they get while the ability still runs. With Auto End Ability the ability ends right after it.
 	UFUNCTION(BlueprintImplementableEvent, Category="Charge")
 	void OnChargeComplete();
 
-	// Runs after the modules hear Cancelled, which they get while the ability still runs.
+	// Runs after the modules hear Cancelled, which they get while the ability still runs. With Auto End Ability the ability is cancelled right after it.
 	UFUNCTION(BlueprintImplementableEvent, Category="Charge")
 	void OnChargeCanceled();
 
 	void HandleChargeTick();
 	void RunChargeTick();
+
+	// A predicting client whose charge filled by itself ends without telling the server, whose copy fills its own, so the client finishing a moment earlier cannot cut it short;
+	// that holds for Auto End Ability and for End Ability called from On Charge Complete.
+	// Any other end that comes mid charge stops the charge first, so its cooldown and end events still run and the next cast can charge again;
+	// if the other copy ended first and this one is a tick from full, that tick runs here too.
+	virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
 };

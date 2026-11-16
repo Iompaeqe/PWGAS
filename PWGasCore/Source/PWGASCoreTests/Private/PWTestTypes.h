@@ -171,6 +171,14 @@ public:
 	UPWTestChargedAbility();
 
 	void SetTickAtStart(const bool bTick) { bTickAtStart = bTick; }
+	void SetAutoEndAbility(const bool bAuto) { bAutoEndAbility = bAuto; }
+	bool IsCharging() const { return bIsCharging; }
+	// Ticks the way the charge timer does, without waiting on it.
+	void RunTicks(const int32 Count) { for (int32 i = 0; i < Count; ++i) HandleChargeTick(); }
+	// Ends the way a graph's End Ability node does.
+	void EndFromGraph() { K2_EndAbility(); }
+	// What the server's ability system does once the predicting client's copy of the cast has ended.
+	void EndAsRemoteEnded() { SetRemoteInstanceHasEnded(); EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false, false); }
 };
 
 // Records the charge and channel moments it hears about.
@@ -181,9 +189,16 @@ class UPWTestPhaseModule : public UPWDataModule
 
 public:
 	TArray<EPWAbilityPhase> Phases;
+	// Runs as Completed arrives, where a graph's On Channel End or On Charge Complete would call End Ability.
+	TFunction<void()> OnCompleted;
 
 	virtual void ExtendParams(UPWSpellParams* Params) const override {}
-	virtual void OnAbilityPhase_Implementation(const EPWAbilityPhase Phase) override { Phases.Add(Phase); }
+	virtual void OnAbilityPhase_Implementation(const EPWAbilityPhase Phase) override
+	{
+		Phases.Add(Phase);
+		if (Phase == EPWAbilityPhase::Completed && OnCompleted)
+			OnCompleted();
+	}
 };
 
 UCLASS(NotBlueprintable, HideDropdown)
@@ -195,7 +210,15 @@ public:
 	UPWTestChannelingAbility();
 
 	void SetTickAtStart(const bool bTick) { bTickAtStart = bTick; }
+	void SetAutoEndAbility(const bool bAuto) { bAutoEndAbility = bAuto; }
 	float GetChannelTime() const { return CurrentChannelTime; }
+	bool IsChanneling() const { return bIsChanneling; }
+	// Ticks the way the channel timer does, without waiting on it.
+	void RunTicks(const int32 Count) { for (int32 i = 0; i < Count; ++i) HandleChannelTick(); }
+	// Ends the way a graph's End Ability node does.
+	void EndFromGraph() { K2_EndAbility(); }
+	// What the server's ability system does once the predicting client's copy of the cast has ended.
+	void EndAsRemoteEnded() { SetRemoteInstanceHasEnded(); EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false, false); }
 };
 
 UCLASS(NotBlueprintable)

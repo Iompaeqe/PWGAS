@@ -18,9 +18,28 @@ void UPWGameplayAbility_Channeling::ActivateAbility(const FGameplayAbilitySpecHa
 
 void UPWGameplayAbility_Channeling::CancelAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateCancelAbility)
 {
-	StopChanneling(true);
-	
+	{
+		TGuardValue<bool> Ending(bEndingAbility, true);
+		StopChanneling(true);
+	}
+
 	Super::CancelAbility(Handle, ActorInfo, ActivationInfo, bReplicateCancelAbility);
+}
+
+void UPWGameplayAbility_Channeling::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
+{
+	if (bIsChanneling)
+	{
+		TGuardValue<bool> Ending(bEndingAbility, true);
+		if (!bWasCancelled && RemoteInstanceEnded && MaxChannelDuration > 0.f && MaxChannelDuration - CurrentChannelTime <= ChannelTickInterval + UE_KINDA_SMALL_NUMBER)
+			HandleChannelTick();
+		StopChanneling(bWasCancelled);
+	}
+
+	if (bRanFullLength && !bWasCancelled && ActorInfo && !ActorInfo->IsNetAuthority())
+		bReplicateEndAbility = false;
+
+	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 
 void UPWGameplayAbility_Channeling::StartChanneling()
@@ -74,6 +93,7 @@ void UPWGameplayAbility_Channeling::RunChannelTick()
 
 	if (MaxChannelDuration > 0.f && CurrentChannelTime >= MaxChannelDuration)
 	{
+		TGuardValue<bool> FullLength(bRanFullLength, true);
 		StopChanneling(false);
 	}
 }
@@ -95,15 +115,15 @@ void UPWGameplayAbility_Channeling::StopChanneling(const bool bWasCanceled)
 	{
 		NotifyModulesOfPhase(EPWAbilityPhase::Completed);
 		OnChannelEnd();
+		if (bAutoEndAbility && !bEndingAbility && IsActive())
+			K2_EndAbility();
 		return;
 	}
 
 	NotifyModulesOfPhase(EPWAbilityPhase::Cancelled);
 	OnChannelCancelled();
-	if (!bWasCanceled)
+	if (!bWasCanceled || (bAutoEndAbility && !bEndingAbility && IsActive()))
 		K2_CancelAbility();
-
-	//EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), true, bWasCanceled);
 }
 
 float UPWGameplayAbility_Channeling::GetChannelPercentage() const
